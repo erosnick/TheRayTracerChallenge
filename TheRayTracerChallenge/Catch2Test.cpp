@@ -6,16 +6,18 @@
 #include <array>
 #include <vector>
 #include "catch.hpp"
-#include "tuple.h"
+#include "Tuple.h"
+#include "Canvas.h"
+#include "Matrix.h"
 
 class Projectile {
 public:
     Projectile() {
-        position = tuple::point(0.0f, 0.0f, 0.0f);
-        velocity = tuple::vector(0.0f, 0.0f, 0.0f);
+        position = point(0.0, 0.0, 0.0);
+        velocity = vector(0.0, 0.0, 0.0);
     }
 
-    Projectile(const tuple& inPosition, const tuple& inVelocity) {
+    Projectile(const Tuple& inPosition, const Tuple& inVelocity) {
         position = inPosition;
         velocity = inVelocity;
     }
@@ -25,24 +27,26 @@ public:
         std::cout << "Velocity: (" << velocity.x << ", " << velocity.y << ", " << velocity.z << ")" << std::endl;
     }
 
-    tuple position;
-    tuple velocity;
+    Tuple position;
+    Tuple velocity;
 };
+
+using aaa = Projectile;
 
 class Environment {
 public:
     Environment() {
-        gravity = tuple::vector(0.0f, -9.8f, 0.0f);
-        wind = tuple::vector(0.0f, 1.0f, 0.0f);
+        gravity = vector(0.0, -9.8, 0.0);
+        wind = vector(0.0, 1.0, 0.0);
     }
 
-    Environment(const tuple& inGravity, const tuple& inWind) {
+    Environment(const Tuple& inGravity, const Tuple& inWind) {
         gravity = inGravity;
         wind = inWind;
     }
 
-    tuple gravity;
-    tuple wind;
+    Tuple gravity;
+    Tuple wind;
 };
 
 Projectile tick(const Environment& enviroment, const Projectile& projectile) {
@@ -52,18 +56,29 @@ Projectile tick(const Environment& enviroment, const Projectile& projectile) {
 }
  
 int main(int argc, char* argv[]) {
-    //std::cout << 1.0f / Q_rsqrt(100) << std::endl;
-    Projectile projectile = { {0.0f, 10.0f, 0.0f}, {1.0f, 0.0f, 0.0f} };
-    Environment enviroment = { {0.0f, -0.1f, 0.0f}, {-0.01f, 0.0f, 0.0f} };
+    //auto position = point(0.0, 1.0, 0.0);
+    //auto velocity = vector(1.0, 1.8, 0.0);
+    //velocity = velocity.normalize() * 11.25;
+    //Projectile projectile = { position, velocity };
+    //Environment enviroment = { {0.0, -0.1, 0.0}, {-0.01, 0.0, 0.0} };
 
-    while (true){
-        projectile = tick(enviroment, projectile);
-        projectile.reportStatus();
-        if (projectile.position.y <= 0.0f) {
-            break;
-        }
-        Sleep(1000);
-    }
+    //auto canvas = createCanvas(900, 550);
+
+    //while (true){
+    //    projectile = tick(enviroment, projectile);
+    //    projectile.reportStatus();
+    //    if (projectile.position.y <= 0.0) {
+    //        break;
+    //    }
+    //    canvas.writePixel(projectile.position.x, canvas.getHeight() - projectile.position.y, { 1.0, 0.0, 0.0 });
+    //    Sleep(500);
+    //}
+
+    //canvas.writeToPPM();
+
+    Matrix4 matrix;
+
+    std::cout << matrix[3][3] << std::endl;
 
     int result = Catch::Session().run(argc, argv);
     return result;

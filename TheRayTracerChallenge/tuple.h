@@ -2,31 +2,34 @@
 
 #include "utils.h"
 #include <limits>
+#include <cstdint>
+#include <cmath>
 
-class tuple {
+class Tuple {
 public:
-    tuple() {}
-    tuple(float inX, float inY, float inZ, float inW = 0.0f) {
+    Tuple()
+    : x(0.0), y(0.0), z(0.0), w(0.0) {}
+    Tuple(double inX, double inY, double inZ, double inW = 0.0) {
         x = inX;
         y = inY;
         z = inZ;
         w = inW;
     }
 
-    tuple operator-() {
-        return tuple(-x, -y, -z, -w);
+    Tuple operator-() {
+        return Tuple(-x, -y, -z, -w);
     }
 
-    float magnitude() const {
-        float squaredLength = x * x + y * y + z * z;
+    double magnitude() const {
+        double squaredLength = x * x + y * y + z * z;
 
-        float length = std::sqrtf(squaredLength);
+        double length = std::sqrt(squaredLength);
 
         return length;
     }
 
-    tuple normalize() {
-        float length = magnitude();
+    Tuple normalize() {
+        double length = magnitude();
 
         x /= length;
         y /= length;
@@ -35,32 +38,100 @@ public:
         return *this;
     }
 
-    static tuple point(float x, float y, float z) {
-        return tuple(x, y, z, 1.0f);
+    double dot(const Tuple& other) const {
+        return x * other.x + y * other.y + z * other.z + w * other.w;
     }
 
-    static tuple vector(float x, float y, float z) {
-        return tuple(x, y, z);
+    Tuple cross(const Tuple& other) {
+        return Tuple(y * other.z - z * other.y,
+                     z * other.x - x * other.z,
+                     x * other.y - y * other.x, 0.0);
     }
 
-    float dot(const tuple& other) {
-        return x * other.x + y * other.y + z * other.z;
+    const double operator[](int32_t index) const {
+        return elements[index];
     }
 
-    tuple cross(const tuple& other) {
-        return vector(y * other.z - z * other.y,
-                      z * other.x - x * other.z,
-                      x * other.y - y * other.x);
+    double& operator[](int32_t index) {
+        return elements[index];
     }
 
-    float x;
-    float y;
-    float z;
-    float w;
+    union {
+        struct {
+            double x;
+            double y;
+            double z;
+            double w;
+        };
+
+        struct {
+            double red;
+            double green;
+            double blue;
+            double alpha;
+        };
+
+        double elements[4];
+    };
 };
 
-inline bool operator==(const tuple& a, const tuple& b) {
-    constexpr float epsilon = 0.0001f;// std::numeric_limits<float>::epsilon();
+class Vec2 {
+public:
+    Vec2()
+    : x(0.0), y(0.0) {}
+
+    Vec2(double inX, double inY)
+    : x(inX), y(inY) {}
+
+    double operator[](int32_t index) {
+        return elements[index];
+    }
+
+    union{
+        struct {
+            double x;
+            double y;
+        };
+        double elements[2];
+    };
+};
+
+class Vec3 {
+public:
+    Vec3()
+        : x(0.0), y(0.0), z(0.0) {}
+
+    Vec3(double inX, double inY, double inZ)
+        : x(inX), y(inY), z(inX) {}
+
+    double operator[](int32_t index) {
+        return elements[index];
+    }
+
+    union {
+        struct {
+            double x;
+            double y;
+            double z;
+        };
+        double elements[3];
+    };
+};
+
+inline Tuple point(double x, double y, double z) {
+    return Tuple(x, y, z, 1.0);
+}
+
+inline Tuple vector(double x, double y, double z) {
+    return Tuple(x, y, z);
+}
+
+inline Tuple color(double inRed, double inGreen, double inBlue) {
+    return Tuple(inRed, inGreen, inBlue);
+}
+
+inline bool operator==(const Tuple& a, const Tuple& b) {
+    constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
     if ((std::abs(a.x - b.x) < epsilon)
      && (std::abs(a.y - b.y) < epsilon)
      && (std::abs(a.z - b.z) < epsilon)
@@ -71,26 +142,26 @@ inline bool operator==(const tuple& a, const tuple& b) {
     return false;
 }
 
-inline tuple operator+(const tuple& a, const tuple& b) {
-    return tuple(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+inline Tuple operator+(const Tuple& a, const Tuple& b) {
+    return Tuple(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 }
 
-inline tuple operator-(const tuple& a, const tuple& b) {
-    return tuple(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+inline Tuple operator-(const Tuple& a, const Tuple& b) {
+    return Tuple(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
 }
 
-inline float operator*(const tuple& a, const tuple& b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
+inline Tuple operator*(const Tuple& a, const Tuple& b) {
+    return Tuple(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
 }
 
-inline tuple operator*(const tuple& v, float scalar) {
-    return tuple(v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar);
+inline Tuple operator*(const Tuple& v, double scalar) {
+    return Tuple(v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar);
 }
 
-inline tuple operator*(float scalar, const tuple& v) {
+inline Tuple operator*(double scalar, const Tuple& v) {
     return v * scalar;
 }
 
-inline tuple operator/(const tuple& v, float scalar) {
-    return tuple(v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar);
+inline Tuple operator/(const Tuple& v, double scalar) {
+    return Tuple(v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar);
 }
