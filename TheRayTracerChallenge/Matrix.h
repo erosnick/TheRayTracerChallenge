@@ -2,6 +2,7 @@
 
 #include "Tuple.h"
 #include <iostream>
+#include <vector>
 
 class Matrix2 {
 public:
@@ -22,8 +23,16 @@ public:
         double m[2][2];
     };
 
-    Vec2 operator[](int32_t rowIndex) {
+    const Vec2 operator[](int32_t rowIndex) const {
         return row[rowIndex];
+    }
+
+    Vec2& operator[](int32_t rowIndex) {
+        return row[rowIndex];
+    }
+
+    double determinant() const {
+        return m[0][0] * m[1][1] - m[0][1] * m[1][0];
     }
 };
 
@@ -41,6 +50,42 @@ public:
         row[2] = row2;
     }
 
+    const Vec3 operator[](int32_t rowIndex) const {
+        return row[rowIndex];
+    }
+
+    Vec3& operator[](int32_t rowIndex) {
+        return row[rowIndex];
+    }
+
+    Matrix2 submatrix(int32_t row, int32_t column) const {
+        auto result = Matrix2();
+
+        std::vector<int32_t> rowIndex = { 0, 1, 2 };
+        std::vector<int32_t> columnIndex = { 0, 1, 2 };
+
+        for (auto iterator = rowIndex.begin(); iterator != rowIndex.end(); iterator++) {
+            if (*iterator == row) {
+                rowIndex.erase(iterator);
+                break;
+            }
+        }
+
+        for (auto iterator = columnIndex.begin(); iterator != columnIndex.end(); iterator++) {
+            if (*iterator == column) {
+                columnIndex.erase(iterator);
+                break;
+            }
+        }
+
+        result[0][0] = m[rowIndex[0]][columnIndex[0]];
+        result[0][1] = m[rowIndex[0]][columnIndex[1]];
+        result[1][0] = m[rowIndex[1]][columnIndex[0]];
+        result[1][1] = m[rowIndex[1]][columnIndex[1]];
+
+        return result;
+    }
+
     union {
         struct {
             Vec3 row[3];
@@ -48,10 +93,6 @@ public:
 
         double m[3][3];
     };
-
-    Vec3 operator[](int32_t rowIndex) {
-        return row[rowIndex];
-    }
 };
 
 class Matrix4 {
@@ -96,14 +137,6 @@ public:
         return result;
     }
 
-    union {
-        struct {
-            Tuple row[4];
-        };
-
-        double m[4][4];
-    };
-
     const Tuple operator[](int32_t rowIndex) const {
         return row[rowIndex];
     }
@@ -111,7 +144,58 @@ public:
     Tuple& operator[](int32_t rowIndex) {
         return row[rowIndex];
     }
+
+    Matrix3 submatrix(int32_t row, int32_t column) const {
+        auto result = Matrix3();
+
+        std::vector<int32_t> rowIndex = { 0, 1, 2, 3 };
+        std::vector<int32_t> columnIndex = { 0, 1, 2, 3 };
+
+        for (auto iterator = rowIndex.begin(); iterator != rowIndex.end(); iterator++) {
+            if (*iterator == row) {
+                rowIndex.erase(iterator);
+                break;
+            }
+        }
+
+        for (auto iterator = columnIndex.begin(); iterator != columnIndex.end(); iterator++) {
+            if (*iterator == column) {
+                columnIndex.erase(iterator);
+                break;
+            }
+        }
+
+        result[0][0] = m[rowIndex[0]][columnIndex[0]];
+        result[0][1] = m[rowIndex[0]][columnIndex[1]];
+        result[0][2] = m[rowIndex[0]][columnIndex[2]];
+        result[1][0] = m[rowIndex[1]][columnIndex[0]];
+        result[1][1] = m[rowIndex[1]][columnIndex[1]];
+        result[1][2] = m[rowIndex[1]][columnIndex[2]];
+        result[2][0] = m[rowIndex[2]][columnIndex[0]];
+        result[2][1] = m[rowIndex[2]][columnIndex[1]];
+        result[2][2] = m[rowIndex[2]][columnIndex[2]];
+
+        return result;
+    }
+
+    union {
+        struct {
+            Tuple row[4];
+        };
+
+        double m[4][4];
+    };
 };
+
+inline bool operator==(const Matrix2& a, const Matrix2& b) {
+    return (a[0] == b[0] && a[1] == b[1]);
+}
+
+inline bool operator==(const Matrix3& a, const Matrix3& b) {
+    return (a[0] == b[0]
+         && a[1] == b[1]
+         && a[2] == b[2]);
+}
 
 inline bool operator==(const Matrix4& a, const Matrix4& b) {
     return (a[0] == b[0] 

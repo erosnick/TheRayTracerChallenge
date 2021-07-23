@@ -171,3 +171,57 @@ SCENARIO("Transposing the identity matrix", "[Matrix]") {
 		}
 	}
 }
+
+SCENARIO("Calculating the determinant of a 2 x 2 matrix", "[Matrix]") {
+	GIVEN("the following 2 x 2 matrix A:"
+	"| 1 | 5 |" 
+	"|-3 | 2 |") {
+		auto matrix = Matrix2({ 1.0, 5.0 }, 
+							 { -3.0, 2.0 });
+		THEN("determinant(A) == 17") {
+			REQUIRE(matrix.determinant() == 17.0);
+		}
+	}
+}
+
+SCENARIO("A submatrix of a 3 x 3 matrix is a 2 x 2 matrix", "[Matrix]") {
+	GIVEN("the following 3x3 matrix A:"
+		"|  1 | 5 |  0 |"
+		"| -3 | 2 |  7 |"
+		"|  0 | 6 | -3 |") {
+		auto matrix = Matrix3({  1.0, 5.0,  0.0}, 
+							  { -3.0, 2.0,  7.0}, 
+							  {  0.0, 6.0, -3.0});
+		THEN("submatrix(A, 0, 2) is the following 2 x 2 matrix:"
+			"| -3 | 2 |"
+			"|  0 | 6 | ") {
+			auto result = matrix.submatrix(0, 2);
+			auto submatrix = Matrix2( {-3.0, 2.0}, 
+			                          { 0.0, 6.0} );
+			REQUIRE(result == submatrix);
+		}
+	}
+}
+
+SCENARIO("A submatrix of a 4 x 4 matrix is a 3 x 3 matrix", "[Matrix]") {
+	GIVEN("the following 3x3 matrix A:"
+		"| -6 | 1 |  1 | 6 |"
+		"| -8 | 5 |  8 | 6 |"
+		"|  1 | 0 |  8 | 2 |"
+		"| -7 | 1 |  1 | 1 |") {
+		auto matrix = Matrix4({ -6.0, 1.0,  1.0, 6.0 },
+							  { -8.0, 5.0,  8.0, 6.0 },
+							  { -1.0, 0.0,  8.0, 2.0 },
+							  { -7.0, 1.0, -1.0, 1.0 });
+		THEN("submatrix(A, 2, 1) is the following 3 x 3 matrix:"
+			"| -6 |  1 | 6 |"
+			"| -8 |  8 | 6 |"
+			"| -7 | -1 | 1 |") {
+			auto result = matrix.submatrix(2, 1);
+			auto submatrix = Matrix3({ -6.0,  1.0, 6.0 },
+									 { -8.0,  8.0, 6.0 },
+									  {-7.0, -1.0, 1.0});
+			REQUIRE(result == submatrix);
+		}
+	}
+}

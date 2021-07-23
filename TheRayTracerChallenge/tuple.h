@@ -83,7 +83,7 @@ public:
     Vec2(double inX, double inY)
     : x(inX), y(inY) {}
 
-    double operator[](int32_t index) {
+    double& operator[](int32_t index) {
         return elements[index];
     }
 
@@ -102,9 +102,13 @@ public:
         : x(0.0), y(0.0), z(0.0) {}
 
     Vec3(double inX, double inY, double inZ)
-        : x(inX), y(inY), z(inX) {}
+        : x(inX), y(inY), z(inZ) {}
 
-    double operator[](int32_t index) {
+    const double operator[](int32_t index) const {
+        return elements[index];
+    }
+
+    double& operator[](int32_t index) {
         return elements[index];
     }
 
@@ -128,6 +132,27 @@ inline Tuple vector(double x, double y, double z) {
 
 inline Tuple color(double inRed, double inGreen, double inBlue) {
     return Tuple(inRed, inGreen, inBlue);
+}
+
+inline bool operator==(const Vec2& a, const Vec2& b) {
+    constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
+    if ((std::abs(a.x - b.x) < epsilon)
+     && (std::abs(a.y - b.y) < epsilon)) {
+        return true;
+    }
+
+    return false;
+}
+
+inline bool operator==(const Vec3& a, const Vec3& b) {
+    constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
+    if ((std::abs(a.x - b.x) < epsilon)
+     && (std::abs(a.y - b.y) < epsilon)
+     && (std::abs(a.z - b.z) < epsilon)) {
+        return true;
+    }
+
+    return false;
 }
 
 inline bool operator==(const Tuple& a, const Tuple& b) {

@@ -76,9 +76,12 @@ int main(int argc, char* argv[]) {
 
     //canvas.writeToPPM();
 
-    Matrix4 matrix;
+    auto matrix = Matrix4({ -6.0, 1.0,  1.0, 6.0 },
+                          { -8.0, 5.0,  8.0, 6.0 },
+                          { -1.0, 0.0,  8.0, 2.0 },
+                          { -7.0, 1.0, -1.0, 1.0 });
 
-    std::cout << matrix[3][3] << std::endl;
+    auto submatrix = matrix.submatrix(0, 0);
 
     int result = Catch::Session().run(argc, argv);
     return result;
