@@ -4,6 +4,10 @@
 #include <iostream>
 #include <vector>
 
+constexpr double PI = 3.14159265358979323846;
+constexpr double PI_2 = 1.57079632679489661923;
+constexpr double PI_4 = 0.785398163397448309616;
+
 class Matrix2 {
 public:
     Matrix2() {
@@ -11,23 +15,23 @@ public:
         row[1] = { 0.0, 1.0 };
     }
 
-    Matrix2(const Vec2& row0, const Vec2& row1) {
+    Matrix2(const Vector2& row0, const Vector2& row1) {
         row[0] = row0;
         row[1] = row1;
     }
 
     union {
         struct {
-            Vec2 row[2];
+            Vector2 row[2];
         };
         double m[2][2];
     };
 
-    const Vec2 operator[](int32_t rowIndex) const {
+    const Vector2 operator[](int32_t rowIndex) const {
         return row[rowIndex];
     }
 
-    Vec2& operator[](int32_t rowIndex) {
+    Vector2& operator[](int32_t rowIndex) {
         return row[rowIndex];
     }
 
@@ -44,17 +48,17 @@ public:
         row[2] = { 0.0, 0.0, 1.0 };
     }
 
-    Matrix3(const Vec3& row0, const Vec3& row1, const Vec3& row2) {
+    Matrix3(const Vector3& row0, const Vector3& row1, const Vector3& row2) {
         row[0] = row0;
         row[1] = row1;
         row[2] = row2;
     }
 
-    const Vec3 operator[](int32_t rowIndex) const {
+    const Vector3 operator[](int32_t rowIndex) const {
         return row[rowIndex];
     }
 
-    Vec3& operator[](int32_t rowIndex) {
+    Vector3& operator[](int32_t rowIndex) {
         return row[rowIndex];
     }
 
@@ -90,6 +94,8 @@ public:
         return submatrix(row, column).determinant();
     }
 
+    // if row + column is an odd number, then you negate the minor.Otherwise,
+    // you just return the minor as is.
     double cofactor(int32_t row, int32_t column) const {
         if ((row + column) % 2 == 0) {
             return minor(row, column);
@@ -102,6 +108,8 @@ public:
     double determinant() const {
         double result = 0.0;
 
+        // Pick any row(or column), multiply each element by its cofactor,
+        // and add the results.
         for (auto column = 0; column < 3; column++) {
             result = result + m[0][column] * cofactor(0, column);
         }
@@ -111,7 +119,7 @@ public:
 
     union {
         struct {
-            Vec3 row[3];
+            Vector3 row[3];
         };
 
         double m[3][3];
@@ -205,6 +213,8 @@ public:
         return submatrix(row, column).determinant();
     }
 
+    // if row + column is an odd number, then you negate the minor.Otherwise,
+    // you just return the minor as is.
     double cofactor(int32_t row, int32_t column) const {
         if ((row + column) % 2 == 0) {
             return minor(row, column);
@@ -214,14 +224,43 @@ public:
         }
     }
 
+    Matrix4 inverse() const {
+        auto result = Matrix4();
+
+        if (!invertible()) {
+            std::cout << "Matrix is non-invertible.\n";
+            return result;
+        }
+
+        auto d = determinant();
+
+        for (auto row = 0; row < 4; row++) {
+            for (auto column = 0; column < 4; column++) {
+                auto c = cofactor(row, column);
+
+                // Note that "column, row" here, instead of "row, column",
+                // accomplishes the transpose operation!
+                result[column][row] = c / d;
+            }
+        }
+
+        return result;
+    }
+
     double determinant() const {
         double result = 0.0;
-
+        
+        // Pick any row(or column), multiply each element by its cofactor,
+        // and add the results.
         for (auto column = 0; column < 4; column++) {
             result = result + m[0][column] * cofactor(0, column);
         }
 
         return result;
+    }
+
+    bool invertible() const {
+        return (determinant() != 0.0);
     }
 
     union {
@@ -312,4 +351,65 @@ inline std::ostream& operator << (std::ostream& os, const Matrix4& value) {
        << "|" << value[2][0] << "|" << value[2][1] << "|" << value[2][2] << "|" << value[2][3] << "|\n"
        << "|" << value[3][0] << "|" << value[3][1] << "|" << value[3][2] << "|" << value[3][3] << "|";
     return os;
+}
+
+inline Matrix4 translation(double x, double y, double z) {
+    auto result = Matrix4();
+
+    result[0][3] = x;
+    result[1][3] = y;
+    result[2][3] = z;
+
+    return result;
+}
+
+inline Matrix4 translation(const Vector3& v) {
+    return translation(v.x, v.y, v.z);
+}
+
+inline Matrix4 scaling(double x, double y, double z) {
+    auto result = Matrix4();
+
+    result[0][0] = x;
+    result[1][1] = y;
+    result[2][2] = z;
+
+    return result;
+}
+
+inline Matrix4 scaling(const Vector3& v) {
+    return scaling(v.x, v.y, v.z);
+}
+
+inline Matrix4 rotationX(double radian) {
+    auto result = Matrix4();
+
+    result[1][1] =  std::cos(radian);
+    result[1][2] = -std::sin(radian);
+    result[2][1] =  std::sin(radian);
+    result[2][2] =  std::cos(radian);
+
+    return result;
+}
+
+inline Matrix4 rotationY(double radian) {
+    auto result = Matrix4();
+
+    result[0][0] =  std::cos(radian);
+    result[0][2] =  std::sin(radian);
+    result[2][0] = -std::sin(radian);
+    result[2][2] =  std::cos(radian);
+
+    return result;
+}
+
+inline Matrix4 rotationZ(double radian) {
+    auto result = Matrix4();
+
+    result[0][0] = std::cos(radian);
+    result[0][1] = -std::sin(radian);
+    result[1][0] = std::sin(radian);
+    result[1][1] = std::cos(radian);
+
+    return result;
 }

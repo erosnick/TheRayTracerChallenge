@@ -75,12 +75,12 @@ public:
     };
 };
 
-class Vec2 {
+class Vector2 {
 public:
-    Vec2()
+    Vector2()
     : x(0.0), y(0.0) {}
 
-    Vec2(double inX, double inY)
+    Vector2(double inX, double inY)
     : x(inX), y(inY) {}
 
     double& operator[](int32_t index) {
@@ -96,12 +96,12 @@ public:
     };
 };
 
-class Vec3 {
+class Vector3 {
 public:
-    Vec3()
+    Vector3()
         : x(0.0), y(0.0), z(0.0) {}
 
-    Vec3(double inX, double inY, double inZ)
+    Vector3(double inX, double inY, double inZ)
         : x(inX), y(inY), z(inZ) {}
 
     const double operator[](int32_t index) const {
@@ -134,21 +134,26 @@ inline Tuple color(double inRed, double inGreen, double inBlue) {
     return Tuple(inRed, inGreen, inBlue);
 }
 
-inline bool operator==(const Vec2& a, const Vec2& b) {
+inline bool operator==(const Vector2& a, const Vector2& b) {
     constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
-    if ((std::abs(a.x - b.x) < epsilon)
-     && (std::abs(a.y - b.y) < epsilon)) {
+    auto dx = std::abs(std::abs(a.x) - std::abs(b.x));
+    auto dy = std::abs(std::abs(a.y) - std::abs(b.y));
+    if ((dx < epsilon)
+     && (dy < epsilon)) {
         return true;
     }
 
     return false;
 }
 
-inline bool operator==(const Vec3& a, const Vec3& b) {
+inline bool operator==(const Vector3& a, const Vector3& b) {
     constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
-    if ((std::abs(a.x - b.x) < epsilon)
-     && (std::abs(a.y - b.y) < epsilon)
-     && (std::abs(a.z - b.z) < epsilon)) {
+    auto dx = std::abs(std::abs(a.x) - std::abs(b.x));
+    auto dy = std::abs(std::abs(a.y) - std::abs(b.y));
+    auto dz = std::abs(std::abs(a.z) - std::abs(b.z));
+    if ((dx < epsilon)
+     && (dy < epsilon)
+     && (dz < epsilon)) {
         return true;
     }
 
@@ -156,11 +161,15 @@ inline bool operator==(const Vec3& a, const Vec3& b) {
 }
 
 inline bool operator==(const Tuple& a, const Tuple& b) {
-    constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
-    if ((std::abs(a.x - b.x) < epsilon)
-     && (std::abs(a.y - b.y) < epsilon)
-     && (std::abs(a.z - b.z) < epsilon)
-     && (std::abs(a.w - b.w) < epsilon)) {
+    constexpr double epsilon = 0.00001;// std::numeric_limits<double>::epsilon();
+    auto dx = std::abs(std::abs(a.x) - std::abs(b.x));
+    auto dy = std::abs(std::abs(a.y) - std::abs(b.y));
+    auto dz = std::abs(std::abs(a.z) - std::abs(b.z));
+    auto dw = std::abs(std::abs(a.w) - std::abs(b.w));
+    if ((dx < epsilon)
+     && (dy < epsilon)
+     && (dz < epsilon)
+     && (dw < epsilon)) {
         return true;
     }
 
