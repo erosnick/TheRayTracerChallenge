@@ -225,3 +225,77 @@ SCENARIO("A submatrix of a 4 x 4 matrix is a 3 x 3 matrix", "[Matrix]") {
 		}
 	}
 }
+
+SCENARIO("Calculating a minor of a 3 x 3 matrix", "[Matrix]") {
+	GIVEN("the following 3 x 3 matrix A:"
+	"| 3 |  5 |  0 |"
+	"| 2 | -1 | -7 |"
+	"| 6 | -1 |  5 |") {
+		auto A = Matrix3( { 3.0,  5.0,  0.0 }, 
+							   { 2.0, -1.0, -7.0 },
+							   { 6.0, -1.0,  5.0} );
+		AND_GIVEN("B = A.submatrix(1, 0)") {
+			auto B = A.submatrix(1, 0);
+			THEN("B.determinant == 25") {
+				REQUIRE(B.determinant() == 25.0);
+				AND_THEN("A.minor(1, 0) == 25") {
+					REQUIRE(A.minor(1, 0) == 25.0);
+				}
+			}
+		}
+	}
+}
+
+SCENARIO("Calculating a cofactor of a 3 x 3 matrix", "[Matrix]") {
+	GIVEN("the following 3 x 3 matrix A:"
+	"| 3 |  5 |  0 |"
+	"| 2 | -2 | -7 |"
+	"| 6 | -1 |  5 |") {
+		auto A = Matrix3({ 3.0,  5.0,  0.0 }, 
+		                 { 2.0, -1.0, -7.0 }, 
+						 { 6.0, -1.0,  5.0 });
+		THEN("A.minor(0, 0) == -12") {
+			REQUIRE(A.minor(0, 0) == -12.0);
+			AND_THEN("A.cofactor(0, 0) == -12") REQUIRE(A.cofactor(0, 0) == -12.0);
+			AND_THEN("A.minor(1, 0) == 25") REQUIRE(A.minor(1, 0) == 25.0);
+			AND_THEN("A.cofactor(1, 0) === -25") REQUIRE(A.cofactor(1, 0) == -25.0);
+		}
+	}
+}
+
+SCENARIO("Calculating the determinant of a 3 x 3 matrix", "[Matrix]") {
+	GIVEN("the following 3 x 3 matrix A:"
+	"|  1 | 2 |  6 |"
+	"| -5 | 8 | -4 |"
+	"|  2 | 6 |  4 |") {
+		auto A = Matrix3({  1.0, 2.0,  6.0 }, 
+						 { -5.0, 8.0, -4.0 }, 
+						 {  2.0, 6.0,  4.0});
+		THEN("A.cofactor(0, 0) == 56") {
+			REQUIRE(A.cofactor(0, 0) == 56);
+			AND_THEN("A.cofactor(0, 1) == 12") REQUIRE(A.cofactor(0, 1) == 12.0);
+			AND_THEN("A.cofactor(0, 2) == -46") REQUIRE(A.cofactor(0, 2) == -46.0);
+			AND_THEN("A.determinant() == -196") REQUIRE(A.determinant() == -196.0);
+		}
+	}
+}
+
+SCENARIO("Calculating the determinant of a 4 x 4 matrix", "[Matrix]") {
+	GIVEN("the following 4 x 4 matrix A:"
+		"| -2 | -8 |  3 |  5 |"
+		"| -3 |  1 |  7 |  3 |"
+		"|  1 |  2 | -9 |  6 |"
+		"| -6 |  7 |  7 | -9 |") {
+		auto A = Matrix4({ -2.0, -8.0,  3.0,  5.0 },
+						 { -3.0,  1.0,  7.0,  3.0 },
+						 {  1.0,  2.0, -9.0,  6.0 },
+						 { -6.0,  7.0,  7.0, -9.0 });
+		THEN("A.cofactor(0, 0) == 690") {
+			REQUIRE(A.cofactor(0, 0) == 690.0);
+			AND_THEN("A.cofactor(0, 1) == 447")  REQUIRE(A.cofactor(0, 1) == 447.0);
+			AND_THEN("A.cofactor(0, 2) == 210")  REQUIRE(A.cofactor(0, 2) == 210.0);
+			AND_THEN("A.cofactor(0, 3) == 51")   REQUIRE(A.cofactor(0, 3) == 51.0);
+			AND_THEN("A.determinant() == -4071") REQUIRE(A.determinant() == -4071.0);
+		}
+	}
+}

@@ -86,6 +86,29 @@ public:
         return result;
     }
 
+    double minor(int32_t row, int32_t column) const {
+        return submatrix(row, column).determinant();
+    }
+
+    double cofactor(int32_t row, int32_t column) const {
+        if ((row + column) % 2 == 0) {
+            return minor(row, column);
+        }
+        else {
+            return -minor(row, column);
+        }
+    }
+
+    double determinant() const {
+        double result = 0.0;
+
+        for (auto column = 0; column < 3; column++) {
+            result = result + m[0][column] * cofactor(0, column);
+        }
+
+        return result;
+    }
+
     union {
         struct {
             Vec3 row[3];
@@ -174,6 +197,29 @@ public:
         result[2][0] = m[rowIndex[2]][columnIndex[0]];
         result[2][1] = m[rowIndex[2]][columnIndex[1]];
         result[2][2] = m[rowIndex[2]][columnIndex[2]];
+
+        return result;
+    }
+
+    double minor(int32_t row, int32_t column) const {
+        return submatrix(row, column).determinant();
+    }
+
+    double cofactor(int32_t row, int32_t column) const {
+        if ((row + column) % 2 == 0) {
+            return minor(row, column);
+        }
+        else {
+            return -minor(row, column);
+        }
+    }
+
+    double determinant() const {
+        double result = 0.0;
+
+        for (auto column = 0; column < 4; column++) {
+            result = result + m[0][column] * cofactor(0, column);
+        }
 
         return result;
     }
