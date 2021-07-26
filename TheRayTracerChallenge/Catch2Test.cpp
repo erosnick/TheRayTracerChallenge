@@ -5,83 +5,82 @@
 #include <iostream>
 #include <array>
 #include <vector>
+#include <tuple>
 #include "catch.hpp"
 #include "Tuple.h"
 #include "Canvas.h"
 #include "Matrix.h"
-
-class Projectile {
-public:
-    Projectile() {
-        position = point(0.0, 0.0, 0.0);
-        velocity = vector(0.0, 0.0, 0.0);
-    }
-
-    Projectile(const Tuple& inPosition, const Tuple& inVelocity) {
-        position = inPosition;
-        velocity = inVelocity;
-    }
-
-    void reportStatus() const {
-        std::cout << "Location: (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
-        std::cout << "Velocity: (" << velocity.x << ", " << velocity.y << ", " << velocity.z << ")" << std::endl;
-    }
-
-    Tuple position;
-    Tuple velocity;
-};
-
-using aaa = Projectile;
-
-class Environment {
-public:
-    Environment() {
-        gravity = vector(0.0, -9.8, 0.0);
-        wind = vector(0.0, 1.0, 0.0);
-    }
-
-    Environment(const Tuple& inGravity, const Tuple& inWind) {
-        gravity = inGravity;
-        wind = inWind;
-    }
-
-    Tuple gravity;
-    Tuple wind;
-};
-
-Projectile tick(const Environment& enviroment, const Projectile& projectile) {
-    auto position = projectile.position + projectile.velocity;
-    auto velocity = projectile.velocity + enviroment.gravity + enviroment.wind;
-    return Projectile(position, velocity);
-}
+#include "Sphere.h"
+#include "Intersection.h"
+#include "Camera.h"
  
 int main(int argc, char* argv[]) {
-    //auto position = point(0.0, 1.0, 0.0);
-    //auto velocity = vector(1.0, 1.8, 0.0);
-    //velocity = velocity.normalize() * 11.25;
-    //Projectile projectile = { position, velocity };
-    //Environment enviroment = { {0.0, -0.1, 0.0}, {-0.01, 0.0, 0.0} };
+    auto canvas = createCanvas(800, 600);
 
-    //auto canvas = createCanvas(900, 550);
+    auto imageWidth = canvas.getWidth();
+    auto imageHeight = canvas.getHeight();
+    
+    std::vector<Sphere> scene;
 
-    //while (true){
-    //    projectile = tick(enviroment, projectile);
-    //    projectile.reportStatus();
-    //    if (projectile.position.y <= 0.0) {
-    //        break;
-    //    }
-    //    canvas.writePixel(projectile.position.x, canvas.getHeight() - projectile.position.y, { 1.0, 0.0, 0.0 });
-    //    Sleep(500);
-    //}
+    scene.push_back({ point(-1.0, 0.0, -3.0), 1.0 });
+    scene.push_back({ point(1.0, 0.0, -3.0), 0.8 });
 
-    //canvas.writeToPPM();
+    Sphere sphere(point(0.0, 0.0, 3.0), 1.0);
 
-    auto matrix = Matrix4({ -6.0, 1.0,  1.0, 6.0 },
-                          { -8.0, 5.0,  8.0, 6.0 },
-                          { -1.0, 0.0,  8.0, 2.0 },
-                          { -7.0, 1.0, -1.0, 1.0 });
+    Camera camera(imageWidth, imageHeight);
 
-    auto submatrix = matrix.submatrix(0, 0);
+    auto lightPosition = point(-1.25, 0.75, 1.0);
+
+    auto ambientColor = color(0.1, 0.1, 0.1);
+    auto diffuseColor = color(1.0, 0.0, 0.0);
+    auto specularColor = color(1.0, 1.0, 1.0);
+
+    //auto constant = 1.0;
+    //auto linear = 0.09;
+    //auto quadratic = 0.032;
+    auto constant = 1.0;
+    auto linear = 0.045;
+    auto quadratic = 0.0075;
+
+    for (auto y = 0; y < imageHeight; y++) {
+        for (auto x = 0; x < imageWidth; x++) {
+            auto dx = static_cast<double>(x) / (imageWidth - 1);
+            auto dy = static_cast<double>(y) / (imageHeight - 1);
+
+            auto ray = camera.getRay(dx, dy);
+
+            for (const auto& object : scene) {
+                auto result = hit(object.intersect(ray));
+
+                if (result.bHit) {
+                    auto lightDirection = (lightPosition - result.position);
+                    auto distance = lightDirection.magnitude();
+                    auto attenuation = 1.0 / (constant + linear * distance + quadratic * (distance * distance));
+                    lightDirection = lightDirection / distance;
+                    auto diffuseTerm = result.normal.dot(lightDirection);
+                    auto diffuse = std::max(diffuseTerm, 0.0) * attenuation;
+
+                    auto specular = 0.0;
+
+                    if (diffuseTerm > 0) {
+                        auto reflectVector = 2.0 * (diffuseTerm) * result.normal - lightDirection;
+                        auto viewDirection = (camera.position - result.position).normalize();
+                        specular = std::pow(std::max(lightDirection.dot(reflectVector), 0.0), 128.0) * attenuation;
+                    }
+
+                    auto finalColor = ambientColor + diffuseColor * diffuse + specularColor * specular;
+
+                    canvas.writePixel(x, y, finalColor);
+                }
+            }
+        }
+    }
+
+    canvas.writeToPPM();
+
+    auto tuple = std::make_tuple<bool, double, double>(true, 10.0, 20.0);
+
+    auto size = std::tuple_size<decltype(tuple)>::value;
 
     int result = Catch::Session().run(argc, argv);
     return result;

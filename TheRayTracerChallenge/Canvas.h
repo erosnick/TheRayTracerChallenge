@@ -55,11 +55,22 @@ public:
         std::stringstream ss;
         ss << toPPM();
 
-        for (const auto& pixelColor : pixelData) {
-            ss << static_cast<int>(256 * std::clamp(pixelColor.red, 0.0, 0.999)) << ' '
-               << static_cast<int>(256 * std::clamp(pixelColor.green, 0.0, 0.999)) << ' '
-               << static_cast<int>(256 * std::clamp(pixelColor.blue, 0.0, 0.999)) << '\n';
+        for (auto y = height - 1; y >= 0; y--) {
+            for (auto x = 0; x < width; x++) {
+                auto index = y * width + x;
+                const auto& pixelColor = pixelData[index];
+                ss << static_cast<int>(256 * std::clamp(pixelColor.red, 0.0, 0.999)) << ' '
+                    << static_cast<int>(256 * std::clamp(pixelColor.green, 0.0, 0.999)) << ' '
+                    << static_cast<int>(256 * std::clamp(pixelColor.blue, 0.0, 0.999)) << '\n';
+            }
         }
+
+        //for (int32_t i = pixelData.size() - 1; i >= 0; i--) {
+        //    const auto& pixelColor = pixelData[i];
+        //    ss << static_cast<int>(256 * std::clamp(pixelColor.red, 0.0, 0.999)) << ' '
+        //       << static_cast<int>(256 * std::clamp(pixelColor.green, 0.0, 0.999)) << ' '
+        //       << static_cast<int>(256 * std::clamp(pixelColor.blue, 0.0, 0.999)) << '\n';
+        //}
 
         ppm.write(ss.str().c_str(), ss.str().size());
 

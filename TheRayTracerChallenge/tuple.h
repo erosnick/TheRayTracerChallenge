@@ -126,8 +126,16 @@ inline Tuple point(double x, double y, double z) {
     return Tuple(x, y, z, 1.0);
 }
 
+inline Tuple point() {
+    return Tuple(0.0, 0.0, 0.0, 1.0);
+}
+
 inline Tuple vector(double x, double y, double z) {
     return Tuple(x, y, z);
+}
+
+inline Tuple vector() {
+    return Tuple();
 }
 
 inline Tuple color(double inRed, double inGreen, double inBlue) {

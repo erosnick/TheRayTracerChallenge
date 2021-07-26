@@ -84,14 +84,20 @@
     <ClCompile Include="Catch2Test.cpp" />
     <ClCompile Include="colors.features.cpp" />
     <ClCompile Include="Canvas.features.cpp" />
+    <ClCompile Include="Intersection.features.cpp" />
+    <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="test.feature.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tuples.feature.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Canvas.h" />
+    <ClInclude Include="Intersection.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="Ray.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="Tuple.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

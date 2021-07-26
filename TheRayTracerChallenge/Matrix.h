@@ -1,12 +1,25 @@
 #pragma once
 
 #include "Tuple.h"
+#include "Ray.h"
 #include <iostream>
 #include <vector>
 
 constexpr double PI = 3.14159265358979323846;
 constexpr double PI_2 = 1.57079632679489661923;
 constexpr double PI_4 = 0.785398163397448309616;
+
+class Matrix4;
+
+inline Matrix4 translation(double x, double y, double z);
+inline Matrix4 translation(const Vector3& v);
+inline Matrix4 scaling(double x, double y, double z);
+inline Matrix4 scaling(const Vector3& v);
+inline Matrix4 rotationX(double radian);
+inline Matrix4 rotationY(double radian);
+inline Matrix4 rotationZ(double radian);
+inline Matrix4 shearing(double xy, double xz, double yx, double yz, double zx, double zy);
+inline Matrix4 operator*(const Matrix4& a, const Matrix4& b);
 
 class Matrix2 {
 public:
@@ -263,6 +276,50 @@ public:
         return (determinant() != 0.0);
     }
 
+    Matrix4& scaling(double x, double y, double z) {
+        auto self = *this;
+        *this = self * ::scaling(x, y, z);
+        return (*this);
+    }
+
+    Matrix4& scaling(const Vector3& v) {
+        return scaling(v.x, v.y, v.z);
+    }
+
+    Matrix4& translation(double x, double y, double z) {
+        auto self = *this;
+        *this = self * translation(x, y, z);
+        return (*this);
+    }
+
+    Matrix4& translation(const Vector3& v) {
+        return translation(v.x, v.y, v.z);
+    }
+
+    Matrix4& rotationX(double radian) {
+        auto self = *this;
+        *this = self * rotationX(radian);
+        return (*this);
+    }
+
+    Matrix4& rotationY(double radian) {
+        auto self = *this;
+        *this = self * rotationY(radian);
+        return (*this);
+    }
+
+    Matrix4& rotationZ(double radian) {
+        auto self = *this;
+        *this = self * rotationZ(radian);
+        return (*this);
+    }
+
+    Matrix4& shearing(double xy, double xz, double yx, double yz, double zx, double zy) {
+        auto self = *this;
+        *this = self * shearing(xy, xz, yx, yz, zx, zy);
+        return (*this);
+    }
+
     union {
         struct {
             Tuple row[4];
@@ -410,6 +467,28 @@ inline Matrix4 rotationZ(double radian) {
     result[0][1] = -std::sin(radian);
     result[1][0] = std::sin(radian);
     result[1][1] = std::cos(radian);
+
+    return result;
+}
+
+inline Matrix4 shearing(double xy, double xz, double yx, double yz, double zx, double zy) {
+    auto result = Matrix4();
+
+    result[0][1] = xy;
+    result[0][2] = xz;
+    result[1][0] = yx;
+    result[1][2] = yz;
+    result[2][0] = zx;
+    result[2][1] = zy;
+
+    return result;
+}
+
+inline Ray transformRay(const Ray& ray, const Matrix4& matrix) {
+    auto result = Ray();
+
+    result.origin = matrix * ray.origin;
+    result.direction = matrix * ray.direction;
 
     return result;
 }

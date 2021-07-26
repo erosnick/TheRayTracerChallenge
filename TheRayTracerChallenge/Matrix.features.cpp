@@ -613,3 +613,179 @@ SCENARIO("Rotating a point around the z axis", "[Matrix]") {
 		}
 	}
 }
+
+SCENARIO("A shearing transformation moves x in proportion to y") {
+	GIVEN("transform = shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0") {
+		auto transform = shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+		AND_GIVEN("p = point(2.0, 3.0, 4.0") {
+			auto p = point(2.0, 3.0, 4.0);
+			THEN("transform * p == point(5.0, 3.0, 4.0") {
+				REQUIRE(transform * p == point(5.0, 3.0, 4.0));
+			}
+		}
+	}
+}
+
+SCENARIO("A shearing transformation moves x in proportion to z") {
+	GIVEN("transform = shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0") {
+		auto transform = shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+		AND_GIVEN("p = point(2.0, 3.0, 4.0") {
+			auto p = point(2.0, 3.0, 4.0);
+			THEN("transform * p == point(6.0, 3.0, 4.0") {
+				REQUIRE(transform * p == point(6.0, 3.0, 4.0));
+			}
+		}
+	}
+}
+
+SCENARIO("A shearing transformation moves y in proportion to x") {
+	GIVEN("transform = shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0") {
+		auto transform = shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+		AND_GIVEN("p = point(2.0, 3.0, 4.0") {
+			auto p = point(2.0, 3.0, 4.0);
+			THEN("transform * p == point(2.0, 5.0, 4.0") {
+				REQUIRE(transform * p == point(2.0, 5.0, 4.0));
+			}
+		}
+	}
+}
+
+SCENARIO("A shearing transformation moves y in proportion to z") {
+	GIVEN("transform = shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0") {
+		auto transform = shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+		AND_GIVEN("p = point(2.0, 3.0, 4.0") {
+			auto p = point(2.0, 3.0, 4.0);
+			THEN("transform * p == point(2.0, 7.0, 4.0") {
+				REQUIRE(transform * p == point(2.0, 7.0, 4.0));
+			}
+		}
+	}
+}
+
+SCENARIO("A shearing transformation moves z in proportion to x") {
+	GIVEN("transform = shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0") {
+		auto transform = shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+		AND_GIVEN("p = point(2.0, 3.0, 4.0") {
+			auto p = point(2.0, 3.0, 4.0);
+			THEN("transform * p == point(2.0, 3.0, 6.0") {
+				REQUIRE(transform * p == point(2.0, 3.0, 6.0));
+			}
+		}
+	}
+}
+
+SCENARIO("A shearing transformation moves z in proportion to y") {
+	GIVEN("transform = shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0") {
+		auto transform = shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+		AND_GIVEN("p = point(2.0, 3.0, 4.0") {
+			auto p = point(2.0, 3.0, 4.0);
+			THEN("transform * p == point(2.0, 3.0, 7.0") {
+				REQUIRE(transform * p == point(2.0, 3.0, 7.0));
+			}
+		}
+	}
+}
+
+//SCENARIO("1vectors can be sized and resized", "[Matrix]") {
+//
+//	GIVEN("A vector with some items") {
+//		std::vector<int> v(5);
+//
+//		REQUIRE(v.size() == 5);
+//		REQUIRE(v.capacity() >= 5);
+//		std::cout << "aaa\n";
+//		WHEN("the size is increased") {
+//			v.resize(10);
+//
+//			THEN("the size and capacity change") {
+//				REQUIRE(v.size() == 10);
+//				REQUIRE(v.capacity() >= 10);
+//			}
+//		}
+//		WHEN("the size is reduced") {
+//			v.resize(0);
+//
+//			THEN("the size changes but not capacity") {
+//				REQUIRE(v.size() == 0);
+//				REQUIRE(v.capacity() >= 5);
+//			}
+//		}
+//		WHEN("more capacity is reserved") {
+//			v.reserve(10);
+//
+//			THEN("the capacity changes but not the size") {
+//				REQUIRE(v.size() == 5);
+//				REQUIRE(v.capacity() >= 10);
+//			}
+//		}
+//		WHEN("less capacity is reserved") {
+//			v.reserve(0);
+//
+//			THEN("neither size nor capacity are changed") {
+//				REQUIRE(v.size() == 5);
+//				REQUIRE(v.capacity() >= 5);
+//			}
+//		}
+//	}
+//}
+// WHEN会导致SCENARIO调用多次，如果WHEN是平行的 则每次调用SCENARIO会按WHEN的排列顺序
+// 执行其中的一个，比如有3个WHEN，第一次调用 1，第二次调用2，第三次调用3，以此类推。
+// 这时就要注意变量之间的依赖关系，例如第二个WHEN中就无法正确引用第一个WHEN中赋值过
+// 的变量，因为再次调用SCENARIO的时候变量值已经重置。解决方案之一是使用嵌套的WHEN
+SCENARIO("Individual transformations are applied in sequence", "[Matrix]") {
+	GIVEN("p = point(1.0, 0.0, 1.0") {
+		auto p = point(1.0, 0.0, 1.0);
+		AND_GIVEN("A = rotationX(π / 2)"
+			"B = scaling(5.0, 5.0, 5.0)"
+			"C = translation(10.0, 5.0, 7.0)") {
+			auto A = rotationX(PI_2);
+			auto B = scaling(5.0, 5.0, 5.0);
+			auto C = translation(10.0, 5.0, 7.0);
+			auto p2 = point();
+			auto p3 = point();
+			auto p4 = point();
+
+			// Apply rotation first
+			WHEN("p2 = A * p") {
+				p2 = A * p;
+				THEN("p2 == point(1.0, -1.0, 0.0") {
+					REQUIRE(p2 == point(1.0, -1.0, 0.0));
+				}
+
+				// Then apply scaling
+				WHEN("p3 = B * p2") {
+					p3 = B * p2;
+					THEN("p3 == point(5.0, -5.0, 0.0") {
+						REQUIRE(p3 == point(5.0, -5.0, 0.0));
+					}
+
+					// Then apply translation
+					WHEN("p4 = C * p3") {
+						p4 = C * p3;
+						THEN("p4 == point(15.0, 0.0, 7.0") {
+							REQUIRE(p4 == point(15.0, 0.0, 7.0));
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+SCENARIO("Chained transformations must be applied in reverse order", "[Matrix]") {
+	GIVEN("p = point(1.0, 0.0, 1.0") {
+		auto p = point(1.0, 0.0, 1.0);
+		AND_GIVEN("A = rotationX(π / 2)") {
+			auto A = rotationX(PI_2);
+			auto B = scaling(5.0, 5.0, 5.0);
+			auto C = translation(10.0, 5.0, 7.0);
+
+			WHEN("T = C * B * A") {
+				auto T = C * B * A;
+				THEN("T * p == point(15.0, 0.0, 7.0") {
+					REQUIRE(T * p == point(15.0, 0.0, 7.0));
+				}
+			}
+		}
+	}
+}
