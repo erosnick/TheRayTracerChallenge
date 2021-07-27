@@ -13,6 +13,7 @@
 #include "Sphere.h"
 #include "Intersection.h"
 #include "Camera.h"
+#include "Shading.h"
  
 int main(int argc, char* argv[]) {
     auto canvas = createCanvas(800, 600);
@@ -22,26 +23,23 @@ int main(int argc, char* argv[]) {
     
     std::vector<Sphere> scene;
 
-    scene.push_back({ point(-1.0, 0.0, -3.0), 1.0 });
-    scene.push_back({ point(1.0, 0.0, -3.0), 0.8 });
+    auto sphere = Sphere();
+    sphere.setTransform(translation(-1.0, 0.0, -3.0) * scaling(1.0, 0.5, 1.0));
+    sphere.material = { { 1.0, 0.0, 0.0} };
 
-    Sphere sphere(point(0.0, 0.0, 3.0), 1.0);
+    scene.push_back(sphere);
+
+    sphere = Sphere();
+    sphere.setTransform(translation(1.0, 0.0, -3.0));
+    sphere.material = { { 1.0, 0.0, 0.0} };
+
+    scene.push_back(sphere);
 
     Camera camera(imageWidth, imageHeight);
 
-    auto lightPosition = point(-1.25, 0.75, 1.0);
+    auto light = Light({ point(-1.25, 0.75, 1.0) }, { 1.0, 1.0, 1.0 });
 
-    auto ambientColor = color(0.1, 0.1, 0.1);
-    auto diffuseColor = color(1.0, 0.0, 0.0);
-    auto specularColor = color(1.0, 1.0, 1.0);
-
-    //auto constant = 1.0;
-    //auto linear = 0.09;
-    //auto quadratic = 0.032;
-    auto constant = 1.0;
-    auto linear = 0.045;
-    auto quadratic = 0.0075;
-
+#if 1
     for (auto y = 0; y < imageHeight; y++) {
         for (auto x = 0; x < imageWidth; x++) {
             auto dx = static_cast<double>(x) / (imageWidth - 1);
@@ -53,22 +51,7 @@ int main(int argc, char* argv[]) {
                 auto result = hit(object.intersect(ray));
 
                 if (result.bHit) {
-                    auto lightDirection = (lightPosition - result.position);
-                    auto distance = lightDirection.magnitude();
-                    auto attenuation = 1.0 / (constant + linear * distance + quadratic * (distance * distance));
-                    lightDirection = lightDirection / distance;
-                    auto diffuseTerm = result.normal.dot(lightDirection);
-                    auto diffuse = std::max(diffuseTerm, 0.0) * attenuation;
-
-                    auto specular = 0.0;
-
-                    if (diffuseTerm > 0) {
-                        auto reflectVector = 2.0 * (diffuseTerm) * result.normal - lightDirection;
-                        auto viewDirection = (camera.position - result.position).normalize();
-                        specular = std::pow(std::max(lightDirection.dot(reflectVector), 0.0), 128.0) * attenuation;
-                    }
-
-                    auto finalColor = ambientColor + diffuseColor * diffuse + specularColor * specular;
+                    auto finalColor = Lighting(object.material, result.position, light, camera.position, result.normal);
 
                     canvas.writePixel(x, y, finalColor);
                 }
@@ -77,6 +60,8 @@ int main(int argc, char* argv[]) {
     }
 
     canvas.writeToPPM();
+
+#endif
 
     auto tuple = std::make_tuple<bool, double, double>(true, 10.0, 20.0);
 

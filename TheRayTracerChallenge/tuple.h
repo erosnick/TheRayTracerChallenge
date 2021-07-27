@@ -207,3 +207,7 @@ inline Tuple operator*(double scalar, const Tuple& v) {
 inline Tuple operator/(const Tuple& v, double scalar) {
     return Tuple(v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar);
 }
+
+inline Tuple reflect(const Tuple& v, const Tuple& n) {
+    return v - 2.0 * n.dot(v) * n;
+}

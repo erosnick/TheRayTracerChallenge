@@ -3,6 +3,7 @@
 #include "Tuple.h"
 #include "Ray.h"
 #include "Matrix.h"
+#include "Material.h"
 
 #include <tuple>
 #include <vector>
@@ -44,11 +45,21 @@ public:
     //    }
     //}
 
-    inline void setTransform(const Matrix4& inTransform) {
-        transform = inTransform;
+    inline Tuple normalAt(const Tuple& position) const {
+        return (position - origin).normalize();
     }
 
-    static int32_t id;
+    inline void setTransform(const Matrix4& inTransform) {
+        transform = inTransform;
+
+        origin.x = transform[0][3];
+        origin.y = transform[1][3];
+        origin.z = transform[2][3];
+
+        scale.x = transform[0][0];
+        scale.y = transform[1][1];
+        scale.z = transform[2][2];
+    }
 
     std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) const;
 
@@ -56,8 +67,14 @@ public:
     double radius = 1.0;
 
     Matrix4 transform = Matrix4();
+
+    Tuple scale = { 1.0, 1.0, 1.0, 0.0 };
+
+    Material material;
+    
+    static int32_t id;
 };
 
 inline bool operator==(const Sphere& s1, const Sphere& s2) {
-    return (s1.origin == s2.origin && s1.radius == s2.radius);
+    return (s1.id == s2.id);
 }

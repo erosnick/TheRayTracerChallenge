@@ -25,10 +25,20 @@ std::vector<Intersection> Sphere::intersect(const Ray& ray, bool bTransformRay) 
     auto t2 = (-b + std::sqrt(discriminant)) / (2 * a);
 
     auto position1 = transformedRay.position(t1);
-    auto normal1 = (position1 - origin).normalize();
+
+    //position1.x *= scale.x;
+    //position1.y *= scale.y;
+    //position1.z *= scale.z;
+
+    auto normal1 = normalAt(position1);
 
     auto position2 = transformedRay.position(t2);
-    auto normal2 = (position2 - origin).normalize();
+
+    //position2.x *= scale.x;
+    //position2.y *= scale.y;
+    //position2.z *= scale.z;
+
+    auto normal2 = normalAt(position2);
 
     if (t1 < t2) {
         return { {true, 1, t1, *this, position1, normal1}, {true, 1, t2, *this, position2, normal2 } };
