@@ -492,3 +492,21 @@ inline Ray transformRay(const Ray& ray, const Matrix4& matrix) {
 
     return result;
 }
+
+inline Matrix4 viewTransform(const Tuple& from, const Tuple& to, const Tuple& up) {
+    auto viewMatrix = Matrix4();
+
+    auto forward = (to - from).normalize();
+    auto right = (forward.cross(up)).normalize();
+    auto trueUp = (right.cross(forward)).normalize();
+
+    viewMatrix[0] = right;
+    viewMatrix[1] = trueUp;
+    viewMatrix[2] = -forward;
+
+    viewMatrix[0][3] = -right.dot(from);
+    viewMatrix[1][3] = -trueUp.dot(from);
+    viewMatrix[2][3] = forward.dot(from);
+
+    return viewMatrix;
+}

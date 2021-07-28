@@ -16,7 +16,7 @@ public:
         w = inW;
     }
 
-    Tuple operator-() {
+    Tuple operator-() const {
         return Tuple(-x, -y, -z, -w);
     }
 

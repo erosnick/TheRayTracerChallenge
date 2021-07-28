@@ -14,32 +14,63 @@
 #include "Intersection.h"
 #include "Camera.h"
 #include "Shading.h"
- 
+
+class Test : public Object {
+public:
+    virtual void foo() const {
+        std::cout << "Test\n";
+    }
+};
+
+class A : public Test {
+public:
+    A() {
+        std::cout << "A constructor\n";
+    }
+    virtual void foo() const override {
+        std::cout << "A\n";
+    }
+};
+
+void foo(const Test& object) {
+    object.foo();
+}
+
 int main(int argc, char* argv[]) {
+#if 1
     auto canvas = createCanvas(800, 600);
 
     auto imageWidth = canvas.getWidth();
     auto imageHeight = canvas.getHeight();
-    
-    std::vector<Sphere> scene;
+
+    auto from = point(0.0, 0.0, 0.0);
+    auto to = point(0.0, 0.0, 0.0);
+    auto up = vector(0.0, 1.0, 0.0);
+
+    auto viewMatrix = viewTransform(from, to, up);
+
+    World world;
 
     auto sphere = Sphere();
-    sphere.setTransform(translation(-1.0, 0.0, -3.0) * scaling(1.0, 0.5, 1.0));
-    sphere.material = { { 1.0, 0.0, 0.0} };
+    sphere.setTransform(viewMatrix * translation(-1.0, 0.0, -2.5));
+    sphere.material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
 
-    scene.push_back(sphere);
+    world.addObject(sphere);
 
     sphere = Sphere();
-    sphere.setTransform(translation(1.0, 0.0, -3.0));
-    sphere.material = { { 1.0, 0.0, 0.0} };
+    sphere.setTransform(viewMatrix * translation(1.0, 0.0, -2.5));
+    sphere.material = { { 1.0, 0.2, 1.0}, 0.1, 1.0, 0.9, 128.0 };
 
-    scene.push_back(sphere);
+    world.addObject(sphere);
 
     Camera camera(imageWidth, imageHeight);
 
-    auto light = Light({ point(-1.25, 0.75, 1.0) }, { 1.0, 1.0, 1.0 });
+    auto light = Light({ point(-2.0, 2.0, 0.0) }, { 1.0, 1.0, 1.0 });
 
-#if 1
+    world.addLight(light);
+    
+    //world = defaultWorld();
+
     for (auto y = 0; y < imageHeight; y++) {
         for (auto x = 0; x < imageWidth; x++) {
             auto dx = static_cast<double>(x) / (imageWidth - 1);
@@ -47,21 +78,26 @@ int main(int argc, char* argv[]) {
 
             auto ray = camera.getRay(dx, dy);
 
-            for (const auto& object : scene) {
-                auto result = hit(object.intersect(ray));
+            auto finalColor = colorAt(world, ray);
 
-                if (result.bHit) {
-                    auto finalColor = Lighting(object.material, result.position, light, camera.position, result.normal);
-
-                    canvas.writePixel(x, y, finalColor);
-                }
-            }
+            canvas.writePixel(x, y, finalColor);
         }
     }
 
     canvas.writeToPPM();
 
 #endif
+
+    A a;
+
+    std::vector<A> objects;
+
+    objects.push_back(a);
+    objects.push_back(a);
+
+    for (const auto& object : objects) {
+        foo(object);
+    }
 
     auto tuple = std::make_tuple<bool, double, double>(true, 10.0, 20.0);
 

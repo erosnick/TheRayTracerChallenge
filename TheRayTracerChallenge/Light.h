@@ -1,12 +1,16 @@
 #pragma once
 
 #include "Tuple.h"
+#include "Object.h"
 
-class Light {
+class Light : public Object {
 public:
-    Light() {}
+    Light() {
+    }
+
     Light(const Tuple& inPosition, const Tuple& inIntensity) 
     : position(inPosition), intensity(inIntensity) {
+        id++;
     }
 
     Tuple position;

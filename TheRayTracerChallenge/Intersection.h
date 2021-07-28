@@ -4,29 +4,47 @@
 #include <initializer_list>
 #include <vector>
 
+struct HitInfo {
+    double t;
+    Sphere object;
+    Tuple position;
+    Tuple viewDirection;
+    Tuple normal;
+    bool inside = false;
+};
+
 struct Intersection {
     Intersection() {}
-    Intersection(bool hit, int32_t inCount, double inT, const Sphere& sphere, const Tuple& inPosition = point(), const Tuple& inNormal = vector())
-    : bHit(hit), count(inCount), t(inT), object(sphere), position(inPosition), normal(inNormal) {}
 
-    Intersection(double inT, const Sphere& sphere)
-        : t(inT), object(sphere) {}
+    Intersection(double inT, const Sphere& inSphere)
+        : t(inT), object(inSphere) {
+    }
+
+    Intersection(bool bInHit, int32_t inCount, double inT, const Sphere& inSphere)
+        : bHit(bInHit), count(inCount), t(inT), object(inSphere) {
+    }
+
+    Intersection(bool bInHit, int32_t inCount, double inT, const Sphere& inSphere, const Tuple& inPosition, const Tuple& inNormal)
+        : bHit(bInHit), count(inCount), t(inT), object(inSphere), position(inPosition), normal(inNormal) {
+    }
 
     bool bHit = false;
     int32_t count = 0;
     double t = std::numeric_limits<double>::infinity();
     Sphere object;
-    Tuple position = point();
-    Tuple normal = vector();
+    Tuple position;
+    Tuple normal;
 };
 
 inline bool operator==(const Intersection& a, const Intersection& b) {
     return ((a.bHit == b.bHit)
          && (a.count == b.count)
          && (a.t == b.t)
-         && (a.object == b.object)
-         && (a.position == b.position)
-         && (a.normal == b.normal));
+         && (a.object == b.object));
+}
+
+inline bool operator<(const Intersection& a, const Intersection& b) {
+    return (a.t < b.t);
 }
 
 inline std::vector<Intersection> intersections(const std::initializer_list<Intersection>& args) {
@@ -47,4 +65,25 @@ inline Intersection hit(const std::vector<Intersection>& records) {
     }
 
     return result;
+}
+
+inline HitInfo prepareComputations(const Intersection& intersection, const Ray& ray) {
+    // Instantiate a data structure for storing some precomputed values
+    HitInfo hitInfo;
+
+    // Copy the intersection's properties for convenience
+    hitInfo.t = intersection.t;
+    hitInfo.object = intersection.object;
+
+    // Precompute some useful values
+    hitInfo.position = ray.position(hitInfo.t);
+    hitInfo.viewDirection = -ray.direction;
+    hitInfo.normal = hitInfo.object.normalAt(hitInfo.position);
+
+    if (hitInfo.normal.dot(hitInfo.viewDirection) < 0.0) {
+        hitInfo.inside = true;
+        hitInfo.normal = -hitInfo.normal;
+    }
+
+    return hitInfo;
 }

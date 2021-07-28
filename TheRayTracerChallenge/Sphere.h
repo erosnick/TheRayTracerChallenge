@@ -10,15 +10,13 @@
 
 struct Intersection;
 
-class Sphere {
+class Sphere : public Object {
 public:
     Sphere() {
-        id++;
     }
 
     Sphere(const Tuple& inOrigin, double inRadius = 1.0) 
     : origin(inOrigin), radius(inRadius) {
-        id++;
     }
 
     //inline std::tuple<bool, int32_t, double, double> intersect(const Ray& ray) {
@@ -59,6 +57,8 @@ public:
         scale.x = transform[0][0];
         scale.y = transform[1][1];
         scale.z = transform[2][2];
+
+        //radius *= scale.x;
     }
 
     std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) const;
@@ -71,10 +71,11 @@ public:
     Tuple scale = { 1.0, 1.0, 1.0, 0.0 };
 
     Material material;
-    
-    static int32_t id;
 };
 
-inline bool operator==(const Sphere& s1, const Sphere& s2) {
-    return (s1.id == s2.id);
+inline bool operator==(const Sphere& a, const Sphere& b) {
+    return ((a.origin == b.origin)
+         && (a.radius == b.radius)
+         && (a.transform == b.transform)
+         && (a.material == b.material));
 }

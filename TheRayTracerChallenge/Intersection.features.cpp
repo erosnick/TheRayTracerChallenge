@@ -427,7 +427,7 @@ SCENARIO("Intersecting a scaled sphere with a ray", "[Intersection]") {
             WHEN("s.setTransform(scaling(2.0, 2.0, 2.0))") {
                 s.setTransform(scaling(2.0, 2.0, 2.0));
                 AND_WHEN("xs = s.intersect(r)") {
-                    auto xs = s.intersect(r, true);
+                    auto xs = s.intersect(r, false);
                     THEN("xs.count == 2"
                          "xs[0].t == 3.0"
                          "xs[1].t == 7.0") {

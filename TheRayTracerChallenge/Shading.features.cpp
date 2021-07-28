@@ -2,6 +2,7 @@
 #include "Sphere.h"
 #include "Light.h"
 #include "Material.h"
+#include "Shading.h"
 
 SCENARIO("The normal on a sphere at a point on the x axis", "[Shading]") {
     GIVEN("s = sphere()") {
@@ -182,5 +183,73 @@ auto m = Material();
 auto position = point(0.0, 0.0, 0.0);
 
 SCENARIO("Lighting with the eye between the light and the surface", "[Shading]") {
+    GIVEN("eye = vector(0.0, 0.0, -1.0)") {
+        auto eye = vector(0.0, 0.0, -1.0);
+        AND_GIVEN("normal = vector(0.0, 0.0, -1.0)") {
+            auto normal = vector(0.0, 0.0, -1.0);
+            AND_GIVEN("light = Light(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0))") {
+                auto light = Light(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
+                WHEN("result = Lighting(m, light, position, eye, normal)") {
+                    auto result = lighting(m, light, position, eye, normal);
+                    THEN("result = color(1.0, 1.0, 1.0)") {
+                        REQUIRE(result == color(0.509091, 0.509091, 0.509091));
+                    }
+                }
+            }
+        }
+    }
+}
 
+SCENARIO("Lighting with eye opposite surface, light offset 45¡ã", "[Shading]") {
+    GIVEN("eye = vector(0.0, 0.0, 1.0)") {
+        auto eye = vector(0.0, 0.0, 1.0);
+        AND_GIVEN("normal = vector(0.0, 0.0, 1.0)") {
+            auto normal = vector(0.0, 0.0, 1.0);
+            AND_GIVEN("light = Light(point(0.0, 10.0, 10.0), color(1.0, 1.0, 1.0))") {
+                auto light = Light(point(0.0, 10.0, 10.0), color(1.0, 1.0, 1.0));
+                WHEN("result = lighting(m, light, position, eye, normal)") {
+                    auto result = lighting(m, light, position, eye, normal);
+                    THEN("result = color(1.0, 1.0, 1.0)") {
+                        REQUIRE(result == color(0.1, 0.1, 0.1));
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Lighting with eye in the path of the reflection vector", "[Shading]") {
+    GIVEN("eye = vector(0.0, -¡Ì2/2, -¡Ì2/2)") {
+        auto eye = vector(0.0, -std::sqrt(2) / 2, -std::sqrt(2) / 2);
+        AND_GIVEN("normal = vector(0.0, 0.0, -1.0)") {
+            auto normal = vector(0.0, 0.0, -1.0);
+            AND_GIVEN("light = Light(point(0.0, 10.0, -10.0), color(1.0, 1.0, 1.0))") {
+                auto light = Light(point(0.0, 10.0, -10), color(1.0, 1.0, 1.0));
+                WHEN("result = Lighting(m, light, position, eye, normal)") {
+                    auto result = lighting(m, light, position, eye, normal);
+                    THEN("result = color(1.0, 1.0, 1.0)") {
+                        REQUIRE(result == color(0.1, 0.1, 0.1));
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Lighting with the light behind the surface", "[Shading]") {
+    GIVEN("eye = vector(0.0, 0.0, -1.0)") {
+        auto eye = vector(0.0, 0.0, -1.0);
+        AND_GIVEN("normal = vector(0.0, 0.0, -1.0)") {
+            auto normal = vector(0.0, 0.0, -1.0);
+            AND_GIVEN("light = Light(point(0.0, 0.0, 10.0), color(1.0, 1.0, 1.0))") {
+                auto light = Light(point(0.0, 0.0, 10.0), color(1.0, 1.0, 1.0));
+                WHEN("result = Lighting(m, light, position, eye, normal)") {
+                    auto result = lighting(m, light, position, eye, normal);
+                    THEN("result = color(1.0, 1.0, 1.0)") {
+                        REQUIRE(result == color(0.1, 0.1, 0.1));
+                    }
+                }
+            }
+        }
+    }
 }
