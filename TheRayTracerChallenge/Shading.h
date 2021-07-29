@@ -17,25 +17,29 @@ inline Tuple shadeHit(const World& world, const HitInfo& hitInfo, bool bHalfLamb
     auto finalColor = color(0.0, 0.0, 0.0);
 
     for (const auto& light : world.getLights()) {
-        return lighting(hitInfo.object.material, light, hitInfo, bHalfLambert, bBlinnPhong);
+        auto transformedLight = light;
+        //transformedLight.transform(hitInfo.object.transform.inverse());
+        return lighting(hitInfo.object.material, transformedLight, hitInfo, bHalfLambert, bBlinnPhong);
     }
     
     return finalColor;
 }
 
-inline Tuple colorAt(const World& world, const Ray& ray) {
+inline Tuple colorAt(const World& world, Ray& ray) {
     auto finalColor = Tuple();
 
     auto intersections = world.intersect(ray);
 
     if (intersections.size() == 0) {
-        return color(0.0, 0.0, 0.0);
+        auto t = 0.5 * (ray.direction.y + 1.0);
+        auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+        return missColor;
     }
 
     // Nearest intersection
     const auto& intersection = intersections[0];
 
-    auto hitInfo = prepareComputations(intersection, ray);
+    auto hitInfo = prepareComputations(intersection, intersection.ray);
 
     finalColor = shadeHit(world, hitInfo, false, true);
 

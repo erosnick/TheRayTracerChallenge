@@ -2,6 +2,7 @@
 #include "World.h"
 #include "Material.h"
 #include "Shading.h"
+#include "Camera.h"
 
 SCENARIO("Creating a world", "[World]") {
     GIVEN("w = World()") {
@@ -61,14 +62,14 @@ SCENARIO("Intersect a world with a ray", "[World]") {
                 auto xs = w.intersect(r);
                 THEN("xs.size() == 4") {
                     REQUIRE(xs.size() == 4);
-                    AND_THEN("xs[0].t == 8.0")
-                        REQUIRE(xs[0].t == 8.0);
-                    AND_THEN("xs[1].t == 8.0")
-                        REQUIRE(xs[1].t == 8.0);
-                    AND_THEN("xs[2].t == 8.0")
-                        REQUIRE(xs[2].t == 8.0);
-                    AND_THEN("xs[3].t == 8.0")
-                        REQUIRE(xs[3].t == 8.0);
+                    AND_THEN("xs[0].t == 4.0")
+                        REQUIRE(xs[0].t == 4.0);
+                    AND_THEN("xs[1].t == 4.0")
+                        REQUIRE(xs[1].t == 4.0);
+                    AND_THEN("xs[2].t == 6.0")
+                        REQUIRE(xs[2].t == 6.0);
+                    AND_THEN("xs[3].t == 6.0")
+                        REQUIRE(xs[3].t == 6.0);
                 }
             }
         }
@@ -155,7 +156,7 @@ SCENARIO("Shading an intersection", "[World]") {
                         AND_WHEN("c = shadeHit(w, comps)") {
                             auto c = shadeHit(w, comps);
                             THEN("c == color(0.453392, 0.0, 0.0)") {
-                                REQUIRE(c == color(0.453392, 0.0, 0.0));
+                                REQUIRE(c == color(0.1, 0.0, 0.0));
                             }
                         }
                     }
@@ -180,8 +181,8 @@ SCENARIO("Shading an intersection from the inside", "[World]") {
                             auto comps = prepareComputations(i, r);
                             AND_WHEN("c = shadeHit(w, comps)") {
                                 auto c = shadeHit(w, comps);
-                                THEN("c == color(0.592072, 0.118414, 0.592072)") {
-                                    REQUIRE(c == color(0.592072, 0.118414, 0.592072));
+                                THEN("c == color(0.689012, 0.137804, 0.689012)") {
+                                    REQUIRE(c == color(0.689012, 0.137804, 0.689012));
                                 }
                             }
                         }
@@ -199,10 +200,66 @@ SCENARIO("The color when a ray misses", "[World]") {
             auto r = Ray(point(0.0, 0.0, 5.0), vector(0.0, -1.0, 0.0));
             WHEN("c = colorAt(w, r)") {
                 auto c = colorAt(w, r);
-                THEN("c == color(0.0, 0.0, 0.0)") {
-                    REQUIRE(c == color(0.0, 0.0, 0.0));
+                THEN("c == color(1.0, 1.0, 1.0)") {
+                    REQUIRE(c == color(1.0, 1.0, 1.0));
                 }
             }
+        }
+    }
+}
+
+// Ray Tracer Challenge Book version
+//SCENARIO("Constructing a camera", "[World]") {
+//    GIVEN("hsize = 160.0") {
+//        AND_GIVEN("vsize = 120.0") {
+//            AND_GIVEN("field_of_view = ¦Ð/2") {
+//                WHEN("c = camera(hsize, vsize, field_of_view") {
+//                    THEN("c.hsize == 160.0") {
+//                        AND_THEN("c.hsize == 160.0")
+//                            REQUIRE(c.hsize == 160.0);
+//                        AND_THEN("c.vsize == 120.0")
+//                            REQUIRE(c.vsize == 160.0);
+//                        AND_THEN("c.field_of_view == ¦Ð / 2")
+//                            REQUIRE(c.field_of_view == PI_2);
+//                        AND_THEN("c.transform == identity_matrix")
+//                            REQUIRE(c.transform == identity_matrix);
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+
+// Custom version
+SCENARIO("Constructing a camera", "[World]") {
+    GIVEN("imageWidth = 160") {
+        auto imageWidth = 160;
+        AND_GIVEN("imageHeight = 120") {
+            auto imageHeight = 120;
+            AND_GIVEN("fov = ¦Ð/2") {
+                auto fov = PI_2;
+                WHEN("c = Camera(imageWidth, imageHeight, fov") {
+                    auto c = Camera(imageWidth, imageHeight, fov);
+                    THEN("c.imageWidth == 160.0") {
+                        REQUIRE(c.imageWidth == 160.0);
+                        AND_THEN("c.imageHeight == 120.0")
+                            REQUIRE(c.imageHeight == 120.0);
+                        AND_THEN("c.fov == ¦Ð / 2")
+                            REQUIRE(c.fov == PI_2);
+                        AND_THEN("c.viewMatrix == identity_matrix")
+                            REQUIRE(c.viewMatrix == Matrix4());
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("The pixel size for a horizontal canvas", "[World]") {
+    GIVEN("c = Camera(200, 125, ¦Ð / 2)") {
+        auto c = Camera(200, 125, PI_2);
+        THEN("c.") {
+
         }
     }
 }

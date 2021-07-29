@@ -6,6 +6,9 @@
 #include <array>
 #include <vector>
 #include <tuple>
+#include <windows.h>
+#include <omp.h>
+
 #include "catch.hpp"
 #include "Tuple.h"
 #include "Canvas.h"
@@ -14,90 +17,130 @@
 #include "Intersection.h"
 #include "Camera.h"
 #include "Shading.h"
+#include "utils.h"
+#include "Timer.h"
 
-class Test : public Object {
-public:
-    virtual void foo() const {
-        std::cout << "Test\n";
-    }
-};
+void openImage(const std::wstring& path) {
 
-class A : public Test {
-public:
-    A() {
-        std::cout << "A constructor\n";
-    }
-    virtual void foo() const override {
-        std::cout << "A\n";
-    }
-};
+    auto lastSlashPosition = path.find_last_of('/');
+    auto imageName = path.substr(lastSlashPosition + 1);
 
-void foo(const Test& object) {
-    object.foo();
+    SHELLEXECUTEINFO execInfo = { 0 };
+    execInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+    execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+    execInfo.hwnd = nullptr;
+    execInfo.lpVerb = L"open";
+    execInfo.lpFile = L"C:\\Windows\\System32\\mspaint.exe";
+    execInfo.lpParameters = imageName.c_str();
+    execInfo.lpDirectory = path.c_str();
+    execInfo.nShow = SW_SHOW;
+    execInfo.hInstApp = nullptr;
+
+    ShellExecuteEx(&execInfo);
+
+    WaitForSingleObject(execInfo.hProcess, INFINITE);
 }
 
 int main(int argc, char* argv[]) {
-#if 1
-    auto canvas = createCanvas(800, 600);
+#if 0
+    auto canvas = createCanvas(1280, 720);
 
     auto imageWidth = canvas.getWidth();
     auto imageHeight = canvas.getHeight();
 
-    auto from = point(0.0, 0.0, 0.0);
-    auto to = point(0.0, 0.0, 0.0);
-    auto up = vector(0.0, 1.0, 0.0);
+    Camera camera(imageWidth, imageHeight);
 
-    auto viewMatrix = viewTransform(from, to, up);
+    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 3.0), point(0.0, 0.0, -1.0), vector(0.0, 1.0, 0.0));
 
     World world;
 
-    auto sphere = Sphere();
-    sphere.setTransform(viewMatrix * translation(-1.0, 0.0, -2.5));
+    auto sphere = Sphere(point(-1.0, 0.0, -3.0), 1.0);
+    sphere.transform(viewMatrix);
     sphere.material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
 
     world.addObject(sphere);
 
-    sphere = Sphere();
-    sphere.setTransform(viewMatrix * translation(1.0, 0.0, -2.5));
+    sphere = Sphere(point(1.0, 0.0, -3.0), 1.0);
+    sphere.transform(viewMatrix);
     sphere.material = { { 1.0, 0.2, 1.0}, 0.1, 1.0, 0.9, 128.0 };
 
     world.addObject(sphere);
 
-    Camera camera(imageWidth, imageHeight);
+    auto floor = Sphere(point(0.0, -1001.0, -3.0), 1000.0);
+    floor.transform(viewMatrix);
+    floor.material.color = color(0.4, 1.0, 0.4);
 
-    auto light = Light({ point(-2.0, 2.0, 0.0) }, { 1.0, 1.0, 1.0 });
+    world.addObject(floor);
+
+    auto ceiling = Sphere(point(0.0, 1005.0, -3.0), 1000.0);
+    ceiling.transform(viewMatrix);
+    ceiling.material.color = color(0.4, 0.8, 0.9);
+
+    world.addObject(ceiling);
+
+    auto fronWall = Sphere(point(0.0, 0.0, -1005.0), 1000.0);
+    fronWall.transform(viewMatrix);
+    fronWall.material.color = color(0.4, 0.8, 0.9);
+
+    world.addObject(fronWall);
+
+    auto leftWall = Sphere(point(-1005.0, 0.0, -3.0), 1000.0);
+    leftWall.transform(viewMatrix);
+    leftWall.material.color = color(0.4, 0.8, 0.9);
+
+    world.addObject(leftWall);
+
+    auto rightWall = Sphere(point(1005.0, 0.0, -3.0), 1000.0);
+    rightWall.transform(viewMatrix);
+    rightWall.material.color = color(0.4, 0.8, 0.9);
+
+    world.addObject(rightWall);
+
+    auto lightPosition = point(-3.0, 0.0, -3.0);
+
+    auto light = Light(viewMatrix * lightPosition, { 1.0, 1.0, 1.0 });
 
     world.addLight(light);
+
+    auto lightSphere = Sphere(lightPosition, 0.25);
+    lightSphere.transform(viewMatrix);
     
+    world.addObject(lightSphere);
+
     //world = defaultWorld();
 
+    auto samplesPerPixel = 8;
+
+    Timer timer;
+    #pragma omp parallel for schedule(dynamic, 4)       // OpenMP
     for (auto y = 0; y < imageHeight; y++) {
+        auto percentage = (double)y / (imageHeight - 1) * 100;
+        fprintf(stderr, "\rRendering: (%i samples) %.2f%%", samplesPerPixel, percentage);
         for (auto x = 0; x < imageWidth; x++) {
-            auto dx = static_cast<double>(x) / (imageWidth - 1);
-            auto dy = static_cast<double>(y) / (imageHeight - 1);
+            //std::cout << "Hello, World!, ThreadId = " << omp_get_thread_num();
+            auto finalColor = color(0.0, 0.0, 0.0);
 
-            auto ray = camera.getRay(dx, dy);
+            for (auto sample = 0; sample < samplesPerPixel; sample++) {
+                auto rx = randomDouble();
+                auto ry = randomDouble();
+                auto dx = (static_cast<double>(x) + rx) / (imageWidth - 1);
+                auto dy = (static_cast<double>(y) + ry) / (imageHeight - 1);
 
-            auto finalColor = colorAt(world, ray);
+                auto ray = camera.getRay(dx, dy);
 
-            canvas.writePixel(x, y, finalColor);
+                finalColor += colorAt(world, ray);
+            }
+
+            canvas.writePixel(x, y, finalColor / samplesPerPixel);
         }
     }
 
-    canvas.writeToPPM();
+    timer.stop();
 
+    //canvas.writeToPPM("./render.ppm");
+    canvas.writeToPNG("./render.png");
+    openImage(L"./render.png");
 #endif
-
-    A a;
-
-    std::vector<A> objects;
-
-    objects.push_back(a);
-    objects.push_back(a);
-
-    for (const auto& object : objects) {
-        foo(object);
-    }
 
     auto tuple = std::make_tuple<bool, double, double>(true, 10.0, 20.0);
 

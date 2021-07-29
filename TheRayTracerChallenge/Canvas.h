@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <iostream>
 #include "Tuple.h"
+#include "lodepng.h"
 
 class Canvas {
 public:
@@ -33,7 +34,7 @@ public:
         return pixelData[y * width + x];
     }
 
-    inline std::vector<Tuple> getPixelData() const {
+    inline std::vector<Tuple>& getPixelData() {
         return pixelData;
     }
 
@@ -45,8 +46,8 @@ public:
         return ppm;
     }
 
-    inline void writeToPPM() {
-        auto ppm = std::ofstream("image.ppm");
+    inline void writeToPPM(const std::string& path) {
+        auto ppm = std::ofstream(path);
 
         if (!ppm.is_open()) {
             std::cout << "Open file image.ppm failed.\n";
@@ -59,9 +60,10 @@ public:
             for (auto x = 0; x < width; x++) {
                 auto index = y * width + x;
                 const auto& pixelColor = pixelData[index];
-                ss << static_cast<int>(256 * std::clamp(pixelColor.red, 0.0, 0.999)) << ' '
-                    << static_cast<int>(256 * std::clamp(pixelColor.green, 0.0, 0.999)) << ' '
-                    << static_cast<int>(256 * std::clamp(pixelColor.blue, 0.0, 0.999)) << '\n';
+                auto r = static_cast<uint8_t>(256 * std::clamp(pixelColor.red, 0.0, 0.999));
+                auto g = static_cast<uint8_t>(256 * std::clamp(pixelColor.green, 0.0, 0.999));
+                auto b = static_cast<uint8_t>(256 * std::clamp(pixelColor.blue, 0.0, 0.999));
+                ss << r << ' ' << g << ' ' << b << '\n';
             }
         }
 
@@ -75,6 +77,29 @@ public:
         ppm.write(ss.str().c_str(), ss.str().size());
 
         ppm.close();
+    }
+
+    inline void writeToPNG(const std::string& path) {
+        std::vector<uint8_t> pixelBuffer;
+
+        for (auto y = height - 1; y >= 0; y--) {
+            for (auto x = 0; x < width; x++) {
+                auto index = y * width + x;
+                const auto& pixelColor = pixelData[index];
+                auto r = static_cast<uint8_t>(256 * std::clamp(std::sqrt(pixelColor.red), 0.0, 0.999));
+                auto g = static_cast<uint8_t>(256 * std::clamp(std::sqrt(pixelColor.green), 0.0, 0.999));
+                auto b = static_cast<uint8_t>(256 * std::clamp(std::sqrt(pixelColor.blue), 0.0, 0.999));
+                pixelBuffer.push_back(r);
+                pixelBuffer.push_back(g);
+                pixelBuffer.push_back(b);
+                pixelBuffer.push_back(255);
+            }
+        }
+
+        //Encode the image
+        unsigned error = lodepng::encode(path, pixelBuffer, width, height);
+        //if there's an error, display it
+        if (error) std::cout << "encoder error " << error << ": " << lodepng_error_text(error) << std::endl;
     }
 
 private:

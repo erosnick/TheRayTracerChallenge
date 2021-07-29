@@ -399,7 +399,7 @@ SCENARIO(" A sphere's default transformation", "[Intersection]") {
         auto s = Sphere();
         THEN("s.transform == I") {
             auto I = Matrix4();
-            REQUIRE(s.transform == I);
+            REQUIRE(s.transformation == I);
         }
     }
 }
@@ -412,7 +412,7 @@ SCENARIO("Changing a sphere's transformation", "[Intersection]") {
             WHEN("s.setTransform(t)") {
                 s.setTransform(t);
                 THEN("s.transform == t") {
-                    REQUIRE(s.transform == t);
+                    REQUIRE(s.transformation == t);
                 }
             }
         }

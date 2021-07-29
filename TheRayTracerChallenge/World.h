@@ -13,7 +13,7 @@ public:
         std::vector<Intersection> intersections;
 
         for (const auto& object : objects) {
-            auto intersection = object.intersect(ray);
+            auto intersection = object.intersect(ray, false);
             intersections.insert(intersections.end(), intersection.begin(), intersection.end());
         }
 

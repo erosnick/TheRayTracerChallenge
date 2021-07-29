@@ -24,8 +24,8 @@ struct Intersection {
         : bHit(bInHit), count(inCount), t(inT), object(inSphere) {
     }
 
-    Intersection(bool bInHit, int32_t inCount, double inT, const Sphere& inSphere, const Tuple& inPosition, const Tuple& inNormal)
-        : bHit(bInHit), count(inCount), t(inT), object(inSphere), position(inPosition), normal(inNormal) {
+    Intersection(bool bInHit, int32_t inCount, double inT, const Sphere& inSphere, const Tuple& inPosition, const Tuple& inNormal, const Ray& inRay)
+        : bHit(bInHit), count(inCount), t(inT), object(inSphere), position(inPosition), normal(inNormal), ray(inRay) {
     }
 
     bool bHit = false;
@@ -34,6 +34,7 @@ struct Intersection {
     Sphere object;
     Tuple position;
     Tuple normal;
+    Ray ray;
 };
 
 inline bool operator==(const Intersection& a, const Intersection& b) {

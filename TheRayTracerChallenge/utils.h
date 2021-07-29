@@ -1,5 +1,7 @@
 #pragma once
 
+#include <random>
+
 inline float Q_rsqrt(float number) {
     long i;
     float x2, y;
@@ -14,4 +16,10 @@ inline float Q_rsqrt(float number) {
 //	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
 
     return y;
+}
+
+inline double randomDouble() {
+    static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    static std::mt19937_64 generator;
+    return distribution(generator);
 }

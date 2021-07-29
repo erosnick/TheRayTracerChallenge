@@ -43,9 +43,9 @@ public:
     }
 
     Tuple cross(const Tuple& other) {
-        return Tuple(y * other.z - z * other.y,
-                     z * other.x - x * other.z,
-                     x * other.y - y * other.x, 0.0);
+        return Tuple(other.z * y - z * other.y,
+                     other.x * z - x * other.z,
+                     other.y * x - y * other.x, 0.0);
     }
 
     const double operator[](int32_t index) const {
@@ -54,6 +54,15 @@ public:
 
     double& operator[](int32_t index) {
         return elements[index];
+    }
+
+    Tuple& operator+=(const Tuple& other) {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+        w += other.w;
+
+        return *this;
     }
 
     union {
@@ -194,6 +203,10 @@ inline Tuple operator-(const Tuple& a, const Tuple& b) {
 
 inline Tuple operator*(const Tuple& a, const Tuple& b) {
     return Tuple(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
+}
+
+inline Tuple operator+(const Tuple& v, double scalar) {
+    return Tuple(v.x + scalar, v.y + scalar, v.z + scalar, v.w);
 }
 
 inline Tuple operator*(const Tuple& v, double scalar) {

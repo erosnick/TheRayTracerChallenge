@@ -2,6 +2,7 @@
 
 #include "Tuple.h"
 #include "Object.h"
+#include "Matrix.h"
 
 class Light : public Object {
 public:
@@ -11,6 +12,10 @@ public:
     Light(const Tuple& inPosition, const Tuple& inIntensity) 
     : position(inPosition), intensity(inIntensity) {
         id++;
+    }
+
+    void transform(const Matrix4& matrix) {
+        position = matrix * position;
     }
 
     Tuple position;

@@ -2,10 +2,11 @@
 #include "Intersection.h"
 
 std::vector<Intersection> Sphere::intersect(const Ray& ray, bool bTransformRay) const {
+    auto intersections = std::vector<Intersection>();
     auto transformedRay = ray;
 
     if (bTransformRay) {
-        transformedRay = transformRay(ray, transform.inverse());
+        transformedRay = transformRay(ray, transformation.inverse());
     }
 
     auto oc = (transformedRay.origin - origin);
@@ -16,9 +17,11 @@ std::vector<Intersection> Sphere::intersect(const Ray& ray, bool bTransformRay) 
     auto discriminant = b * b - 4 * a * c;
 
     if (discriminant < 0.0) {
-        return std::vector<Intersection>();
+        return intersections;
     }
 
+    // 与巨大球体求交的时候，会出现判别式大于0，但是有两个负根的情况，
+    // 这种情况出现在射线方向的反向延长线能和球体相交的场合。
     auto t1 = (-b - std::sqrt(discriminant)) / (2 * a);
     auto t2 = (-b + std::sqrt(discriminant)) / (2 * a);
 
@@ -38,10 +41,16 @@ std::vector<Intersection> Sphere::intersect(const Ray& ray, bool bTransformRay) 
 
     auto normal2 = normalAt(position2);
 
-    if (t1 < t2) {
-        return { {true, 1, t1, *this, position1, normal1}, {true, 1, t2, *this, position2, normal2 } };
+    if (t1 > 0.0 && t2 > 0.0) {
+        if (t1 < t2) {
+            intersections.push_back({ true, 1, t1, *this, position1, normal1, transformedRay });
+            intersections.push_back({ true, 1, t2, *this, position2, normal2, transformedRay });
+        }
+        else {
+            intersections.push_back({ true, 1, t2, *this, position2, normal2, transformedRay });
+            intersections.push_back({ true, 1, t1, *this, position1, normal1, transformedRay });
+        }
     }
-    else {
-        return { {true, 1, t2, *this, position2, normal2 }, {true, 1, t1, *this, position1, normal1 } };
-    }
+
+    return intersections;
 }
