@@ -42,15 +42,15 @@ void openImage(const std::wstring& path) {
 }
 
 int main(int argc, char* argv[]) {
-#if 0
-    auto canvas = createCanvas(1280, 720);
+#if 1
+    auto canvas = createCanvas(640, 360);
 
     auto imageWidth = canvas.getWidth();
     auto imageHeight = canvas.getHeight();
 
     Camera camera(imageWidth, imageHeight);
 
-    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 3.0), point(0.0, 0.0, -1.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 8.0), point(0.0, 0.0, -1.0), vector(0.0, 1.0, 0.0));
 
     World world;
 
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
 
     world.addObject(rightWall);
 
-    auto lightPosition = point(-3.0, 0.0, -3.0);
+    auto lightPosition = point(-3.0, 2.0, -3.0);
 
     auto light = Light(viewMatrix * lightPosition, { 1.0, 1.0, 1.0 });
 
@@ -104,6 +104,7 @@ int main(int argc, char* argv[]) {
 
     auto lightSphere = Sphere(lightPosition, 0.25);
     lightSphere.transform(viewMatrix);
+    lightSphere.bIsLight = true;
     
     world.addObject(lightSphere);
 

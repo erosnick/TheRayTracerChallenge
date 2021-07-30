@@ -1,9 +1,16 @@
 #include "Shading.h"
 #include <algorithm>
 
-Tuple lighting(const Material& material, const Light& light, const Tuple& position, const Tuple& viewDirection, const Tuple& normal, bool bHalfLambert, bool bBlinnPhong) {
-    auto surfaceColor = light.intensity * material.color;
+Tuple lighting(const Material& material, const Light& light, const Tuple& position, 
+               const Tuple& viewDirection, const Tuple& normal, bool bInShadow, 
+               bool bHalfLambert, bool bBlinnPhong) {
     auto ambientColor = material.color * material.ambient;
+    
+    if (bInShadow) {
+        return ambientColor;
+    }
+
+    auto surfaceColor = light.intensity * material.color;
     auto diffuseColor = surfaceColor * material.diffuse;
     auto specularColor = light.intensity * material.specular;
     
@@ -40,6 +47,7 @@ Tuple lighting(const Material& material, const Light& light, const Tuple& positi
 }
 
 Tuple lighting(const Material& material, const Light& light,
-    const HitInfo& hitInfo, bool bHalfLambert, bool bBlinnPhong) {
-    return lighting(material, light, hitInfo.position, hitInfo.viewDirection, hitInfo.normal, bHalfLambert, bBlinnPhong);
+               const HitInfo& hitInfo, bool bInShadow, 
+               bool bHalfLambert, bool bBlinnPhong) {
+    return lighting(material, light, hitInfo.position, hitInfo.viewDirection, hitInfo.normal, bInShadow, bHalfLambert, bBlinnPhong);
 }

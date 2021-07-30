@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Sphere.h"
+#include "constants.h"
 #include <initializer_list>
 #include <vector>
 
@@ -10,6 +11,7 @@ struct HitInfo {
     Tuple position;
     Tuple viewDirection;
     Tuple normal;
+    Tuple overPosition;
     bool inside = false;
 };
 
@@ -24,11 +26,12 @@ struct Intersection {
         : bHit(bInHit), count(inCount), t(inT), object(inSphere) {
     }
 
-    Intersection(bool bInHit, int32_t inCount, double inT, const Sphere& inSphere, const Tuple& inPosition, const Tuple& inNormal, const Ray& inRay)
-        : bHit(bInHit), count(inCount), t(inT), object(inSphere), position(inPosition), normal(inNormal), ray(inRay) {
+    Intersection(bool bInHit, bool bInShading, int32_t inCount, double inT, const Sphere& inSphere, const Tuple& inPosition, const Tuple& inNormal, const Ray& inRay)
+        : bHit(bInHit), bShading(bInShading), count(inCount), t(inT), object(inSphere), position(inPosition), normal(inNormal), ray(inRay) {
     }
 
     bool bHit = false;
+    bool bShading = true;
     int32_t count = 0;
     double t = std::numeric_limits<double>::infinity();
     Sphere object;
@@ -85,6 +88,8 @@ inline HitInfo prepareComputations(const Intersection& intersection, const Ray& 
         hitInfo.inside = true;
         hitInfo.normal = -hitInfo.normal;
     }
+
+    hitInfo.overPosition = hitInfo.position + hitInfo.normal * EPSILON;
 
     return hitInfo;
 }

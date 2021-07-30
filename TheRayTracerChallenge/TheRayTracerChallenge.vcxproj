@@ -154,6 +154,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Shadow.features.cpp" />
     <ClCompile Include="World.features.cpp" />
     <ClCompile Include="Shading.cpp" />
     <ClCompile Include="Shading.features.cpp" />
@@ -166,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Canvas.h" />
+    <ClInclude Include="constants.h" />
     <ClInclude Include="Intersection.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="lodepng.h" />

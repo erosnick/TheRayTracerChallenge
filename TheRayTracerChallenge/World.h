@@ -38,12 +38,16 @@ public:
         return false;
     }
 
-    std::vector<Light> getLights() const {
+    const std::vector<Light>& getLights() const {
         return lights;
     }
 
-    std::vector<Sphere> getObjects() const {
+    const std::vector<Sphere>& getObjects() const {
         return objects;
+    }
+
+    const Light& getLight(int32_t index) const {
+        return lights[index];
     }
 
     int32_t ligthCount() const {
@@ -95,6 +99,21 @@ inline World defaultWorld1() {
     world.addObject(sphere);
 
     auto light = Light({ point(-2.0, 2.0, -2.0) }, { 1.0, 1.0, 1.0 });
+
+    world.addLight(light);
+
+    return world;
+}
+
+inline World defaultWorld2() {
+    auto world = World();
+
+    auto sphere = Sphere();
+    sphere.material = { { 0.8, 1.0, 0.6}, 0.1, 0.7, 0.2, 128.0 };
+
+    world.addObject(sphere);
+
+    auto light = Light({ point(-10.0, 10.0, 0.0) }, { 1.0, 1.0, 1.0 });
 
     world.addLight(light);
 

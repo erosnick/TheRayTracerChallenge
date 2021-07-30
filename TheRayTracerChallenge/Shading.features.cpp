@@ -191,8 +191,8 @@ SCENARIO("Lighting with the eye between the light and the surface", "[Shading]")
                 auto light = Light(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
                 WHEN("result = Lighting(m, light, position, eye, normal)") {
                     auto result = lighting(m, light, position, eye, normal);
-                    THEN("result = color(1.0, 1.0, 1.0)") {
-                        REQUIRE(result == color(0.509091, 0.509091, 0.509091));
+                    THEN("result = color(0.918182, 0.409091, 0.409091)") {
+                        REQUIRE(result == color(0.918182, 0.409091, 0.409091));
                     }
                 }
             }
@@ -209,8 +209,8 @@ SCENARIO("Lighting with eye opposite surface, light offset 45бу", "[Shading]") {
                 auto light = Light(point(0.0, 10.0, 10.0), color(1.0, 1.0, 1.0));
                 WHEN("result = lighting(m, light, position, eye, normal)") {
                     auto result = lighting(m, light, position, eye, normal);
-                    THEN("result = color(1.0, 1.0, 1.0)") {
-                        REQUIRE(result == color(0.1, 0.1, 0.1));
+                    THEN("result = color(0.302907, 0.0, 0.0)") {
+                        REQUIRE(result == color(0.302907, 0.0, 0.0));
                     }
                 }
             }
@@ -227,8 +227,8 @@ SCENARIO("Lighting with eye in the path of the reflection vector", "[Shading]") 
                 auto light = Light(point(0.0, 10.0, -10), color(1.0, 1.0, 1.0));
                 WHEN("result = Lighting(m, light, position, eye, normal)") {
                     auto result = lighting(m, light, position, eye, normal);
-                    THEN("result = color(1.0, 1.0, 1.0)") {
-                        REQUIRE(result == color(0.1, 0.1, 0.1));
+                    THEN("result = color(0.589860, 0.286954, 0.286954)") {
+                        REQUIRE(result == color(0.589860, 0.286954, 0.286954));
                     }
                 }
             }
@@ -246,7 +246,28 @@ SCENARIO("Lighting with the light behind the surface", "[Shading]") {
                 WHEN("result = Lighting(m, light, position, eye, normal)") {
                     auto result = lighting(m, light, position, eye, normal);
                     THEN("result = color(1.0, 1.0, 1.0)") {
-                        REQUIRE(result == color(0.1, 0.1, 0.1));
+                        REQUIRE(result == color(0.1, 0.0, 0.0));
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Lighting with the surface in shadow", "[Shading]") {
+    GIVEN("viewDirection = vector(0.0, 0.0, -1.0") {
+        auto viewDirection = vector(0.0, 0.0, -1.0);
+        AND_GIVEN("normal = vector(0.0, 0.0, -1.0)") {
+            auto normal = vector(0.0, 0.0, -1.0);
+            AND_GIVEN("light = Light(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0)") {
+                auto light = Light(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
+                AND_GIVEN("inShadow = true") {
+                    auto inShadow = true;
+                    WHEN("result = lighting(m, light, position, viewDirection, normal, inShadow)") {
+                        auto result = lighting(m, light, position, viewDirection, normal, inShadow);
+                        THEN("result == color(0.1, 0.1, 0.1)") {
+                            REQUIRE(result == color(0.1, 0.0, 0.0));
+                        }
                     }
                 }
             }

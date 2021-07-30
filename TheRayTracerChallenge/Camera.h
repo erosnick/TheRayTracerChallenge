@@ -65,6 +65,8 @@ public:
         horizontal = vector(viewportWidth, 0.0, 0.0);
         vertical = vector(0.0, viewportHeight, 0.0);
 
+        //focalLength = std::sqrt(viewportWidth * viewportWidth + viewportHeight * viewportHeight) / viewportHeight;
+
         // Compute lower-left corner of projection plane
         lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - vector(0.0, 0.0, focalLength);
 
@@ -89,7 +91,7 @@ public:
 
     double viewportWidth = 0.0;
     double viewportHeight = 0.0;
-    double focalLength = 1.0;
+    double focalLength = 2.0;
 
     double aspect;
     double fov = 90;

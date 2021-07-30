@@ -72,6 +72,10 @@ public:
 
     inline void setTransform(const Matrix4& inTransformation) {
         transformation = inTransformation;
+
+        origin.x = transformation[0][3];
+        origin.y = transformation[1][3];
+        origin.z = transformation[2][3];
     }
 
     std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) const;
@@ -84,6 +88,8 @@ public:
     Tuple scale = { 1.0, 1.0, 1.0, 0.0 };
 
     Material material;
+
+    bool bIsLight = false;
 };
 
 inline bool operator==(const Sphere& a, const Sphere& b) {
