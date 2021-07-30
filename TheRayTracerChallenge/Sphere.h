@@ -4,13 +4,11 @@
 #include "Ray.h"
 #include "Matrix.h"
 #include "Material.h"
-
+#include "Shape.h"
 #include <tuple>
 #include <vector>
 
-struct Intersection;
-
-class Sphere : public Object {
+class Sphere : public Shape {
 public:
     Sphere() {
     }
@@ -47,7 +45,7 @@ public:
     //    }
     //}
 
-    inline Tuple normalAt(const Tuple& position) const {
+    inline Tuple normalAt(const Tuple& position) const override {
         auto normal = (position - origin);
         //normal = (transform.inverse()).transpose() * normal;
         normal.w = 0.0;
@@ -70,7 +68,7 @@ public:
         radius = scale.x;
     }
 
-    inline void setTransform(const Matrix4& inTransformation) {
+    inline void setTransform(const Matrix4& inTransformation) override {
         transformation = inTransformation;
 
         origin.x = transformation[0][3];
@@ -78,18 +76,12 @@ public:
         origin.z = transformation[2][3];
     }
 
-    std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) const;
+    std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false)  override;
 
     Tuple origin = { 0.0, 0.0, 0.0, 1.0 };
     double radius = 1.0;
 
-    Matrix4 transformation = Matrix4();
-
     Tuple scale = { 1.0, 1.0, 1.0, 0.0 };
-
-    Material material;
-
-    bool bIsLight = false;
 };
 
 inline bool operator==(const Sphere& a, const Sphere& b) {

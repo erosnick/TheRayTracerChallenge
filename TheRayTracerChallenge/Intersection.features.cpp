@@ -1,6 +1,7 @@
 #include "catch.hpp"
 #include "Ray.h"
 #include "Intersection.h"
+#include "Sphere.h"
 #include "Matrix.h"
 #include <tuple>
 #include <iostream>
@@ -41,8 +42,8 @@ SCENARIO("Computing a point from a distance", "[Intersection]") {
 //SCENARIO("A ray intersects a sphere at two points", "[Intersection]") {
 //    GIVEN("r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0)") {
 //        auto r = Ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-//        AND_GIVEN("s = sphere()") {
-//            auto s = Sphere();
+//        AND_GIVEN("s = std::make_shared<Sphere>()") {
+//            auto s = std::make_shared<Sphere>();
 //            WHEN("xs = s.intersect(r)") {
 //                auto xs = s.intersect(r);
 //                THEN("xs.count == 2") {
@@ -61,8 +62,8 @@ SCENARIO("Computing a point from a distance", "[Intersection]") {
 //SCENARIO("A ray intersects a sphere at a tangent", "[Intersection]") {
 //    GIVEN("r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0)") {
 //        auto r = Ray(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0));
-//        AND_GIVEN("s = sphere()") {
-//            auto s = Sphere();
+//        AND_GIVEN("s = std::make_shared<Sphere>()") {
+//            auto s = std::make_shared<Sphere>();
 //            WHEN("xs = s.intersect(r)") {
 //                auto xs = s.intersect(r);
 //                THEN("xs.count == 2") {
@@ -81,8 +82,8 @@ SCENARIO("Computing a point from a distance", "[Intersection]") {
 //SCENARIO("A ray misses a sphere", "[Intersection]") {
 //    GIVEN("r = ray(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0)") {
 //        auto r = Ray(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0));
-//        AND_WHEN("s = sphere()") {
-//            auto s = Sphere();
+//        AND_WHEN("s = std::make_shared<Sphere>()") {
+//            auto s = std::make_shared<Sphere>();
 //            WHEN("xs = s.intersect(r)") {
 //                auto xs = s.intersect(r);
 //                THEN("xs.cout == 0") {
@@ -96,8 +97,8 @@ SCENARIO("Computing a point from a distance", "[Intersection]") {
 //SCENARIO("A ray originates inside a sphere", "[Intersection]") {
 //    GIVEN("r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0)") {
 //        auto r = Ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-//        AND_WHEN("s = sphere()") {
-//            auto s = Sphere();
+//        AND_WHEN("s = std::make_shared<Sphere>()") {
+//            auto s = std::make_shared<Sphere>();
 //            WHEN("xs = s.intersect(r)") {
 //                auto xs = s.intersect(r);
 //                THEN("xs.cout == 2") {
@@ -115,8 +116,8 @@ SCENARIO("Computing a point from a distance", "[Intersection]") {
 //SCENARIO("A sphere is behind a ray", "[Intersection]") {
 //    GIVEN("r = ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0)") {
 //        auto r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
-//        AND_WHEN("s = sphere()") {
-//            auto s = Sphere();
+//        AND_WHEN("s = std::make_shared<Sphere>()") {
+//            auto s = std::make_shared<Sphere>();
 //            WHEN("xs = s.intersect(r)") {
 //                auto xs = s.intersect(r);
 //                THEN("xs.cout == 2") {
@@ -134,10 +135,10 @@ SCENARIO("Computing a point from a distance", "[Intersection]") {
 SCENARIO("A ray intersects a sphere at two points", "[Intersection]") {
     GIVEN("r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0)") {
         auto r = Ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        AND_GIVEN("s = sphere()") {
-            auto s = Sphere();
+        AND_GIVEN("s = std::make_shared<Sphere>()") {
+            auto s = std::make_shared<Sphere>();
             WHEN("xs = s.intersect(r)") {
-                auto xs = s.intersect(r);
+                auto xs = s->intersect(r);
                 THEN("xs.count == 2") {
                     REQUIRE(xs.size() == 2);
                     AND_THEN("xs[0].t == 4.0")
@@ -153,10 +154,10 @@ SCENARIO("A ray intersects a sphere at two points", "[Intersection]") {
 SCENARIO("A ray intersects a sphere at a tangent", "[Intersection]") {
     GIVEN("r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0)") {
         auto r = Ray(point(0.0, 1.0, -5.0), vector(0.0, 0.0, 1.0));
-        AND_GIVEN("s = sphere()") {
-            auto s = Sphere();
+        AND_GIVEN("s = std::make_shared<Sphere>()") {
+            auto s = std::make_shared<Sphere>();
             WHEN("xs = s.intersect(r)") {
-                auto xs = s.intersect(r);
+                auto xs = s->intersect(r);
                 THEN("xs.count == 2") {
                     REQUIRE(xs.size() == 2);
                     AND_THEN("xs[0].t == 5.0")
@@ -172,10 +173,10 @@ SCENARIO("A ray intersects a sphere at a tangent", "[Intersection]") {
 SCENARIO("A ray misses a sphere", "[Intersection]") {
     GIVEN("r = ray(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0)") {
         auto r = Ray(point(0.0, 2.0, -5.0), vector(0.0, 0.0, 1.0));
-        AND_WHEN("s = sphere()") {
-            auto s = Sphere();
+        AND_WHEN("s = std::make_shared<Sphere>()") {
+            auto s = std::make_shared<Sphere>();
             WHEN("xs = s.intersect(r)") {
-                auto xs = s.intersect(r);
+                auto xs = s->intersect(r);
                 THEN("xs.cout == 0") {
                     REQUIRE(xs.size() == 0);
                 }
@@ -187,10 +188,10 @@ SCENARIO("A ray misses a sphere", "[Intersection]") {
 SCENARIO("A ray originates inside a sphere", "[Intersection]") {
     GIVEN("r = ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0)") {
         auto r = Ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, 1.0));
-        AND_WHEN("s = sphere()") {
-            auto s = Sphere();
+        AND_WHEN("s = std::make_shared<Sphere>()") {
+            auto s = std::make_shared<Sphere>();
             WHEN("xs = s.intersect(r)") {
-                auto xs = s.intersect(r);
+                auto xs = s->intersect(r);
                 THEN("xs.cout == 2") {
                     REQUIRE(xs.size() == 2);
                     AND_WHEN("xs[0].t == -1.0")
@@ -206,10 +207,10 @@ SCENARIO("A ray originates inside a sphere", "[Intersection]") {
 SCENARIO("A sphere is behind a ray", "[Intersection]") {
     GIVEN("r = ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0)") {
         auto r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0));
-        AND_WHEN("s = sphere()") {
-            auto s = Sphere();
+        AND_WHEN("s = std::make_shared<Sphere>()") {
+            auto s = std::make_shared<Sphere>();
             WHEN("xs = s.intersect(r)") {
-                auto xs = s.intersect(r);
+                auto xs = s->intersect(r);
                 THEN("xs.cout == 2") {
                     REQUIRE(xs.size() == 2);
                     AND_WHEN("xs[0] == -6.0")
@@ -223,8 +224,8 @@ SCENARIO("A sphere is behind a ray", "[Intersection]") {
 }
 
 SCENARIO("An intersection encapsulates t and object", "[Intersection]") {
-    GIVEN("s = sphere()") {
-        auto s = Sphere();
+    GIVEN("s = std::make_shared<Sphere>()") {
+        auto s = std::make_shared<Sphere>();
         WHEN("i = Intersection(3.5, s)") {
             auto i = Intersection(3.5, s);
             THEN("i.t == 3.5") {
@@ -239,8 +240,8 @@ SCENARIO("An intersection encapsulates t and object", "[Intersection]") {
 
 // 平行的AND_GIVEN也会导致AND_GIVENSCENARIO调用多次
 SCENARIO("Aggregating intersections", "[Intersection]") {
-    GIVEN("s = sphere()") {
-        auto s = Sphere();
+    GIVEN("s = std::make_shared<Sphere>()") {
+        auto s = std::make_shared<Sphere>();
         AND_GIVEN("i1 = Intersection(1, s)"
                   "i2 = Intersection(2, s)") {
             auto i1 = Intersection(1.0, s);
@@ -262,10 +263,10 @@ SCENARIO("Aggregating intersections", "[Intersection]") {
 SCENARIO("Intersect sets the object on the intersection", "[Intersection]") {
     GIVEN("r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0)") {
         auto r = Ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        AND_GIVEN("s = sphere()") {
-            auto s = Sphere();
+        AND_GIVEN("s = std::make_shared<Sphere>()") {
+            auto s = std::make_shared<Sphere>();
             WHEN("xs = s.intersect(r)") {
-                auto xs = s.intersect(r);
+                auto xs = s->intersect(r);
                 THEN("xs.count == 2.") {
                     REQUIRE(xs.size() == 2);
                     AND_THEN("xs[0].object == s")
@@ -279,8 +280,8 @@ SCENARIO("Intersect sets the object on the intersection", "[Intersection]") {
 }
 
 SCENARIO("The hit, when all intersections have positive t", "[Intersection]") {
-    GIVEN("s = sphere()") {
-        auto s = Sphere();
+    GIVEN("s = std::make_shared<Sphere>()") {
+        auto s = std::make_shared<Sphere>();
         AND_GIVEN("i1 = Intersection(1.0, s)"
                   "i2 = Intersection(2.0, s)"
                   "xs = intersections(i2, i1)"){
@@ -298,8 +299,8 @@ SCENARIO("The hit, when all intersections have positive t", "[Intersection]") {
 }
 
 SCENARIO("The hit, when some intersections have negative t", "[Intersection]") {
-    GIVEN("s = sphere()") {
-        auto s = Sphere();
+    GIVEN("s = std::make_shared<Sphere>()") {
+        auto s = std::make_shared<Sphere>();
         AND_GIVEN("i1 = Intersection(-1.0, s)"
                   "i2 = Intersection(1.0, s)"
                   "xs = intersections(i2, i1)") {
@@ -317,8 +318,8 @@ SCENARIO("The hit, when some intersections have negative t", "[Intersection]") {
 }
 
 SCENARIO("The hit, when all intersections have negative t", "[Intersection]") {
-    GIVEN("s = sphere()") {
-        auto s = Sphere();
+    GIVEN("s = std::make_shared<Sphere>()") {
+        auto s = std::make_shared<Sphere>();
         AND_GIVEN("i1 = Intersection(-2.0, s)"
                   "i2 = Intersection(-1.0, s)"
                   "xs = intersections(i2, i1)") {
@@ -336,8 +337,8 @@ SCENARIO("The hit, when all intersections have negative t", "[Intersection]") {
 }
 
 SCENARIO("The hit is always the lowest nonnegative intersection", "[Intersection]") {
-    GIVEN("s = sphere()") {
-        auto s = Sphere();
+    GIVEN("s = std::make_shared<Sphere>()") {
+        auto s = std::make_shared<Sphere>();
         AND_GIVEN("i1 = Intersection(5.0, s)"
                   "i2 = Intersection(7.0, s)"
                   "i3 = Intersection(-3.0, s)"
@@ -395,24 +396,24 @@ SCENARIO("Scaling a ray", "[Intersection]") {
 }
 
 SCENARIO(" A sphere's default transformation", "[Intersection]") {
-    GIVEN("s = sphere()") {
-        auto s = Sphere();
+    GIVEN("s = std::make_shared<Sphere>()") {
+        auto s = std::make_shared<Sphere>();
         THEN("s.transform == I") {
             auto I = Matrix4();
-            REQUIRE(s.transformation == I);
+            REQUIRE(s->transformation == I);
         }
     }
 }
 
 SCENARIO("Changing a sphere's transformation", "[Intersection]") {
-    GIVEN("s = sphere()") {
-        auto s = Sphere();
+    GIVEN("s = std::make_shared<Sphere>()") {
+        auto s = std::make_shared<Sphere>();
         AND_GIVEN("t = translation(2.0, 3.0, 4.0)") {
             auto t = translation(2.0, 3.0, 4.0);
             WHEN("s.setTransform(t)") {
-                s.setTransform(t);
+                s->setTransform(t);
                 THEN("s.transform == t") {
-                    REQUIRE(s.transformation == t);
+                    REQUIRE(s->transformation == t);
                 }
             }
         }
@@ -422,12 +423,12 @@ SCENARIO("Changing a sphere's transformation", "[Intersection]") {
 SCENARIO("Intersecting a scaled sphere with a ray", "[Intersection]") {
     GIVEN("r = ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0)") {
         auto r = Ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        AND_GIVEN("s = sphere()") {
-            auto s = Sphere();
+        AND_GIVEN("s = std::make_shared<Sphere>()") {
+            auto s = std::make_shared<Sphere>();
             WHEN("s.setTransform(scaling(2.0, 2.0, 2.0))") {
-                s.setTransform(scaling(2.0, 2.0, 2.0));
+                s->setTransform(scaling(2.0, 2.0, 2.0));
                 AND_WHEN("xs = s.intersect(r)") {
-                    auto xs = s.intersect(r, false);
+                    auto xs = s->intersect(r, false);
                     THEN("xs.count == 2"
                          "xs[0].t == 3.0"
                          "xs[1].t == 7.0") {

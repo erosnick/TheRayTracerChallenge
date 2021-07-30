@@ -25,7 +25,7 @@ inline bool isShadow(const World& world, const Light& light, const Tuple& positi
     if (intersections.size() > 0) {
         const auto& intersection = intersections[0];
 
-        if (!intersection.object.bIsLight && intersection.t < distance) {
+        if (!intersection.object->bIsLight && intersection.t < distance) {
             return true;
         }
     }
@@ -41,7 +41,7 @@ inline Tuple shadeHit(const World& world, const HitInfo& hitInfo,
         //auto transformedLight = light;
         //transformedLight.transform(hitInfo.object.transform.inverse());
         auto inShadow = isShadow(world, light, hitInfo.overPosition);
-        finalColor += lighting(hitInfo.object.material, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
+        finalColor += lighting(hitInfo.object->material, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
     }
     
     return finalColor;

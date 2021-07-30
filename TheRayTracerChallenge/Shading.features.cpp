@@ -132,22 +132,23 @@ SCENARIO("A point light has a position and intensity", "[Shading]") {
     }
 }
 
-SCENARIO("The default material", "[Shading]") {
-    GIVEN("m = Material()") {
-        auto m = Material();
-        THEN("m.color = color(1.0, 1.0, 1.0,)") {
-            m.color = color(1.0, 1.0, 1.0);
-            AND_THEN("m.ambient == 0.1")
-                REQUIRE(m.ambient == 0.1);
-            AND_THEN("m.diffuse == 0.9")
-                REQUIRE(m.diffuse == 0.9);
-            AND_THEN("m.specular == 0.9")
-                REQUIRE(m.specular == 0.9);
-            AND_THEN("m.shininess == 128.0")
-                REQUIRE(m.shininess == 128.0);
-        }
-    }
-}
+// Replaced by SCENARIO("The default material", "[Shape]")
+//SCENARIO("The default material", "[Shading]") {
+//    GIVEN("m = Material()") {
+//        auto m = Material();
+//        THEN("m.color = color(1.0, 1.0, 1.0,)") {
+//            m.color = color(1.0, 1.0, 1.0);
+//            AND_THEN("m.ambient == 0.1")
+//                REQUIRE(m.ambient == 0.1);
+//            AND_THEN("m.diffuse == 0.9")
+//                REQUIRE(m.diffuse == 0.9);
+//            AND_THEN("m.specular == 0.9")
+//                REQUIRE(m.specular == 0.9);
+//            AND_THEN("m.shininess == 128.0")
+//                REQUIRE(m.shininess == 128.0);
+//        }
+//    }
+//}
 
 SCENARIO("A sphere has a default material", "[Shading]") {
     GIVEN("s = Sphere()") {

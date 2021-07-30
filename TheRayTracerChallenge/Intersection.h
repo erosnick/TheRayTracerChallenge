@@ -1,13 +1,15 @@
 #pragma once
 
-#include "Sphere.h"
+#include "types.h"
 #include "constants.h"
+#include "Ray.h"
 #include <initializer_list>
 #include <vector>
+#include <memory>
 
 struct HitInfo {
     double t;
-    Sphere object;
+    ShapePtr object;
     Tuple position;
     Tuple viewDirection;
     Tuple normal;
@@ -18,15 +20,15 @@ struct HitInfo {
 struct Intersection {
     Intersection() {}
 
-    Intersection(double inT, const Sphere& inSphere)
+    Intersection(double inT, const ShapePtr& inSphere)
         : t(inT), object(inSphere) {
     }
 
-    Intersection(bool bInHit, int32_t inCount, double inT, const Sphere& inSphere)
+    Intersection(bool bInHit, int32_t inCount, double inT, const ShapePtr& inSphere)
         : bHit(bInHit), count(inCount), t(inT), object(inSphere) {
     }
 
-    Intersection(bool bInHit, bool bInShading, int32_t inCount, double inT, const Sphere& inSphere, const Tuple& inPosition, const Tuple& inNormal, const Ray& inRay)
+    Intersection(bool bInHit, bool bInShading, int32_t inCount, double inT, const ShapePtr& inSphere, const Tuple& inPosition, const Tuple& inNormal, const Ray& inRay)
         : bHit(bInHit), bShading(bInShading), count(inCount), t(inT), object(inSphere), position(inPosition), normal(inNormal), ray(inRay) {
     }
 
@@ -34,7 +36,7 @@ struct Intersection {
     bool bShading = true;
     int32_t count = 0;
     double t = std::numeric_limits<double>::infinity();
-    Sphere object;
+    ShapePtr object;
     Tuple position;
     Tuple normal;
     Ray ray;
@@ -71,25 +73,4 @@ inline Intersection hit(const std::vector<Intersection>& records) {
     return result;
 }
 
-inline HitInfo prepareComputations(const Intersection& intersection, const Ray& ray) {
-    // Instantiate a data structure for storing some precomputed values
-    HitInfo hitInfo;
-
-    // Copy the intersection's properties for convenience
-    hitInfo.t = intersection.t;
-    hitInfo.object = intersection.object;
-
-    // Precompute some useful values
-    hitInfo.position = ray.position(hitInfo.t);
-    hitInfo.viewDirection = -ray.direction;
-    hitInfo.normal = hitInfo.object.normalAt(hitInfo.position);
-
-    if (hitInfo.normal.dot(hitInfo.viewDirection) < 0.0) {
-        hitInfo.inside = true;
-        hitInfo.normal = -hitInfo.normal;
-    }
-
-    hitInfo.overPosition = hitInfo.position + hitInfo.normal * EPSILON;
-
-    return hitInfo;
-}
+HitInfo prepareComputations(const Intersection& intersection, const Ray& ray);

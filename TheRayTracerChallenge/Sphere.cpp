@@ -1,7 +1,7 @@
 #include "Sphere.h"
 #include "Intersection.h"
 
-std::vector<Intersection> Sphere::intersect(const Ray& ray, bool bTransformRay) const {
+std::vector<Intersection> Sphere::intersect(const Ray& ray, bool bTransformRay) {
     auto intersections = std::vector<Intersection>();
     auto transformedRay = ray;
 
@@ -43,12 +43,12 @@ std::vector<Intersection> Sphere::intersect(const Ray& ray, bool bTransformRay) 
 
     if ((t1 > 0.0) && (t2 > 0.0)) {
         if (t1 < t2) {
-            intersections.push_back({ true, !bIsLight, 1, t1, *this, position1, normal1, transformedRay });
-            intersections.push_back({ true, !bIsLight, 1, t2, *this, position2, normal2, transformedRay });
+            intersections.push_back({ true, !bIsLight, 1, t1, GetPtr(), position1, normal1, transformedRay });
+            intersections.push_back({ true, !bIsLight, 1, t2, GetPtr(), position2, normal2, transformedRay });
         }
         else {
-            intersections.push_back({ true, !bIsLight, 1, t2, *this, position2, normal2, transformedRay });
-            intersections.push_back({ true, !bIsLight, 1, t1, *this, position1, normal1, transformedRay });
+            intersections.push_back({ true, !bIsLight, 1, t2, GetPtr(), position2, normal2, transformedRay });
+            intersections.push_back({ true, !bIsLight, 1, t1, GetPtr(), position1, normal1, transformedRay });
         }
     }
 

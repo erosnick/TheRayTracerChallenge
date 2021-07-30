@@ -18,27 +18,27 @@ SCENARIO("Creating a world", "[World]") {
 
 SCENARIO("The default world", "[World]") {
     GIVEN("light = Light(point(-2.0, 2.0, 0.0), color(1.0, 1.0, 1.0)") {
-        AND_GIVEN("s1 = Sphere()"
+        AND_GIVEN("s1 = std::make_shared<Sphere>()"
             "| material.color    | (1.0, 0.0, 0.0) |"
             "| material.diffuse  | 1.0             |"
             "| material.specular | 0.9             |") {
-            auto s1 = Sphere();
-            s1.setTransform(translation(-1.0, 0.0, -3.0));
+            auto s1 = std::make_shared<Sphere>();
+            s1->setTransform(translation(-1.0, 0.0, -3.0));
             auto material = Material();
             material.color = color(1.0, 0.0, 0.0);
             material.diffuse = 1.0;
             material.specular = 0.9;
             material.shininess = 128.0;
-            s1.material = material;
-            AND_GIVEN("s2 = Sphere()") {
-                auto s2 = Sphere();
-                s2.setTransform(translation(1.0, 0.0, -3.0));
+            s1->material = material;
+            AND_GIVEN("s2 = std::make_shared<Sphere>()") {
+                auto s2 = std::make_shared<Sphere>();
+                s2->setTransform(translation(1.0, 0.0, -3.0));
                 material = Material();
                 material.color = color(1.0, 0.2, 1.0);
                 material.diffuse = 1.0;
                 material.specular = 0.9;
                 material.shininess = 128.0;
-                s2.material = material;
+                s2->material = material;
                 WHEN("w = defaultWorld()") {
                     auto w = defaultWorld();
                     THEN("w.light == light") {
@@ -79,8 +79,8 @@ SCENARIO("Intersect a world with a ray", "[World]") {
 SCENARIO("Precomputing the state of an intersection", "[World]") {
     GIVEN("r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0)") {
         auto r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0));
-        AND_GIVEN("shape = Sphere()") {
-            auto shape = Sphere();
+        AND_GIVEN("shape = std::make_shared<Sphere>()") {
+            auto shape = std::make_shared<Sphere>();
             AND_GIVEN("i = intersection(4.0, shape)") {
                 auto i = Intersection(4.0, shape);
                 WHEN("comps = prepareComputations(i, r)") {
@@ -105,8 +105,8 @@ SCENARIO("Precomputing the state of an intersection", "[World]") {
 SCENARIO("The hit, when an intersection occurs on the outside", "[World]") {
     GIVEN("r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0)") {
         auto r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0));
-        AND_GIVEN("shape = Sphere()") {
-            auto shape = Sphere();
+        AND_GIVEN("shape = std::make_shared<Sphere>()") {
+            auto shape = std::make_shared<Sphere>();
             AND_GIVEN("i = Intersection(4.0, shape)") {
                 auto i = Intersection(4.0, shape);
                 WHEN("comps = prepareComputatons(i, r)") {
@@ -123,8 +123,8 @@ SCENARIO("The hit, when an intersection occurs on the outside", "[World]") {
 SCENARIO("The hit, when an intersection occurs on the inside", "[World]") {
     GIVEN("r = Ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, -1.0)") {
         auto r = Ray(point(0.0, 0.0, 0.0), vector(0.0, 0.0, -1.0));
-        AND_GIVEN("shape = Sphere()") {
-            auto shape = Sphere();
+        AND_GIVEN("shape = std::make_shared<Sphere>()") {
+            auto shape = std::make_shared<Sphere>();
             AND_GIVEN("i = Intersection(1.0, shape)") {
                 auto i = Intersection(1.0, shape);
                 WHEN("comps = prepareComputatons(i, r)") {

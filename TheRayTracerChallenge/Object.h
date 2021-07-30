@@ -1,11 +1,16 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
-class Object {
+class Object : std::enable_shared_from_this<Object> {
 public:
     Object() 
     : id(counter++) {
+    }
+
+    std::shared_ptr<Object> GetPtr() {
+        return shared_from_this();
     }
 
     int32_t id;

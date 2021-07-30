@@ -55,14 +55,14 @@ SCENARIO("shade_hit() is given an intersection in shadow", "[Shadow]") {
         auto w = World();
         AND_GIVEN("w.addLight(Light(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0)))") {
             w.addLight(Light(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0)));
-            AND_GIVEN("s1 = Sphere()") {
-                auto s1 = Sphere();
+            AND_GIVEN("s1 = std::make_shared<Sphere>()") {
+                auto s1 = std::make_shared<Sphere>();
                 AND_GIVEN("s1 is added to w") {
                     w.addObject(s1);
                     AND_GIVEN("s2 = Sphere with:"
                         "| transform | translation(0.0, 0.0, 10.0) |") {
-                        auto s2 = Sphere();
-                        s2.setTransform(translation(0.0, 0.0, 10.0));
+                        auto s2 = std::make_shared<Sphere>();
+                        s2->setTransform(translation(0.0, 0.0, 10.0));
                         AND_GIVEN("s2 is add to w") {
                             w.addObject(s2);
                             AND_GIVEN("r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, 1.0)") {
@@ -91,10 +91,10 @@ SCENARIO("shade_hit() is given an intersection in shadow", "[Shadow]") {
 SCENARIO("The hit should offset the point", "[Shadow]") {
     GIVEN("r = Ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0))") {
         auto r = Ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
-        AND_GIVEN("shape = Sphere() with"
+        AND_GIVEN("shape = std::make_shared<Sphere>() with"
             "| transform | translation(0.0, 0.0, 1.0) |") {
-            auto shape = Sphere();
-            shape.setTransform(translation(0.0, 0.0, 1.0));
+            auto shape = std::make_shared<Sphere>();
+            shape->setTransform(translation(0.0, 0.0, 1.0));
             AND_GIVEN("i = Intersection(5.0, shape)") {
                 auto i = Intersection(5.0, shape);
                 WHEN("comps = prepareComputations(i, r)") {

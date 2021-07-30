@@ -13,7 +13,7 @@ public:
         std::vector<Intersection> intersections;
 
         for (const auto& object : objects) {
-            auto intersection = object.intersect(ray, false);
+            auto intersection = object->intersect(ray, false);
             intersections.insert(intersections.end(), intersection.begin(), intersection.end());
         }
 
@@ -26,11 +26,11 @@ public:
         lights.push_back(light);
     }
 
-    void addObject(const Sphere& object) {
+    void addObject(const SpherePtr& object) {
         objects.push_back(object);
     }
 
-    bool contains(const Sphere& object) const {
+    bool contains(const SpherePtr& object) const {
         if (std::find(objects.begin(), objects.end(), object) != objects.end()) {
             return true;
         }
@@ -42,7 +42,7 @@ public:
         return lights;
     }
 
-    const std::vector<Sphere>& getObjects() const {
+    const std::vector<SpherePtr>& getObjects() const {
         return objects;
     }
 
@@ -59,22 +59,22 @@ public:
     }
 
 private:
-    std::vector<Sphere> objects;
+    std::vector<SpherePtr> objects;
     std::vector<Light> lights;
 };
 
 inline World defaultWorld() {
     auto world = World();
 
-    auto sphere = Sphere();
-    sphere.setTransform(translation(-1.0, 0.0, -3.0));
-    sphere.material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
+    auto sphere = std::make_shared<Sphere>();
+    sphere->setTransform(translation(-1.0, 0.0, -3.0));
+    sphere->material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
 
     world.addObject(sphere);
 
-    sphere = Sphere();
-    sphere.setTransform(translation(1.0, 0.0, -3.0));
-    sphere.material = { { 1.0, 0.2, 1.0}, 0.1, 1.0, 0.9, 128.0 };
+    sphere = std::make_shared<Sphere>();
+    sphere->setTransform(translation(1.0, 0.0, -3.0));
+    sphere->material = { { 1.0, 0.2, 1.0}, 0.1, 1.0, 0.9, 128.0 };
 
     world.addObject(sphere);
 
@@ -88,13 +88,13 @@ inline World defaultWorld() {
 inline World defaultWorld1() {
     auto world = World();
 
-    auto sphere = Sphere();
-    sphere.material = { { 0.8, 1.0, 0.6}, 0.1, 0.7, 0.2, 128.0 };
+    auto sphere = std::make_shared<Sphere>();
+    sphere->material = { { 0.8, 1.0, 0.6}, 0.1, 0.7, 0.2, 128.0 };
 
     world.addObject(sphere);
 
-    sphere = Sphere();
-    sphere.setTransform(scaling(0.5, 0.5, 0.5));
+    sphere = std::make_shared<Sphere>();
+    sphere->setTransform(scaling(0.5, 0.5, 0.5));
 
     world.addObject(sphere);
 
@@ -108,8 +108,8 @@ inline World defaultWorld1() {
 inline World defaultWorld2() {
     auto world = World();
 
-    auto sphere = Sphere();
-    sphere.material = { { 0.8, 1.0, 0.6}, 0.1, 0.7, 0.2, 128.0 };
+    auto sphere = std::make_shared<Sphere>();
+    sphere->material = { { 0.8, 1.0, 0.6}, 0.1, 0.7, 0.2, 128.0 };
 
     world.addObject(sphere);
 

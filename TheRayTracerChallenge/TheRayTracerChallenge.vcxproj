@@ -150,11 +150,14 @@
     <ClCompile Include="Catch2Test.cpp" />
     <ClCompile Include="colors.features.cpp" />
     <ClCompile Include="Canvas.features.cpp" />
+    <ClCompile Include="Intersection.cpp" />
     <ClCompile Include="Intersection.features.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Plane.features.cpp" />
     <ClCompile Include="Shadow.features.cpp" />
+    <ClCompile Include="Shape.cpp" />
     <ClCompile Include="World.features.cpp" />
     <ClCompile Include="Shading.cpp" />
     <ClCompile Include="Shading.features.cpp" />
@@ -176,9 +179,11 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Shading.h" />
+    <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Tuple.h" />
+    <ClInclude Include="types.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

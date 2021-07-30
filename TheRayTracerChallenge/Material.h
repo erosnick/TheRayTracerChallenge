@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Tuple.h"
-#include "Object.h"
 
-struct Material : public Object {
+struct Material {
     Material() {
 
     }

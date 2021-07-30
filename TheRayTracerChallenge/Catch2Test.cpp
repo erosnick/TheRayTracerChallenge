@@ -41,6 +41,18 @@ void openImage(const std::wstring& path) {
     WaitForSingleObject(execInfo.hProcess, INFINITE);
 }
 
+class Base : public std::enable_shared_from_this<Base> {
+public:
+    std::shared_ptr<Base> GetPtr() {
+        return shared_from_this();
+    }
+};
+
+class Widget : public Base {
+public:
+
+};
+
 int main(int argc, char* argv[]) {
 #if 1
     auto canvas = createCanvas(640, 360);
@@ -54,45 +66,45 @@ int main(int argc, char* argv[]) {
 
     World world;
 
-    auto sphere = Sphere(point(-1.0, 0.0, -3.0), 1.0);
-    sphere.transform(viewMatrix);
-    sphere.material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
+    auto sphere = std::make_shared<Sphere>(point(-1.0, 0.0, -3.0), 1.0);
+    sphere->transform(viewMatrix);
+    sphere->material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
 
     world.addObject(sphere);
 
-    sphere = Sphere(point(1.0, 0.0, -3.0), 1.0);
-    sphere.transform(viewMatrix);
-    sphere.material = { { 1.0, 0.2, 1.0}, 0.1, 1.0, 0.9, 128.0 };
+    sphere = std::make_shared<Sphere>(point(1.0, 0.0, -3.0), 1.0);
+    sphere->transform(viewMatrix);
+    sphere->material = { { 1.0, 0.2, 1.0}, 0.1, 1.0, 0.9, 128.0 };
 
     world.addObject(sphere);
 
-    auto floor = Sphere(point(0.0, -1001.0, -3.0), 1000.0);
-    floor.transform(viewMatrix);
-    floor.material.color = color(0.4, 1.0, 0.4);
+    auto floor = std::make_shared<Sphere>(point(0.0, -1001.0, -3.0), 1000.0);
+    floor->transform(viewMatrix);
+    floor->material.color = color(0.4, 1.0, 0.4);
 
     world.addObject(floor);
 
-    auto ceiling = Sphere(point(0.0, 1005.0, -3.0), 1000.0);
-    ceiling.transform(viewMatrix);
-    ceiling.material.color = color(0.4, 0.8, 0.9);
+    auto ceiling = std::make_shared<Sphere>(point(0.0, 1005.0, -3.0), 1000.0);
+    ceiling->transform(viewMatrix);
+    ceiling->material.color = color(0.4, 0.8, 0.9);
 
     world.addObject(ceiling);
 
-    auto fronWall = Sphere(point(0.0, 0.0, -1005.0), 1000.0);
-    fronWall.transform(viewMatrix);
-    fronWall.material.color = color(0.4, 0.8, 0.9);
+    auto fronWall = std::make_shared<Sphere>(point(0.0, 0.0, -1005.0), 1000.0);
+    fronWall->transform(viewMatrix);
+    fronWall->material.color = color(0.4, 0.8, 0.9);
 
     world.addObject(fronWall);
 
-    auto leftWall = Sphere(point(-1005.0, 0.0, -3.0), 1000.0);
-    leftWall.transform(viewMatrix);
-    leftWall.material.color = color(0.4, 0.8, 0.9);
+    auto leftWall = std::make_shared<Sphere>(point(-1005.0, 0.0, -3.0), 1000.0);
+    leftWall->transform(viewMatrix);
+    leftWall->material.color = color(0.4, 0.8, 0.9);
 
     world.addObject(leftWall);
 
-    auto rightWall = Sphere(point(1005.0, 0.0, -3.0), 1000.0);
-    rightWall.transform(viewMatrix);
-    rightWall.material.color = color(0.4, 0.8, 0.9);
+    auto rightWall = std::make_shared<Sphere>(point(1005.0, 0.0, -3.0), 1000.0);
+    rightWall->transform(viewMatrix);
+    rightWall->material.color = color(0.4, 0.8, 0.9);
 
     world.addObject(rightWall);
 
@@ -102,9 +114,9 @@ int main(int argc, char* argv[]) {
 
     world.addLight(light);
 
-    auto lightSphere = Sphere(lightPosition, 0.25);
-    lightSphere.transform(viewMatrix);
-    lightSphere.bIsLight = true;
+    auto lightSphere = std::make_shared<Sphere>(lightPosition, 0.25);
+    lightSphere->transform(viewMatrix);
+    lightSphere->bIsLight = true;
     
     world.addObject(lightSphere);
 
@@ -142,6 +154,10 @@ int main(int argc, char* argv[]) {
     canvas.writeToPNG("./render.png");
     openImage(L"./render.png");
 #endif
+
+    auto widget = std::make_shared<Widget>();
+
+    auto widgetPtr = widget->GetPtr();
 
     auto tuple = std::make_tuple<bool, double, double>(true, 10.0, 20.0);
 
