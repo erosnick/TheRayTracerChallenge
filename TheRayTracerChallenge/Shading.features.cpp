@@ -55,8 +55,8 @@ SCENARIO("The normal is a normalized vector", "[Shading]") {
 SCENARIO("Computing the normal on a translated sphere", "[Shading]") {
     GIVEN("s = sphere()") {
         auto s = Sphere();
-        AND_GIVEN("s.setTransform(translation(0.0, 1.0, 0.0)") {
-            s.setTransform(translation(0.0, 1.0, 0.0));
+        AND_GIVEN("s.setTransformation(translate(0.0, 1.0, 0.0)") {
+            s.setTransformation(translate(0.0, 1.0, 0.0));
             WHEN("n = s.normalAt(point(0, 1.70711, -0.70711)") {
                 auto n = s.normalAt(point(0, 1.70711, -0.70711));
                 THEN("n == vector(0, 0.70711, -0.70711)") {
@@ -70,10 +70,10 @@ SCENARIO("Computing the normal on a translated sphere", "[Shading]") {
 //SCENARIO("Computing the normal on a transformed sphere", "[Shading]") {
 //    GIVEN("s = sphere()") {
 //        auto s = Sphere();
-//        AND_GIVEN("m = scaling(1, 0.5, 1) * rotationZ(¦Ð / 5)"
-//            "s.setTransform(m)") {
-//            auto m = scaling(1.0, 0.5, 1.0) * rotationZ(PI / 5);
-//            s.setTransform(m);
+//        AND_GIVEN("m = scaling(1, 0.5, 1) * rotateZ(¦Ð / 5)"
+//            "s.setTransformation(m)") {
+//            auto m = scaling(1.0, 0.5, 1.0) * rotateZ(PI / 5);
+//            s.setTransformation(m);
 //            WHEN("n = s.normalAt(point(0, ¡Ì2/2, -¡Ì2/2)") {
 //                auto n = s.normalAt(point(0, 1.70711, -0.70711));
 //                THEN("n == vector(0, 0.97014, -0.24254") {
@@ -190,8 +190,9 @@ SCENARIO("Lighting with the eye between the light and the surface", "[Shading]")
             auto normal = vector(0.0, 0.0, -1.0);
             AND_GIVEN("light = Light(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0))") {
                 auto light = Light(point(0.0, 0.0, -10.0), color(1.0, 1.0, 1.0));
+                auto object = std::make_shared<Sphere>();
                 WHEN("result = Lighting(m, light, position, eye, normal)") {
-                    auto result = lighting(m, light, position, eye, normal);
+                    auto result = lighting(m, object, light, position, eye, normal);
                     THEN("result = color(0.918182, 0.409091, 0.409091)") {
                         REQUIRE(result == color(0.918182, 0.409091, 0.409091));
                     }
@@ -209,7 +210,8 @@ SCENARIO("Lighting with eye opposite surface, light offset 45¡ã", "[Shading]") {
             AND_GIVEN("light = Light(point(0.0, 10.0, 10.0), color(1.0, 1.0, 1.0))") {
                 auto light = Light(point(0.0, 10.0, 10.0), color(1.0, 1.0, 1.0));
                 WHEN("result = lighting(m, light, position, eye, normal)") {
-                    auto result = lighting(m, light, position, eye, normal);
+                    auto object = std::make_shared<Sphere>();
+                    auto result = lighting(m, object, light, position, eye, normal);
                     THEN("result = color(0.302907, 0.0, 0.0)") {
                         REQUIRE(result == color(0.302907, 0.0, 0.0));
                     }
@@ -227,7 +229,8 @@ SCENARIO("Lighting with eye in the path of the reflection vector", "[Shading]") 
             AND_GIVEN("light = Light(point(0.0, 10.0, -10.0), color(1.0, 1.0, 1.0))") {
                 auto light = Light(point(0.0, 10.0, -10), color(1.0, 1.0, 1.0));
                 WHEN("result = Lighting(m, light, position, eye, normal)") {
-                    auto result = lighting(m, light, position, eye, normal);
+                    auto object = std::make_shared<Sphere>();
+                    auto result = lighting(m, object, light, position, eye, normal);
                     THEN("result = color(0.589860, 0.286954, 0.286954)") {
                         REQUIRE(result == color(0.589860, 0.286954, 0.286954));
                     }
@@ -245,7 +248,8 @@ SCENARIO("Lighting with the light behind the surface", "[Shading]") {
             AND_GIVEN("light = Light(point(0.0, 0.0, 10.0), color(1.0, 1.0, 1.0))") {
                 auto light = Light(point(0.0, 0.0, 10.0), color(1.0, 1.0, 1.0));
                 WHEN("result = Lighting(m, light, position, eye, normal)") {
-                    auto result = lighting(m, light, position, eye, normal);
+                    auto object = std::make_shared<Sphere>();
+                    auto result = lighting(m, object, light, position, eye, normal);
                     THEN("result = color(1.0, 1.0, 1.0)") {
                         REQUIRE(result == color(0.1, 0.0, 0.0));
                     }
@@ -265,7 +269,8 @@ SCENARIO("Lighting with the surface in shadow", "[Shading]") {
                 AND_GIVEN("inShadow = true") {
                     auto inShadow = true;
                     WHEN("result = lighting(m, light, position, viewDirection, normal, inShadow)") {
-                        auto result = lighting(m, light, position, viewDirection, normal, inShadow);
+                        auto object = std::make_shared<Sphere>();
+                        auto result = lighting(m, object, light, position, viewDirection, normal, inShadow);
                         THEN("result == color(0.1, 0.1, 0.1)") {
                             REQUIRE(result == color(0.1, 0.0, 0.0));
                         }

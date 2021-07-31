@@ -14,11 +14,13 @@
 #include "Canvas.h"
 #include "Matrix.h"
 #include "Sphere.h"
+#include "Plane.h"
 #include "Intersection.h"
 #include "Camera.h"
 #include "Shading.h"
 #include "utils.h"
 #include "Timer.h"
+#include "Pattern.h"
 
 void openImage(const std::wstring& path) {
 
@@ -41,21 +43,20 @@ void openImage(const std::wstring& path) {
     WaitForSingleObject(execInfo.hProcess, INFINITE);
 }
 
-class Base : public std::enable_shared_from_this<Base> {
-public:
-    std::shared_ptr<Base> GetPtr() {
-        return shared_from_this();
-    }
-};
-
-class Widget : public Base {
-public:
-
-};
+#define RESOLUTION 3
 
 int main(int argc, char* argv[]) {
 #if 1
-    auto canvas = createCanvas(640, 360);
+
+#if RESOLUTION == 1
+    auto canvas = createCanvas(320, 180);
+#elif RESOLUTION == 2
+    auto canvas = createCanvas(1280, 720);
+#elif RESOLUTION == 3
+    auto canvas = createCanvas(1920, 1080);
+#endif
+
+    auto samplesPerPixel = 8;
 
     auto imageWidth = canvas.getWidth();
     auto imageHeight = canvas.getHeight();
@@ -69,6 +70,9 @@ int main(int argc, char* argv[]) {
     auto sphere = std::make_shared<Sphere>(point(-1.0, 0.0, -3.0), 1.0);
     sphere->transform(viewMatrix);
     sphere->material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material.pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
+    sphere->material.pattern->transform(rotateZ(Math::pi_4));
+    sphere->material.bHasPattern = true;
 
     world.addObject(sphere);
 
@@ -78,32 +82,55 @@ int main(int argc, char* argv[]) {
 
     world.addObject(sphere);
 
-    auto floor = std::make_shared<Sphere>(point(0.0, -1001.0, -3.0), 1000.0);
-    floor->transform(viewMatrix);
+    //auto floor = std::make_shared<Sphere>(point(0.0, -1001.0, -3.0), 1000.0);
+    //floor->transform(viewMatrix);
+    //floor->material.color = color(0.4, 1.0, 0.4);
+
+    //world.addObject(floor);
+
+    //auto ceiling = std::make_shared<Sphere>(point(0.0, 1005.0, -3.0), 1000.0);
+    //ceiling->transform(viewMatrix);
+    //ceiling->material.color = color(0.4, 0.8, 0.9);
+
+    //world.addObject(ceiling);
+
+    //auto background = std::make_shared<Sphere>(point(0.0, 0.0, -1005.0), 1000.0);
+    //background->transform(viewMatrix);
+    //background->material.color = color(0.4, 0.8, 0.9);
+
+    //world.addObject(background);
+
+    //auto leftWall = std::make_shared<Sphere>(point(-1005.0, 0.0, -3.0), 1000.0);
+    //leftWall->transform(viewMatrix);
+    //leftWall->material.color = color(0.4, 0.8, 0.9);
+
+    //world.addObject(leftWall);
+
+    //auto rightWall = std::make_shared<Sphere>(point(1005.0, 0.0, -3.0), 1000.0);
+    //rightWall->transform(viewMatrix);
+    //rightWall->material.color = color(0.4, 0.8, 0.9);
+
+    //world.addObject(rightWall);
+
+    auto floor = std::make_shared<Plane>(point(0.0, -1.0, 0.0), vector(0.0, 1.0, 0.0));
     floor->material.color = color(0.4, 1.0, 0.4);
+    floor->material.bHasPattern = true;
+    floor->material.pattern = std::make_shared<CheckerPattern>();
 
     world.addObject(floor);
 
-    auto ceiling = std::make_shared<Sphere>(point(0.0, 1005.0, -3.0), 1000.0);
-    ceiling->transform(viewMatrix);
-    ceiling->material.color = color(0.4, 0.8, 0.9);
+    auto background = std::make_shared<Plane>(point(0.0, 0.0, -15.0), vector(0.0, 0.0, 1.0));
+    background->material.color = color(0.4, 0.8, 0.9);
+    //background->material.bHasPattern = true;
 
-    world.addObject(ceiling);
+    world.addObject(background);
 
-    auto fronWall = std::make_shared<Sphere>(point(0.0, 0.0, -1005.0), 1000.0);
-    fronWall->transform(viewMatrix);
-    fronWall->material.color = color(0.4, 0.8, 0.9);
-
-    world.addObject(fronWall);
-
-    auto leftWall = std::make_shared<Sphere>(point(-1005.0, 0.0, -3.0), 1000.0);
-    leftWall->transform(viewMatrix);
+    auto leftWall = std::make_shared<Plane>(point(-5.0, 0.0, 0.0), vector(1.0, 0.0, 0.0));
     leftWall->material.color = color(0.4, 0.8, 0.9);
 
     world.addObject(leftWall);
 
-    auto rightWall = std::make_shared<Sphere>(point(1005.0, 0.0, -3.0), 1000.0);
-    rightWall->transform(viewMatrix);
+    auto rightWall = std::make_shared<Plane>(point(5.0, 0.0, 0.0), vector(-1.0, 0.0, 0.0));
     rightWall->material.color = color(0.4, 0.8, 0.9);
 
     world.addObject(rightWall);
@@ -121,8 +148,6 @@ int main(int argc, char* argv[]) {
     world.addObject(lightSphere);
 
     //world = defaultWorld();
-
-    auto samplesPerPixel = 8;
 
     Timer timer;
     #pragma omp parallel for schedule(dynamic, 4)       // OpenMP
@@ -154,11 +179,6 @@ int main(int argc, char* argv[]) {
     canvas.writeToPNG("./render.png");
     openImage(L"./render.png");
 #endif
-
-    auto widget = std::make_shared<Widget>();
-
-    auto widgetPtr = widget->GetPtr();
-
     auto tuple = std::make_tuple<bool, double, double>(true, 10.0, 20.0);
 
     auto size = std::tuple_size<decltype(tuple)>::value;

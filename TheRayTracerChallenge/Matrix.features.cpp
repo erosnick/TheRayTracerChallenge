@@ -468,8 +468,8 @@ SCENARIO("Multiplying a product by its inverse", "[Matrix]") {
 }
 
 SCENARIO("Multiplying by a translation matrix", "[Matrix]") {
-	GIVEN("transform = translation(5.0, -3.0, 2.0)") {
-		auto transform = translation(5.0, -3.0, 2.0);
+	GIVEN("transform = translate(5.0, -3.0, 2.0)") {
+		auto transform = translate(5.0, -3.0, 2.0);
 		AND_GIVEN("p = point(-3.0, 4.0, 5.0)") {
 			auto p = point(-3.0, 4.0, 5.0);
 			THEN("transform * p = point(2.0, 1.0, 7.0)") {
@@ -480,8 +480,8 @@ SCENARIO("Multiplying by a translation matrix", "[Matrix]") {
 }
 
 SCENARIO("Multiplying by the inverse of a translation matrix", "[Matrix]") {
-	GIVEN("transform = translation(5.0, -3.0, 2.0") {
-		auto transform = translation(5.0, -3.0, 2.0);
+	GIVEN("transform = translate(5.0, -3.0, 2.0") {
+		auto transform = translate(5.0, -3.0, 2.0);
 		AND_GIVEN("inverse = transform.inverse()") {
 			auto inverse = transform.inverse();
 			AND_GIVEN("p = point(-3.0, 4.0, 5.0") {
@@ -495,8 +495,8 @@ SCENARIO("Multiplying by the inverse of a translation matrix", "[Matrix]") {
 }
 
 SCENARIO("Translation does not affect vectors", "[Matrix]") {
-	GIVEN("transform = translation(5.0, -3.0, 2.0)") {
-		auto transform = translation(5.0, -3.0, 2.0);
+	GIVEN("transform = translate(5.0, -3.0, 2.0)") {
+		auto transform = translate(5.0, -3.0, 2.0);
 		AND_GIVEN("v = vector(-3.0, 4.0, 5.0)") {
 			auto v = vector(-3.0, 4.0, 5.0);
 			THEN("transform * v == v") {
@@ -548,10 +548,10 @@ SCENARIO(" Multiplying by the inverse of a scaling matrix", "[Matrix]") {
 SCENARIO("Rotating a point around the x axis", "[Matrix]") {
 	GIVEN("p = point(0.0, 1.0, 0.0") {
 		auto p = point(0.0, 1.0, 0.0);
-		AND_GIVEN("halfQuarter = rotationX(¦Ð / 4)") {
-			auto halfQuarter = rotationX(PI_4);
-			AND_GIVEN("fullQuarter = roatationX(¦Ð / 2)") {
-				auto fullQuarter = rotationX(PI_2);
+		AND_GIVEN("halfQuarter = rotateX(¦Ð / 4)") {
+			auto halfQuarter = rotateX(Math::pi_4);
+			AND_GIVEN("fullQuarter = rotateX(¦Ð / 2)") {
+				auto fullQuarter = rotateX(Math::pi_2);
 				THEN("halfQuarter * p == point(0.0, ¡Ì2/2, ¡Ì2/2)") {
 					REQUIRE(halfQuarter * p == point(0.0, std::sqrt(2.0) / 2.0, std::sqrt(2.0) / 2.0));
 					AND_THEN("fullQuarter * p == point(0.0, 0.0, 1.0)") {
@@ -566,8 +566,8 @@ SCENARIO("Rotating a point around the x axis", "[Matrix]") {
 SCENARIO("The inverse of an x-rotation rotates in the opposite direction", "[Matrix]") {
 	GIVEN("p = point(0.0, 1.0, 0.0)") {
 		auto p = point(0.0, 1.0, 0.0);
-		AND_GIVEN("halfQuarter = rotationX(¦Ð / 4)") {
-			auto halfQuarter = rotationX(PI_4);
+		AND_GIVEN("halfQuarter = rotateX(¦Ð / 4)") {
+			auto halfQuarter = rotateX(Math::pi_4);
 			AND_GIVEN("inverse = halfQuarter.inverse()") {
 				auto inverse = halfQuarter.inverse();
 				THEN("inverse * p == point(0.0, ¡Ì2/2, -¡Ì2/2") {
@@ -581,10 +581,10 @@ SCENARIO("The inverse of an x-rotation rotates in the opposite direction", "[Mat
 SCENARIO("Rotating a point around the y axis", "[Matrix]") {
 	GIVEN("p = point(0.0, 0.0, 1.0") {
 		auto p = point(0.0, 0.0, 1.0);
-		AND_GIVEN("halfQuarter = rotationY(¦Ð / 4)") {
-			auto halfQuarter = rotationY(PI_4);
-			AND_GIVEN("fullQuarter = rotationY(¦Ð / 2)") {
-				auto fullQuarter = rotationY(PI_2);
+		AND_GIVEN("halfQuarter = rotateY(¦Ð / 4)") {
+			auto halfQuarter = rotateY(Math::pi_4);
+			AND_GIVEN("fullQuarter = rotateY(¦Ð / 2)") {
+				auto fullQuarter = rotateY(Math::pi_2);
 				THEN("halfQuarter * p == point(¡Ì2/2, 0.0, ¡Ì2/2)") {
 					REQUIRE(halfQuarter * p == point(std::sqrt(2.0) / 2.0, 0.0, std::sqrt(2.0) / 2.0));
 					AND_THEN("fullQuarter * p == point(1.0, 0.0, 0.0)") {
@@ -599,10 +599,10 @@ SCENARIO("Rotating a point around the y axis", "[Matrix]") {
 SCENARIO("Rotating a point around the z axis", "[Matrix]") {
 	GIVEN("p = point(0.0, 1.0, 0.0") {
 		auto p = point(0.0, 1.0, 0.0);
-		AND_GIVEN("halfQuarter = rotationZ(¦Ð / 4)") {
-			auto halfQuarter = rotationZ(PI_4);
-			AND_GIVEN("fullQuarter = rotationZ(¦Ð / 2)") {
-				auto fullQuarter = rotationZ(PI_2);
+		AND_GIVEN("halfQuarter = rotateZ(¦Ð / 4)") {
+			auto halfQuarter = rotateZ(Math::pi_4);
+			AND_GIVEN("fullQuarter = rotateZ(¦Ð / 2)") {
+				auto fullQuarter = rotateZ(Math::pi_2);
 				THEN("halfQuarter * p == point(-¡Ì2/2, ¡Ì2/2, 0.0)") {
 					REQUIRE(halfQuarter * p == point(-std::sqrt(2.0) / 2.0, std::sqrt(2.0) / 2.0, 0.0));
 					AND_THEN("fullQuarter * p == point(1.0, 0.0, 0.0)") {
@@ -735,12 +735,12 @@ SCENARIO("A shearing transformation moves z in proportion to y") {
 SCENARIO("Individual transformations are applied in sequence", "[Matrix]") {
 	GIVEN("p = point(1.0, 0.0, 1.0") {
 		auto p = point(1.0, 0.0, 1.0);
-		AND_GIVEN("A = rotationX(¦Ð / 2)"
+		AND_GIVEN("A = rotateX(¦Ð / 2)"
 			"B = scaling(5.0, 5.0, 5.0)"
-			"C = translation(10.0, 5.0, 7.0)") {
-			auto A = rotationX(PI_2);
+			"C = translate(10.0, 5.0, 7.0)") {
+			auto A = rotateX(Math::pi_2);
 			auto B = scaling(5.0, 5.0, 5.0);
-			auto C = translation(10.0, 5.0, 7.0);
+			auto C = translate(10.0, 5.0, 7.0);
 			auto p2 = point();
 			auto p3 = point();
 			auto p4 = point();
@@ -775,10 +775,10 @@ SCENARIO("Individual transformations are applied in sequence", "[Matrix]") {
 SCENARIO("Chained transformations must be applied in reverse order", "[Matrix]") {
 	GIVEN("p = point(1.0, 0.0, 1.0") {
 		auto p = point(1.0, 0.0, 1.0);
-		AND_GIVEN("A = rotationX(¦Ð / 2)") {
-			auto A = rotationX(PI_2);
+		AND_GIVEN("A = rotateX(¦Ð / 2)") {
+			auto A = rotateX(Math::pi_2);
 			auto B = scaling(5.0, 5.0, 5.0);
-			auto C = translation(10.0, 5.0, 7.0);
+			auto C = translate(10.0, 5.0, 7.0);
 
 			WHEN("T = C * B * A") {
 				auto T = C * B * A;

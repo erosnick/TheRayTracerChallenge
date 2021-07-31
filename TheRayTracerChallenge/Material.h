@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tuple.h"
+#include "types.h"
 
 struct Material {
     Material() {
@@ -16,6 +17,8 @@ struct Material {
     double diffuse = 0.9;
     double specular = 0.9;
     double shininess = 128.0;
+    bool bHasPattern = false;
+    PatternPtr pattern;
 };
 
 inline bool operator==(const Material& a, const Material& b) {

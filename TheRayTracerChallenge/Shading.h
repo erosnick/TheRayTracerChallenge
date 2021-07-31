@@ -6,12 +6,12 @@
 #include "World.h"
 #include "Intersection.h"
 
-Tuple lighting(const Material& material, const Light& light, 
+Tuple lighting(const Material& material, const ShapePtr& object, const Light& light, 
                const Tuple& position, const Tuple& viewDirection, 
                const Tuple& normal, bool bInShadow = false, 
                bool bHalfLambert = false, bool bBlinnPhong = false);
 
-Tuple lighting(const Material& material, const Light& light,
+Tuple lighting(const Material& material, const ShapePtr& object, const Light& light,
                const HitInfo& hitInfo, bool bInShadow = false,
                bool bHalfLambert = false, bool bBlinnPhong = false);
 
@@ -41,7 +41,7 @@ inline Tuple shadeHit(const World& world, const HitInfo& hitInfo,
         //auto transformedLight = light;
         //transformedLight.transform(hitInfo.object.transform.inverse());
         auto inShadow = isShadow(world, light, hitInfo.overPosition);
-        finalColor += lighting(hitInfo.object->material, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
+        finalColor += lighting(hitInfo.object->material, hitInfo.object, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
     }
     
     return finalColor;

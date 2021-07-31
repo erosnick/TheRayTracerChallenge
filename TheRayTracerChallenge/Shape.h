@@ -9,7 +9,7 @@ struct Intersection;
 
 class Shape : public std::enable_shared_from_this<Shape> {
 public:
-    virtual inline void setTransform(const Matrix4& inTransformation) {
+    virtual inline void setTransformation(const Matrix4& inTransformation) {
         transformation = inTransformation;
     }
 

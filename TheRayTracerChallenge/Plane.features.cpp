@@ -1,7 +1,9 @@
 #include "catch.hpp"
 #include "Shape.h"
+#include "Plane.h"
+#include "types.h"
 
-SCENARIO("The default transformation", "[Shape]") {
+SCENARIO("The default transformation", "[Plane]") {
     GIVEN("s = testShape()") {
         auto s = testShape();
         THEN("s.transformation == identity_materix") {
@@ -10,19 +12,19 @@ SCENARIO("The default transformation", "[Shape]") {
     }
 }
 
-SCENARIO("Assigning a transformation", "[Shape]") {
+SCENARIO("Assigning a transformation", "[Plane]") {
     GIVEN("s = testShape()") {
         auto s = testShape();
-        WHEN("s.setTransform(translation(2.0, 3.0, 4.0)") {
-            s.setTransform(translation(2.0, 3.0, 4.0));
-            THEN("s.transformation == translation(2.0, 3.0, 4.0)") {
-                REQUIRE(s.transformation == translation(2.0, 3.0, 4.0));
+        WHEN("s.setTransformation(translate(2.0, 3.0, 4.0)") {
+            s.setTransformation(translate(2.0, 3.0, 4.0));
+            THEN("s.transformation == translate(2.0, 3.0, 4.0)") {
+                REQUIRE(s.transformation == translate(2.0, 3.0, 4.0));
             }
         }
     }
 }
 
-SCENARIO("The default material", "[Shape]") {
+SCENARIO("The default material", "[Plane]") {
     GIVEN("s = testShape()") {
         auto s = testShape();
         WHEN("m = s.material") {
@@ -34,7 +36,7 @@ SCENARIO("The default material", "[Shape]") {
     }
 }
 
-SCENARIO("Assigning a material", "[Shape]") {
+SCENARIO("Assigning a material", "[Plane]") {
     GIVEN("s = testShape()") {
         auto s = testShape();
         AND_GIVEN("m = Material()") {
@@ -80,3 +82,91 @@ SCENARIO("Assigning a material", "[Shape]") {
 //When set_transform(s, m)
 //And n ¡û normal_at(s, point(0, ¡Ì2 / 2, -¡Ì2 / 2))
 //Then n = vector(0, 0.97014, -0.24254)
+
+SCENARIO("The normal of a plane is constant everywhere", "[Plane]") {
+    GIVEN("p = Plane()") {
+        auto p = Plane();
+        WHEN("n1 = p.normalAt(point(0.0, 0.0, 0.0))"
+             "n2 = p.normalAt(point(-5.0, 0.0, 150.0))"
+             "n3 = p.normalAt(point(-5.0, 0.0, 150.0))") {
+            auto n1 = p.normalAt(point(0.0, 0.0, 0.0));
+            auto n2 = p.normalAt(point(-5.0, 0.0, 150.0));
+            auto n3 = p.normalAt(point(-5.0, 0.0, 150.0));
+            THEN("n1 == vector(0.0, 1.0, 0.0)") {
+                REQUIRE(n1 == vector(0.0, 1.0, 0.0));
+                AND_THEN("n2 == vector(0.0, 1.0, 0.0)")
+                    REQUIRE(n2 == vector(0.0, 1.0, 0.0));
+                AND_THEN("n3 == vector(0.0, 1.0, 0.0)")
+                    REQUIRE(n3 == vector(0.0, 1.0, 0.0));
+            }
+        }
+    }
+}
+
+SCENARIO("Intersect with a ray parallel to the plane", "[Plane]") {
+    GIVEN("p = Plane()") {
+        auto p = Plane();
+        AND_GIVEN("r = Ray(point(0.0, 10.0, 0.0), vector(0.0, 0.0, 1.0)") {
+            auto r = Ray(point(0.0, 10.0, 0.0), vector(0.0, 0.0, 1.0));
+            WHEN("xs = p.intersect(r)") {
+                auto xs = p.intersect(r);
+                THEN("xs is empty") {
+                    REQUIRE(xs.size() == 0);
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("Intersect with a coplanar ray", "[Plane]") {
+    GIVEN("p = Plane()") {
+        auto p = Plane();
+        AND_GIVEN("r = Ray(point(0.0, 10.0, 0.0), vector(0.0, 0.0, 1.0)") {
+            auto r = Ray(point(0.0, 10.0, 0.0), vector(0.0, 0.0, 1.0));
+            WHEN("xs = p.intersect(r)") {
+                auto xs = p.intersect(r);
+                THEN("xs is empty") {
+                    REQUIRE(xs.size() == 0);
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("A ray intersecting a plane from above", "[Plane]") {
+    GIVEN("p = Plane()") {
+        auto p = std::make_shared<Plane>(point(0.0, -1.0, 0.0), vector(0.0, 1.0, 0.0));
+        AND_GIVEN("r = Ray(point(0.0, 0.0, 0.0), vector(0.0, -1.0, 0.0))") {
+            auto r = Ray(point(0.0, 0.0, 0.0), vector(0.0, -1.0, 0.0));
+            WHEN("xs = p.intersect(r)") {
+                auto xs = p->intersect(r);
+                THEN("xs.size() == 1)") {
+                    REQUIRE(xs.size() == 1);
+                    AND_THEN("xs[0].t == 1¡£0")
+                        REQUIRE(xs[0].t == 1.0);
+                    AND_THEN("xs[0].object == p")
+                        REQUIRE(xs[0].object == p);
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("A ray intersecting a plane from below", "[Plane]") {
+    GIVEN("p = Plane()") {
+        auto p = std::make_shared<Plane>(point(0.0, 1.0, 0.0), vector(0.0, -1.0, 0.0));
+        AND_GIVEN("r = Ray(point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0))") {
+            auto r = Ray(point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
+            WHEN("xs = p.intersect(r)") {
+                auto xs = p->intersect(r);
+                THEN("xs.size() == 1)") {
+                    REQUIRE(xs.size() == 1);
+                    AND_THEN("xs[0].t == 1")
+                        REQUIRE(xs[0].t == 1.0);
+                    AND_THEN("xs[0].object == p")
+                        REQUIRE(xs[0].object == p);
+                }
+            }
+        }
+    }
+}

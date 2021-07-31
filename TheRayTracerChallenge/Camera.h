@@ -5,7 +5,7 @@
 
 class Camera {
 public:
-    Camera(int32_t inImageWidth, int32_t inImageHeight, double inFov = PI_2) {
+    Camera(int32_t inImageWidth, int32_t inImageHeight, double inFov = Math::pi_2) {
         imageWidth = inImageWidth;
         imageHeight = inImageHeight;
         fov = inFov;
@@ -56,7 +56,7 @@ public:
     inline Matrix4 lookAt(double inFov, const Tuple& inFrom, const Tuple& inTo, const Tuple& inUp) {
         fov = inFov;
 
-        auto theta = fov * PI / 180.0;
+        auto theta = fov * Math::pi / 180.0;
         auto height = std::tan(theta / 2);
 
         viewportHeight = 2.0 * height;

@@ -1,16 +1,23 @@
 #include "Shading.h"
 #include <algorithm>
+#include "Pattern.h"
 
-Tuple lighting(const Material& material, const Light& light, const Tuple& position, 
+Tuple lighting(const Material& material, const ShapePtr& object, const Light& light, const Tuple& position,
                const Tuple& viewDirection, const Tuple& normal, bool bInShadow, 
                bool bHalfLambert, bool bBlinnPhong) {
-    auto ambientColor = material.color * material.ambient;
+    auto materialColor = material.color;
+
+    if (material.bHasPattern) {
+        materialColor = material.pattern->patternAtShape(object, position);
+    }
+
+    auto ambientColor = materialColor * material.ambient;
     
     if (bInShadow) {
         return ambientColor;
     }
 
-    auto surfaceColor = light.intensity * material.color;
+    auto surfaceColor = light.intensity * materialColor;
     auto diffuseColor = surfaceColor * material.diffuse;
     auto specularColor = light.intensity * material.specular;
     
@@ -46,8 +53,8 @@ Tuple lighting(const Material& material, const Light& light, const Tuple& positi
     return finalColor;
 }
 
-Tuple lighting(const Material& material, const Light& light,
+Tuple lighting(const Material& material, const ShapePtr& object, const Light& light,
                const HitInfo& hitInfo, bool bInShadow, 
                bool bHalfLambert, bool bBlinnPhong) {
-    return lighting(material, light, hitInfo.position, hitInfo.viewDirection, hitInfo.normal, bInShadow, bHalfLambert, bBlinnPhong);
+    return lighting(material, object, light, hitInfo.position, hitInfo.viewDirection, hitInfo.normal, bInShadow, bHalfLambert, bBlinnPhong);
 }

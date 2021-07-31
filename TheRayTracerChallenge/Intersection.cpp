@@ -22,7 +22,7 @@ HitInfo prepareComputations(const Intersection& intersection, const Ray& ray) {
         hitInfo.normal = -hitInfo.normal;
     }
 
-    hitInfo.overPosition = hitInfo.position + hitInfo.normal * EPSILON;
+    hitInfo.overPosition = hitInfo.position + hitInfo.normal * Math::epsilon;
 
     return hitInfo;
 }

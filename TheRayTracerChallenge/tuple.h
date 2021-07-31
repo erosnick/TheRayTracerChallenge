@@ -7,13 +7,10 @@
 
 class Tuple {
 public:
-    Tuple()
+    constexpr Tuple()
     : x(0.0), y(0.0), z(0.0), w(0.0) {}
-    Tuple(double inX, double inY, double inZ, double inW = 0.0) {
-        x = inX;
-        y = inY;
-        z = inZ;
-        w = inW;
+    constexpr Tuple(double inX, double inY, double inZ, double inW = 0.0)
+    : x(inX), y(inY), z(inZ), w(inW) {
     }
 
     Tuple operator-() const {
@@ -147,7 +144,7 @@ inline Tuple vector() {
     return Tuple();
 }
 
-inline Tuple color(double inRed, double inGreen, double inBlue) {
+inline constexpr Tuple color(double inRed, double inGreen, double inBlue) {
     return Tuple(inRed, inGreen, inBlue);
 }
 

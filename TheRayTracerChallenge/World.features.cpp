@@ -23,7 +23,7 @@ SCENARIO("The default world", "[World]") {
             "| material.diffuse  | 1.0             |"
             "| material.specular | 0.9             |") {
             auto s1 = std::make_shared<Sphere>();
-            s1->setTransform(translation(-1.0, 0.0, -3.0));
+            s1->setTransformation(translate(-1.0, 0.0, -3.0));
             auto material = Material();
             material.color = color(1.0, 0.0, 0.0);
             material.diffuse = 1.0;
@@ -32,7 +32,7 @@ SCENARIO("The default world", "[World]") {
             s1->material = material;
             AND_GIVEN("s2 = std::make_shared<Sphere>()") {
                 auto s2 = std::make_shared<Sphere>();
-                s2->setTransform(translation(1.0, 0.0, -3.0));
+                s2->setTransformation(translate(1.0, 0.0, -3.0));
                 material = Material();
                 material.color = color(1.0, 0.2, 1.0);
                 material.diffuse = 1.0;
@@ -237,7 +237,7 @@ SCENARIO("Constructing a camera", "[World]") {
         AND_GIVEN("imageHeight = 120") {
             auto imageHeight = 120;
             AND_GIVEN("fov = ¦Ð/2") {
-                auto fov = PI_2;
+                auto fov = Math::pi_2;
                 WHEN("c = Camera(imageWidth, imageHeight, fov") {
                     auto c = Camera(imageWidth, imageHeight, fov);
                     THEN("c.imageWidth == 160.0") {
@@ -245,7 +245,7 @@ SCENARIO("Constructing a camera", "[World]") {
                         AND_THEN("c.imageHeight == 120.0")
                             REQUIRE(c.imageHeight == 120.0);
                         AND_THEN("c.fov == ¦Ð / 2")
-                            REQUIRE(c.fov == PI_2);
+                            REQUIRE(c.fov == Math::pi_2);
                         AND_THEN("c.viewMatrix == identity_matrix")
                             REQUIRE(c.viewMatrix == Matrix4());
                     }
@@ -257,7 +257,7 @@ SCENARIO("Constructing a camera", "[World]") {
 
 SCENARIO("The pixel size for a horizontal canvas", "[World]") {
     GIVEN("c = Camera(200, 125, ¦Ð / 2)") {
-        auto c = Camera(200, 125, PI_2);
+        auto c = Camera(200, 125, Math::pi_2);
         THEN("c.") {
 
         }

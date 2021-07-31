@@ -9,13 +9,13 @@
 
 class Matrix4;
 
-inline Matrix4 translation(double x, double y, double z);
-inline Matrix4 translation(const Vector3& v);
+inline Matrix4 translate(double x, double y, double z);
+inline Matrix4 translate(const Vector3& v);
 inline Matrix4 scaling(double x, double y, double z);
 inline Matrix4 scaling(const Vector3& v);
-inline Matrix4 rotationX(double radian);
-inline Matrix4 rotationY(double radian);
-inline Matrix4 rotationZ(double radian);
+inline Matrix4 rotateX(double radian);
+inline Matrix4 rotateY(double radian);
+inline Matrix4 rotateZ(double radian);
 inline Matrix4 shearing(double xy, double xz, double yx, double yz, double zx, double zy);
 inline Matrix4 operator*(const Matrix4& a, const Matrix4& b);
 
@@ -284,31 +284,31 @@ public:
         return scaling(v.x, v.y, v.z);
     }
 
-    Matrix4& translation(double x, double y, double z) {
+    Matrix4& translate(double x, double y, double z) {
         auto self = *this;
-        *this = self * translation(x, y, z);
+        *this = self * translate(x, y, z);
         return (*this);
     }
 
-    Matrix4& translation(const Vector3& v) {
-        return translation(v.x, v.y, v.z);
+    Matrix4& translate(const Vector3& v) {
+        return translate(v.x, v.y, v.z);
     }
 
-    Matrix4& rotationX(double radian) {
+    Matrix4& rotateX(double radian) {
         auto self = *this;
-        *this = self * rotationX(radian);
+        *this = self * rotateX(radian);
         return (*this);
     }
 
-    Matrix4& rotationY(double radian) {
+    Matrix4& rotateY(double radian) {
         auto self = *this;
-        *this = self * rotationY(radian);
+        *this = self * rotateY(radian);
         return (*this);
     }
 
-    Matrix4& rotationZ(double radian) {
+    Matrix4& rotateZ(double radian) {
         auto self = *this;
-        *this = self * rotationZ(radian);
+        *this = self * rotateZ(radian);
         return (*this);
     }
 
@@ -408,7 +408,7 @@ inline std::ostream& operator << (std::ostream& os, const Matrix4& value) {
     return os;
 }
 
-inline Matrix4 translation(double x, double y, double z) {
+inline Matrix4 translate(double x, double y, double z) {
     auto result = Matrix4();
 
     result[0][3] = x;
@@ -418,8 +418,8 @@ inline Matrix4 translation(double x, double y, double z) {
     return result;
 }
 
-inline Matrix4 translation(const Vector3& v) {
-    return translation(v.x, v.y, v.z);
+inline Matrix4 translate(const Vector3& v) {
+    return translate(v.x, v.y, v.z);
 }
 
 inline Matrix4 scaling(double x, double y, double z) {
@@ -436,7 +436,7 @@ inline Matrix4 scaling(const Vector3& v) {
     return scaling(v.x, v.y, v.z);
 }
 
-inline Matrix4 rotationX(double radian) {
+inline Matrix4 rotateX(double radian) {
     auto result = Matrix4();
 
     result[1][1] =  std::cos(radian);
@@ -447,7 +447,7 @@ inline Matrix4 rotationX(double radian) {
     return result;
 }
 
-inline Matrix4 rotationY(double radian) {
+inline Matrix4 rotateY(double radian) {
     auto result = Matrix4();
 
     result[0][0] =  std::cos(radian);
@@ -458,7 +458,7 @@ inline Matrix4 rotationY(double radian) {
     return result;
 }
 
-inline Matrix4 rotationZ(double radian) {
+inline Matrix4 rotateZ(double radian) {
     auto result = Matrix4();
 
     result[0][0] = std::cos(radian);

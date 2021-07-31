@@ -362,8 +362,8 @@ SCENARIO("The hit is always the lowest nonnegative intersection", "[Intersection
 SCENARIO("Translating a ray", "[Intersection]") {
     GIVEN("r = ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0)") {
         auto r = Ray(point(1.0, 2.0, 3.0), vector(0.0, 1.0, 0.0));
-        AND_GIVEN("m = translation(3.0, 4.0, 5.0)") {
-            auto m = translation(3.0, 4.0, 5.0);
+        AND_GIVEN("m = translate(3.0, 4.0, 5.0)") {
+            auto m = translate(3.0, 4.0, 5.0);
             WHEN("r2 = transform(r, m)") {
                 auto r2 = transformRay(r, m);
                 THEN("r2.origin == point(4.0, 6.0, 8.0)") {
@@ -408,10 +408,10 @@ SCENARIO(" A sphere's default transformation", "[Intersection]") {
 SCENARIO("Changing a sphere's transformation", "[Intersection]") {
     GIVEN("s = std::make_shared<Sphere>()") {
         auto s = std::make_shared<Sphere>();
-        AND_GIVEN("t = translation(2.0, 3.0, 4.0)") {
-            auto t = translation(2.0, 3.0, 4.0);
-            WHEN("s.setTransform(t)") {
-                s->setTransform(t);
+        AND_GIVEN("t = translate(2.0, 3.0, 4.0)") {
+            auto t = translate(2.0, 3.0, 4.0);
+            WHEN("s.setTransformation(t)") {
+                s->setTransformation(t);
                 THEN("s.transform == t") {
                     REQUIRE(s->transformation == t);
                 }
@@ -425,8 +425,8 @@ SCENARIO("Intersecting a scaled sphere with a ray", "[Intersection]") {
         auto r = Ray(point(0.0, 0.0, -5.0), vector(0.0, 0.0, 1.0));
         AND_GIVEN("s = std::make_shared<Sphere>()") {
             auto s = std::make_shared<Sphere>();
-            WHEN("s.setTransform(scaling(2.0, 2.0, 2.0))") {
-                s->setTransform(scaling(2.0, 2.0, 2.0));
+            WHEN("s.setTransformation(scaling(2.0, 2.0, 2.0))") {
+                s->setTransformation(scaling(2.0, 2.0, 2.0));
                 AND_WHEN("xs = s.intersect(r)") {
                     auto xs = s->intersect(r, false);
                     THEN("xs.count == 2"

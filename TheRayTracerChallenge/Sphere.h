@@ -68,7 +68,7 @@ public:
         radius = scale.x;
     }
 
-    inline void setTransform(const Matrix4& inTransformation) override {
+    inline void setTransformation(const Matrix4& inTransformation) override {
         transformation = inTransformation;
 
         origin.x = transformation[0][3];

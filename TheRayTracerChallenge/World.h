@@ -4,6 +4,8 @@
 #include "Light.h"
 #include "Ray.h"
 #include "Intersection.h"
+#include "types.h"
+
 #include <vector>
 #include <algorithm>
 
@@ -26,11 +28,11 @@ public:
         lights.push_back(light);
     }
 
-    void addObject(const SpherePtr& object) {
+    void addObject(const ShapePtr& object) {
         objects.push_back(object);
     }
 
-    bool contains(const SpherePtr& object) const {
+    bool contains(const ShapePtr& object) const {
         if (std::find(objects.begin(), objects.end(), object) != objects.end()) {
             return true;
         }
@@ -42,7 +44,7 @@ public:
         return lights;
     }
 
-    const std::vector<SpherePtr>& getObjects() const {
+    const std::vector<ShapePtr>& getObjects() const {
         return objects;
     }
 
@@ -59,7 +61,7 @@ public:
     }
 
 private:
-    std::vector<SpherePtr> objects;
+    std::vector<ShapePtr> objects;
     std::vector<Light> lights;
 };
 
@@ -67,13 +69,13 @@ inline World defaultWorld() {
     auto world = World();
 
     auto sphere = std::make_shared<Sphere>();
-    sphere->setTransform(translation(-1.0, 0.0, -3.0));
+    sphere->setTransformation(translate(-1.0, 0.0, -3.0));
     sphere->material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>();
-    sphere->setTransform(translation(1.0, 0.0, -3.0));
+    sphere->setTransformation(translate(1.0, 0.0, -3.0));
     sphere->material = { { 1.0, 0.2, 1.0}, 0.1, 1.0, 0.9, 128.0 };
 
     world.addObject(sphere);
@@ -94,7 +96,7 @@ inline World defaultWorld1() {
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>();
-    sphere->setTransform(scaling(0.5, 0.5, 0.5));
+    sphere->setTransformation(scaling(0.5, 0.5, 0.5));
 
     world.addObject(sphere);
 
