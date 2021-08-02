@@ -46,7 +46,7 @@ void openImage(const std::wstring& path) {
 #define RESOLUTION 3
 
 int main(int argc, char* argv[]) {
-#if 1
+#if 0
 
 #if RESOLUTION == 1
     auto canvas = createCanvas(640, 360);
