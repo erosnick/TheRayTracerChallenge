@@ -51,6 +51,9 @@ std::vector<Intersection> Sphere::intersect(const Ray& ray, bool bTransformRay) 
             intersections.push_back({ true, !bIsLight, 1, t1, GetPtr(), position1, normal1, transformedRay });
         }
     }
+    else {
+        int a = 0;
+    }
 
     return intersections;
 }

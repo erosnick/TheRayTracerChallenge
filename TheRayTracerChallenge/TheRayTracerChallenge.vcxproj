@@ -158,6 +158,7 @@
     <ClCompile Include="Pattern.cpp" />
     <ClCompile Include="Pattern.features.cpp" />
     <ClCompile Include="Plane.features.cpp" />
+    <ClCompile Include="Reflection.features.cpp" />
     <ClCompile Include="Shadow.features.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="World.features.cpp" />

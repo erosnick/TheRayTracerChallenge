@@ -12,7 +12,7 @@ SCENARIO("The default transformation", "[Plane]") {
     }
 }
 
-SCENARIO("Assigning a transformation", "[Plane]") {
+SCENARIO("Assigning a transformation to plane", "[Plane]") {
     GIVEN("s = testShape()") {
         auto s = testShape();
         WHEN("s.setTransformation(translate(2.0, 3.0, 4.0)") {

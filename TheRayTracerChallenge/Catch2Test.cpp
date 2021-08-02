@@ -49,14 +49,16 @@ int main(int argc, char* argv[]) {
 #if 1
 
 #if RESOLUTION == 1
-    auto canvas = createCanvas(320, 180);
+    auto canvas = createCanvas(640, 360);
 #elif RESOLUTION == 2
     auto canvas = createCanvas(1280, 720);
 #elif RESOLUTION == 3
     auto canvas = createCanvas(1920, 1080);
 #endif
 
-    auto samplesPerPixel = 8;
+    constexpr auto samplesPerPixel = 8;
+
+    constexpr auto remaining = 5;
 
     auto imageWidth = canvas.getWidth();
     auto imageHeight = canvas.getHeight();
@@ -70,15 +72,23 @@ int main(int argc, char* argv[]) {
     auto sphere = std::make_shared<Sphere>(point(-1.0, 0.0, -3.0), 1.0);
     sphere->transform(viewMatrix);
     sphere->material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
-    sphere->material.pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
-    sphere->material.pattern->transform(rotateZ(Math::pi_4));
-    sphere->material.bHasPattern = true;
+    //sphere->material.pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
+    //sphere->material.pattern.value()->transform(rotateZ(Math::pi_4));
+
+    world.addObject(sphere);
+
+    sphere = std::make_shared<Sphere>(point(0.0, -0.5, 0.0), 0.5);
+    sphere->transform(viewMatrix);
+    sphere->material = { { 0.5, 1.0, 0.5}, 0.1, 1.0, 0.9, 128.0 };
+    //sphere->material.pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(1.0, 0.0, -3.0), 1.0);
     sphere->transform(viewMatrix);
-    sphere->material = { { 1.0, 0.2, 1.0}, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material = { { 0.4, 0.6, 0.9 }, 0.1, 1.0, 0.9, 128.0 };
+    //sphere->material.pattern = std::make_shared<RingPattern>(Color::red, Color::green);
+    //sphere->material.pattern.value()->transform(scaling(0.125, 0.125, 0.125));
 
     world.addObject(sphere);
 
@@ -114,14 +124,13 @@ int main(int argc, char* argv[]) {
 
     auto floor = std::make_shared<Plane>(point(0.0, -1.0, 0.0), vector(0.0, 1.0, 0.0));
     floor->material.color = color(0.4, 1.0, 0.4);
-    floor->material.bHasPattern = true;
-    floor->material.pattern = std::make_shared<CheckerPattern>();
+    floor->material.reflective = 0.25;
+    //floor->material.pattern = std::make_shared<CheckerPattern>();
 
     world.addObject(floor);
 
     auto background = std::make_shared<Plane>(point(0.0, 0.0, -15.0), vector(0.0, 0.0, 1.0));
     background->material.color = color(0.4, 0.8, 0.9);
-    //background->material.bHasPattern = true;
 
     world.addObject(background);
 
@@ -166,7 +175,7 @@ int main(int argc, char* argv[]) {
 
                 auto ray = camera.getRay(dx, dy);
 
-                finalColor += colorAt(world, ray);
+                finalColor += colorAt(world, ray, remaining);
             }
 
             canvas.writePixel(x, y, finalColor / samplesPerPixel);

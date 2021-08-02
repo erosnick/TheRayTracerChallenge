@@ -6,6 +6,12 @@
 #include "World.h"
 #include "Intersection.h"
 
+
+inline Tuple shadeHit(const World& world, const HitInfo& hitInfo,
+    int32_t remaining = 5, bool bHalfLambert = false, bool bBlinnPhong = false);
+inline Tuple colorAt(const World& world, Ray& ray, int32_t remaining = 5);
+inline Tuple reflectedColor(const World& world, const HitInfo& hitInfo, int32_t remaining = 5);
+
 Tuple lighting(const Material& material, const ShapePtr& object, const Light& light, 
                const Tuple& position, const Tuple& viewDirection, 
                const Tuple& normal, bool bInShadow = false, 
@@ -34,21 +40,27 @@ inline bool isShadow(const World& world, const Light& light, const Tuple& positi
 }
 
 inline Tuple shadeHit(const World& world, const HitInfo& hitInfo, 
-                      bool bHalfLambert = false, bool bBlinnPhong = false) {
-    auto finalColor = color(0.0, 0.0, 0.0);
+                      int32_t remaining, bool bHalfLambert, bool bBlinnPhong) {
+    auto surface = Color::black;
 
     for (const auto& light : world.getLights()) {
         //auto transformedLight = light;
         //transformedLight.transform(hitInfo.object.transform.inverse());
         auto inShadow = isShadow(world, light, hitInfo.overPosition);
-        finalColor += lighting(hitInfo.object->material, hitInfo.object, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
+        surface += lighting(hitInfo.object->material, hitInfo.object, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
     }
+
+    auto reflected = reflectedColor(world, hitInfo, remaining);
     
-    return finalColor;
+    return surface + reflected;
 }
 
-inline Tuple colorAt(const World& world, Ray& ray) {
-    auto finalColor = Tuple();
+// colorat() 
+//  - world.intersect()
+//  - prepareComputations()
+//  - shadeHit() -> lighting()
+inline Tuple colorAt(const World& world, Ray& ray, int32_t remaining) {
+    auto surface = Color::black;
 
     auto intersections = world.intersect(ray);
 
@@ -62,13 +74,24 @@ inline Tuple colorAt(const World& world, Ray& ray) {
     const auto& intersection = intersections[0];
 
     if (!intersection.bShading) {
-        finalColor = color(1.0, 1.0, 1.0);
-        return finalColor;
+        surface = Color::white;
+        return surface;
     }
 
     auto hitInfo = prepareComputations(intersection, intersection.ray);
 
-    finalColor = shadeHit(world, hitInfo, false, true);
+    surface = shadeHit(world, hitInfo, remaining, false, true);
 
-    return finalColor;
+    return surface;
+}
+
+inline Tuple reflectedColor(const World& world, const HitInfo& hitInfo, int32_t remaining) {
+    if (hitInfo.object->material.reflective == 0.0 || remaining == 0) {
+        return Color::black;
+    }
+
+    auto reflectedRay = Ray(hitInfo.overPosition, hitInfo.reflectVector);
+    auto color = colorAt(world, reflectedRay, remaining - 1);
+
+    return color * hitInfo.object->material.reflective;
 }

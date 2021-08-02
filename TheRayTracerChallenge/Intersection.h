@@ -14,6 +14,7 @@ struct HitInfo {
     Tuple viewDirection;
     Tuple normal;
     Tuple overPosition;
+    Tuple reflectVector;
     bool inside = false;
 };
 

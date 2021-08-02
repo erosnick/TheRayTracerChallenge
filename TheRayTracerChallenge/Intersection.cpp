@@ -22,6 +22,10 @@ HitInfo prepareComputations(const Intersection& intersection, const Ray& ray) {
         hitInfo.normal = -hitInfo.normal;
     }
 
+    if (hitInfo.object->material.reflective > 0.0) {
+        hitInfo.reflectVector = reflect(ray.direction, hitInfo.normal);
+    }
+
     hitInfo.overPosition = hitInfo.position + hitInfo.normal * Math::epsilon;
 
     return hitInfo;

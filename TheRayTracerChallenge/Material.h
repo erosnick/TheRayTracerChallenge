@@ -2,6 +2,7 @@
 
 #include "Tuple.h"
 #include "types.h"
+#include <optional>
 
 struct Material {
     Material() {
@@ -17,8 +18,10 @@ struct Material {
     double diffuse = 0.9;
     double specular = 0.9;
     double shininess = 128.0;
-    bool bHasPattern = false;
-    PatternPtr pattern;
+    double reflective = 0.0;
+    double transparency = 0.0;
+    double refractiveIndex = 1.0;
+    std::optional<PatternPtr> pattern;
 };
 
 inline bool operator==(const Material& a, const Material& b) {

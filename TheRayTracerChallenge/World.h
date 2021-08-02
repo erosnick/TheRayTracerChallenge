@@ -121,3 +121,23 @@ inline World defaultWorld2() {
 
     return world;
 }
+
+inline World defaultWorld3() {
+    auto world = World();
+
+    auto sphere = std::make_shared<Sphere>();
+    sphere->material = { { 0.8, 1.0, 0.6}, 0.1, 0.7, 0.2, 128.0 };
+
+    world.addObject(sphere);
+
+    sphere = std::make_shared<Sphere>();
+    sphere->setTransformation(scaling(0.5, 0.5, 0.5));
+
+    world.addObject(sphere);
+
+    auto light = Light({ point(-2.0, 2.0, 2.0) }, { 1.0, 1.0, 1.0 });
+
+    world.addLight(light);
+
+    return world;
+}

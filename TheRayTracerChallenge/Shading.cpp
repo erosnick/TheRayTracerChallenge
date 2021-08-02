@@ -7,8 +7,8 @@ Tuple lighting(const Material& material, const ShapePtr& object, const Light& li
                bool bHalfLambert, bool bBlinnPhong) {
     auto materialColor = material.color;
 
-    if (material.bHasPattern) {
-        materialColor = material.pattern->patternAtShape(object, position);
+    if (material.pattern.has_value()) {
+        materialColor = material.pattern.value()->patternAtShape(object, position);
     }
 
     auto ambientColor = materialColor * material.ambient;

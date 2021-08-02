@@ -105,15 +105,17 @@ SCENARIO("The default pattern transformation", "[Pattern]") {
     }
 }
 
-SCENARIO("Assigning a transformation", "[Pattern]") {
+SCENARIO("Assigning a transformation to pattern", "[Pattern]") {
     GIVEN("pattern = Pattern()") {
         auto pattern = Pattern();
-        WHEN("pattern.setTransformation()") {
-
+        WHEN("pattern.setTransformation(translate(1.0, 2.0, 3.0))") {
+            pattern.setTransformation(translate(1.0, 2.0, 3.0));
+            THEN("pattern.transformation == translate(1.0, 2.0, 3.0)") {
+                REQUIRE(pattern.transformation == translate(1.0, 2.0, 3.0));
+            }
         }
     }
 }
-
 
 // The following 3 tests were replaced by the following tests.
 //SCENARIO("Stripes with an object transformation", "[Pattern]") {
@@ -173,3 +175,103 @@ SCENARIO("Assigning a transformation", "[Pattern]") {
 //    }
 //}
 
+SCENARIO("A pattern with an object transformation", "[Pattern]") {
+    GIVEN("object = Sphere()") {
+        auto shape = std::make_shared<Sphere>();
+        AND_GIVEN("object.setTransformation(scaling(2.0, 2.0, 2.0)") {
+            shape->setTransformation(scaling(2.0, 2.0, 2.0));
+            AND_GIVEN("pattern = TestPattern()") {
+                auto pattern = TestPattern();
+                WHEN("c = pattern.patternAtShape(shape, point(2.0, 3.0, 4.0)") {
+                    auto c = pattern.patternAtShape(shape, point(2.0, 3.0, 4.0));
+                    THEN("c == color(1.0, 1.5, 2.0)") {
+                        REQUIRE(c == color(1.0, 1.5, 2.0));
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("A pattern with a pattern transformation", "[Pattern]") {
+    GIVEN("object = Sphere()") {
+        auto shape = std::make_shared<Sphere>();
+        AND_GIVEN("pattern = TestPattern()") {
+            auto pattern = TestPattern();
+            AND_GIVEN("pattern.setTransformation(scaling(2.0, 2.0, 2.0))") {
+                pattern.setTransformation(scaling(2.0, 2.0, 2.0));
+                WHEN("c = pattern.patternAtShape(shape, point(2.0, 3.0, 4.0)") {
+                    auto c = pattern.patternAtShape(shape, point(2.0, 3.0, 4.0));
+                    THEN("c == color(1.0, 1.5, 2.0)") {
+                        REQUIRE(c == color(1.0, 1.5, 2.0));
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("A pattern with both an object and a pattern transformation", "[Pattern]") {
+    GIVEN("object = Sphere()") {
+        auto shape = std::make_shared<Sphere>();
+        AND_GIVEN("shape->setTransformation(scaling(2.0, 2.0, 2.0))") {
+            shape->setTransformation(scaling(2.0, 2.0, 2.0));
+            AND_GIVEN("pattern = TestPattern()") {
+                auto pattern = TestPattern();
+                AND_GIVEN("pattern.setTransformation(translate(0.5, 1.0, 1.5))") {
+                    pattern.setTransformation(translate(2.0, 2.0, 2.0));
+                    WHEN("c = pattern.patternAtShape(shape, point(2.5, 3.0, 3.5)") {
+                        auto c = pattern.patternAtShape(shape, point(2.5, 3.0, 3.5));
+                        THEN("c == color(0.75, 0.5, 0.25)") {
+                            REQUIRE(c == color(0.75, 0.5, 0.25));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("A gradient linearly interpolates between colors", "[Pattern]") {
+    GIVEN("pattern = GradientPattern()") {
+        auto pattern = GradientPattern();
+        THEN("pattern.patternAt(point(0.0, 0.0, 0.0)) == white") {
+            REQUIRE(pattern.patternAt(point(0.0, 0.0, 0.0)) == Color::white);
+            AND_THEN("pattern.patternAt(point(0.25, 0.0, 0.0)) == color(0.75, 0.75, 0.75)")
+                REQUIRE(pattern.patternAt(point(0.25, 0.0, 0.0)) == color(0.75, 0.75, 0.75));
+            AND_THEN("pattern.patternAt(point(0.5, 0.0, 0.0)) == color(0.5, 0.5, 0.5)")
+                REQUIRE(pattern.patternAt(point(0.5, 0.0, 0.0)) == color(0.5, 0.5, 0.5));
+            AND_THEN("pattern.patternAt(point(0.75, 0.0, 0.0)) == color(0.25, 0.25, 0.25)")
+                REQUIRE(pattern.patternAt(point(0.75, 0.0, 0.0)) == color(0.25, 0.25, 0.25));
+        }
+    }
+}
+
+SCENARIO("A ring should extend in both x and z", "[Pattern]") {
+    GIVEN("pattern = RingPattern()") {
+        auto pattern = RingPattern();
+        THEN("pattern.patternAt(point(0.0, 0.0, 0.0)) == white") {
+            REQUIRE(pattern.patternAt(point(0.0, 0.0, 0.0)) == Color::white);
+            AND_THEN("pattern.patternAt(point(1.0, 0.0, 0.0)) == Color::black")
+                REQUIRE(pattern.patternAt(point(1.0, 0.0, 0.0)) == Color::black);
+            AND_THEN("pattern.patternAt(point(0.0, 0.0, 1.0)) == Color::black")
+                REQUIRE(pattern.patternAt(point(0.0, 0.0, 1.0)) == Color::black);
+            // 0.708 = just slightly more than ¡Ì2 / 2
+            AND_THEN("pattern.patternAt(point(0.75, 0.0, 0.0)) == Color::black")
+                REQUIRE(pattern.patternAt(point(0.708, 0.0, 0.708)) == Color::black);
+        }
+    }
+}
+
+SCENARIO("Checkers should repeat in x", "[Pattern]") {
+    GIVEN("pattern = CheckerPattern()") {
+        auto pattern = CheckerPattern();
+        THEN("pattern.patternAt(point(0.0, 0.0, 0.0)) == white") {
+            REQUIRE(pattern.patternAt(point(0.0, 0.0, 0.0)) == Color::white);
+            AND_THEN("pattern.patternAt(point(0.99, 0.0, 0.0)) == Color::white")
+                REQUIRE(pattern.patternAt(point(0.99, 0.0, 0.0)) == Color::white);
+            AND_THEN("pattern.patternAt(point(1.01, 0.0, 0.0)) == Color::black")
+                REQUIRE(pattern.patternAt(point(1.01, 0.0, 0.0)) == Color::black);
+        }
+    }
+}

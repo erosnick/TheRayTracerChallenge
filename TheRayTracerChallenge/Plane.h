@@ -10,6 +10,10 @@ public:
     : position(inPosition), normal(inNormal) {}
 
     inline void setTransformation(const Matrix4& inTransformation) override {
+        Shape::setTransformation(inTransformation);
+        position.x = transformation[0][3];
+        position.y = transformation[1][3];
+        position.z = transformation[2][3];
     }
 
     inline Tuple normalAt(const Tuple& position) const override {
@@ -29,6 +33,8 @@ public:
         // p = p0 + tu  ray equation   (1)
         // n，(p - p0)   plane equation (2)
         // p0 in equation (1) and (2) are different
+        // Let p0 in (2) = p1
+        // t = (n，p1 - n，p0) / (n，u)
         auto denominator = normal.dot(ray.direction);
 
         if (denominator != 0.0) {
