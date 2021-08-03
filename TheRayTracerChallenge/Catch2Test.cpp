@@ -21,6 +21,8 @@
 #include "utils.h"
 #include "Timer.h"
 #include "Pattern.h"
+#include "World.h"
+#include "Light.h"
 
 void openImage(const std::wstring& path) {
 
@@ -43,7 +45,7 @@ void openImage(const std::wstring& path) {
     WaitForSingleObject(execInfo.hProcess, INFINITE);
 }
 
-#define RESOLUTION 3
+#define RESOLUTION 1
 
 int main(int argc, char* argv[]) {
 #if 1
@@ -77,9 +79,12 @@ int main(int argc, char* argv[]) {
 
     world.addObject(sphere);
 
-    sphere = std::make_shared<Sphere>(point(0.0, -0.5, 0.0), 0.5);
+    sphere = std::make_shared<Sphere>(point(1.0, 0.0, 1.0), 1.0);
     sphere->transform(viewMatrix);
     sphere->material = { { 0.5, 1.0, 0.5}, 0.1, 1.0, 0.9, 128.0 };
+    //sphere->material.reflective = 0.25;
+    sphere->material.transparency = 0.5;
+    sphere->material.refractiveIndex = 1.5;
     //sphere->material.pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
 
     world.addObject(sphere);
@@ -128,6 +133,13 @@ int main(int argc, char* argv[]) {
     //floor->material.pattern = std::make_shared<CheckerPattern>();
 
     world.addObject(floor);
+
+    auto ceiling = std::make_shared<Plane>(point(0.0, 5.0, 0.0), vector(0.0, -1.0, 0.0));
+    ceiling->material.color = color(0.4, 0.8, 0.9);
+    //ceiling->material.reflective = 0.25;
+    floor->material.pattern = std::make_shared<CheckerPattern>();
+
+    world.addObject(ceiling);
 
     auto background = std::make_shared<Plane>(point(0.0, 0.0, -15.0), vector(0.0, 0.0, 1.0));
     background->material.color = color(0.4, 0.8, 0.9);

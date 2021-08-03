@@ -14,7 +14,10 @@ struct HitInfo {
     Tuple viewDirection;
     Tuple normal;
     Tuple overPosition;
+    Tuple underPosition;
     Tuple reflectVector;
+    double n1;
+    double n2;
     bool inside = false;
 };
 
@@ -74,4 +77,5 @@ inline Intersection hit(const std::vector<Intersection>& records) {
     return result;
 }
 
-HitInfo prepareComputations(const Intersection& intersection, const Ray& ray);
+HitInfo prepareComputations(const Intersection& hit, const Ray& ray,
+                            const std::vector<Intersection>& intersections = std::vector<Intersection>());

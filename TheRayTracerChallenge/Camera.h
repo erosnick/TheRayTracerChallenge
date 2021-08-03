@@ -2,6 +2,7 @@
 
 #include "Tuple.h"
 #include "Ray.h"
+#include "Matrix.h"
 
 class Camera {
 public:

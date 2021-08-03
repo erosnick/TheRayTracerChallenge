@@ -2,6 +2,20 @@
 
 #include <memory>
 
+class Tuple;
+
+class World;
+
+class Ray;
+
+class Light;
+
+struct HitInfo;
+
+struct Material;
+
+struct Intersection;
+
 class Shape;
 
 using ShapePtr = std::shared_ptr<Shape>;

@@ -1,6 +1,13 @@
 #include "Shading.h"
-#include <algorithm>
+#include "Tuple.h"
+#include "Material.h"
+#include "Light.h"
+#include "World.h"
+#include "Intersection.h"
 #include "Pattern.h"
+#include "Shape.h"
+
+#include <algorithm>
 
 Tuple lighting(const Material& material, const ShapePtr& object, const Light& light, const Tuple& position,
                const Tuple& viewDirection, const Tuple& normal, bool bInShadow, 
@@ -57,4 +64,118 @@ Tuple lighting(const Material& material, const ShapePtr& object, const Light& li
                const HitInfo& hitInfo, bool bInShadow, 
                bool bHalfLambert, bool bBlinnPhong) {
     return lighting(material, object, light, hitInfo.position, hitInfo.viewDirection, hitInfo.normal, bInShadow, bHalfLambert, bBlinnPhong);
+}
+
+bool isShadow(const World& world, const Light& light, const Tuple& position) {
+    auto toLight = light.position - position;
+    const auto distance = toLight.magnitude();
+
+    auto ray = Ray(position, toLight.normalize());
+    auto intersections = world.intersect(ray);
+
+    if (intersections.size() > 0) {
+        const auto& intersection = intersections[0];
+
+        if (!intersection.object->bIsLight && intersection.t < distance) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+Tuple shadeHit(const World& world, const HitInfo& hitInfo,
+    int32_t remaining, bool bHalfLambert, bool bBlinnPhong) {
+    auto surface = Color::black;
+
+    for (const auto& light : world.getLights()) {
+        //auto transformedLight = light;
+        //transformedLight.transform(hitInfo.object.transform.inverse());
+        auto inShadow = isShadow(world, light, hitInfo.overPosition);
+        surface += lighting(hitInfo.object->material, hitInfo.object, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
+    }
+
+    auto reflected = Color::black; // reflectedColor(world, hitInfo, remaining);
+
+    auto refracted = refractedColor(world, hitInfo, remaining);
+
+    return surface + reflected + refracted;
+}
+
+// colorat() 
+//  - world.intersect()
+//  - prepareComputations()
+//  - shadeHit() -> lighting()
+Tuple colorAt(const World& world, Ray& ray, int32_t remaining) {
+    auto surface = Color::black;
+
+    auto intersections = world.intersect(ray);
+
+    if (intersections.size() == 0) {
+        auto t = 0.5 * (ray.direction.y + 1.0);
+        auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+        return missColor;
+    }
+
+    // Nearest intersection
+    const auto& hit = intersections[0];
+
+    if (!hit.bShading) {
+        surface = Color::white;
+        return surface;
+    }
+
+    auto hitInfo = prepareComputations(hit, hit.ray);
+
+    surface = shadeHit(world, hitInfo, remaining, false, true);
+
+    return surface;
+}
+
+Tuple reflectedColor(const World& world, const HitInfo& hitInfo, int32_t remaining) {
+    if (hitInfo.object->material.reflective == 0.0 || remaining == 0) {
+        return Color::black;
+    }
+
+    auto reflectedRay = Ray(hitInfo.overPosition, hitInfo.reflectVector);
+    auto color = colorAt(world, reflectedRay, remaining - 1);
+
+    return color * hitInfo.object->material.reflective;
+}
+
+Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaining) {
+    if (hitInfo.object->material.transparency == 0.0 || remaining == 0) {
+        return  Color::black;
+    }
+
+    // Find the ratio of first index of refraction to the second.
+    // (Yup, this is inverted from the definition of Snell's Law.)
+    auto ratio = hitInfo.n1 / hitInfo.n2;
+
+    // cos(¦Èi) is the same as the dot product of the two vectors
+    auto cos¦Èi = hitInfo.viewDirection.dot(hitInfo.normal);
+
+    // Find sin(¦¨t)^2 via trigonometric identity
+    auto sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
+
+    if (sin¦Èt2 > 1.0) {
+        return Color::black;
+    }
+
+    // Find cos(¦Èt) via trigonometric identity
+    auto cos¦Èt = std::sqrt(1.0 - sin¦Èt2);
+
+    // Compute the direction of the refracted ray
+    // For the first recursion, viewDirection is the "real" view direction
+    // after this viewDirect == -ray.direction(ray is incident ray)
+    auto direction = hitInfo.normal * (ratio * cos¦Èi - cos¦Èt) - hitInfo.viewDirection * ratio;
+
+    // Create the refracted ray
+    auto refractedRay = Ray(hitInfo.underPosition, direction);
+
+    // Find the color of the refracted ray, making sure to multiply
+    // by the transparency value to account for any opacity
+    auto color = colorAt(world, refractedRay, remaining - 1) * hitInfo.object->material.transparency;
+
+    return color;
 }

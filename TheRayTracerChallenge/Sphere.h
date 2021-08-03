@@ -90,3 +90,12 @@ inline bool operator==(const Sphere& a, const Sphere& b) {
          && (a.transformation == b.transformation)
          && (a.material == b.material));
 }
+
+inline SpherePtr glassSphere() {
+    auto sphere = std::make_shared<Sphere>();
+
+    sphere->material.transparency = 1.0;
+    sphere->material.refractiveIndex = 1.5;
+
+    return sphere;
+}

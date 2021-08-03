@@ -4,6 +4,7 @@
 #include "Intersection.h"
 #include "World.h"
 #include "Shading.h"
+#include "Light.h"
 
 SCENARIO("Reflectivity for the default material", "[Reflection]") {
     GIVEN("m = Material()") {

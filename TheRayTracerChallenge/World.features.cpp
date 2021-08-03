@@ -3,6 +3,9 @@
 #include "Material.h"
 #include "Shading.h"
 #include "Camera.h"
+#include "Sphere.h"
+#include "Light.h"
+#include "Intersection.h"
 
 SCENARIO("Creating a world", "[World]") {
     GIVEN("w = World()") {

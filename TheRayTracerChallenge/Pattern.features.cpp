@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "Light.h"
 #include "Shading.h"
+#include "Sphere.h"
 
 auto black = Color::black;
 auto white = Color::white;
