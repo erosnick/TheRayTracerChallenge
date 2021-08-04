@@ -52,8 +52,8 @@ public:
         return  normal.normalize();
     }
 
-    inline void transform(const Matrix4& inTransformation) {
-        transformation = inTransformation * transformation;
+    inline void transform(const Matrix4& inTransformation) override {
+        Shape::transform(inTransformation);
 
         origin.x = transformation[0][3];
         origin.y = transformation[1][3];

@@ -16,9 +16,9 @@ struct HitInfo {
     Tuple overPosition;
     Tuple underPosition;
     Tuple reflectVector;
-    double n1;
-    double n2;
-    bool inside = false;
+    double n1 = 1.0;
+    double n2 = 1.0;
+    bool bInside = false;
 };
 
 struct Intersection {
@@ -65,7 +65,7 @@ inline std::vector<Intersection> intersections(const std::initializer_list<Inter
     return records;
 }
 
-inline Intersection hit(const std::vector<Intersection>& records) {
+inline Intersection nearestHit(const std::vector<Intersection>& records) {
     auto result = Intersection();
 
     for (const auto& record : records) {

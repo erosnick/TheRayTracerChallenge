@@ -60,6 +60,7 @@ public:
 
     inline Tuple patternAt(const Tuple& position) const override {
         auto sum = std::floor(position.x) + std::floor(position.y) + std::floor(position.z);
+        //auto sum = std::floor(position.x) + std::floor(position.z);
         if (std::fmod(sum, 2.0) == 0.0) {
             return color1;
         }

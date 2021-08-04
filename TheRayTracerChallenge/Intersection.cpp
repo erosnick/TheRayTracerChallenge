@@ -18,7 +18,7 @@ HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const std::
     hitInfo.normal = hitInfo.object->normalAt(hitInfo.position);
 
     if (hitInfo.normal.dot(hitInfo.viewDirection) < 0.0) {
-        hitInfo.inside = true;
+        hitInfo.bInside = true;
         hitInfo.normal = -hitInfo.normal;
     }
 
@@ -42,7 +42,6 @@ HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const std::
             }
             else {
                 hitInfo.n1 = container[container.size() - 1]->material.refractiveIndex;
-                std::cout << "n1\n";
             }
         }
 
@@ -67,7 +66,6 @@ HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const std::
             }
             else {
                 hitInfo.n2 = container[container.size() - 1]->material.refractiveIndex;
-                std::cout << "n2\n";
             }
             break;
         }

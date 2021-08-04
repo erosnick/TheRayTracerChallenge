@@ -23,6 +23,7 @@
 #include "Pattern.h"
 #include "World.h"
 #include "Light.h"
+#include "Triangle.h"
 
 void openImage(const std::wstring& path) {
 
@@ -67,27 +68,52 @@ int main(int argc, char* argv[]) {
 
     Camera camera(imageWidth, imageHeight);
 
-    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 8.0), point(0.0, 0.0, -1.0), vector(0.0, 1.0, 0.0));
+    // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查
+    auto viewMatrix = camera.lookAt(60.0, point(0.0, 1.0, 0.1), point(0.0, 1.0, -1.0), vector(0.0, 1.0, 0.0));
 
     World world;
 
-    auto sphere = std::make_shared<Sphere>(point(-1.0, 0.0, -3.0), 1.0);
+    auto sphere = std::make_shared<Sphere>(point(-1.0, 0.0, -6.0), 1.0);
     sphere->transform(viewMatrix);
     sphere->material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
     //sphere->material.pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
     //sphere->material.pattern.value()->transform(rotateZ(Math::pi_4));
 
+    //world.addObject(sphere);
+
+    sphere = std::make_shared<Sphere>(point(-1.0, 1.3, -10.0), 1.3);
+    sphere->transform(viewMatrix);
+    sphere->material = { { 0.6, 0.7, 0.8 }, 0.1, 1.0, 0.9, 128.0 };
+    //sphere->material.reflective = 0.25;
+    //sphere->material.transparency = 1.0;
+    //sphere->material.refractiveIndex = 1.5;
+    //sphere->material.pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
+
     world.addObject(sphere);
 
-    sphere = std::make_shared<Sphere>(point(1.0, 0.0, 1.0), 1.0);
+    sphere = std::make_shared<Sphere>(point(0.25, 1.0, -6.0), 1.0);
     sphere->transform(viewMatrix);
-    sphere->material = { { 0.5, 1.0, 0.5}, 0.1, 1.0, 0.9, 128.0 };
-    //sphere->material.reflective = 0.25;
-    sphere->material.transparency = 0.5;
+    sphere->material = { { 0.0, 0.0, 0.0 }, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material.reflective = 0.05;
+    sphere->material.transparency = 1.0;
     sphere->material.refractiveIndex = 1.5;
     //sphere->material.pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
 
     world.addObject(sphere);
+
+    auto triangle = std::make_shared<Triangle>(point(-1.0, 0.0, -1.0), point(-1.0, 0.0, 1.0), point(1.0, 0.0, 1.0));
+    triangle->setTransformation(viewMatrix * translate(0.0, 0.0, -6.0) * scaling(3.0, 1.0, 3.0));
+    triangle->material.color = color(0.4, 1.0, 0.4);
+    //triangle->material.pattern = std::make_shared<CheckerPattern>();
+
+    world.addObject(triangle);
+
+    triangle = std::make_shared<Triangle>(point(-1.0, 0.0, -1.0), point(1.0, 0.0, 1.0), point(1.0, 0.0, -1.0));
+    triangle->setTransformation(viewMatrix * translate(0.0, 0.0, -6.0) * scaling(3.0, 1.0, 3.0));
+    triangle->material.color = color(0.4, 1.0, 0.4);
+    //triangle->material.pattern = std::make_shared<CheckerPattern>();
+
+    world.addObject(triangle);
 
     sphere = std::make_shared<Sphere>(point(1.0, 0.0, -3.0), 1.0);
     sphere->transform(viewMatrix);
@@ -95,9 +121,9 @@ int main(int argc, char* argv[]) {
     //sphere->material.pattern = std::make_shared<RingPattern>(Color::red, Color::green);
     //sphere->material.pattern.value()->transform(scaling(0.125, 0.125, 0.125));
 
-    world.addObject(sphere);
+    //world.addObject(sphere);
 
-    //auto floor = std::make_shared<Sphere>(point(0.0, -1001.0, -3.0), 1000.0);
+    //auto floor = std::make_shared<Sphere>(point(0.0, -201.0, -3.0), 200.0);
     //floor->transform(viewMatrix);
     //floor->material.color = color(0.4, 1.0, 0.4);
 
@@ -127,51 +153,67 @@ int main(int argc, char* argv[]) {
 
     //world.addObject(rightWall);
 
-    auto floor = std::make_shared<Plane>(point(0.0, -1.0, 0.0), vector(0.0, 1.0, 0.0));
+    auto floor = std::make_shared<Plane>(viewMatrix * point(0.0, 0.0, 0.0), viewMatrix * vector(0.0, 1.0, 0.0));
     floor->material.color = color(0.4, 1.0, 0.4);
-    floor->material.reflective = 0.25;
-    //floor->material.pattern = std::make_shared<CheckerPattern>();
+    floor->material.reflective = 0.125;
+    floor->material.pattern = std::make_shared<CheckerPattern>();
+    //floor->material.pattern = std::make_shared<CheckerPattern>(color(0.67, 0.67, 0.14), color(0.58, 0.14, 0.0));
 
-    world.addObject(floor);
-
-    auto ceiling = std::make_shared<Plane>(point(0.0, 5.0, 0.0), vector(0.0, -1.0, 0.0));
+    auto ceiling = std::make_shared<Plane>(viewMatrix * point(0.0, 6.0, 0.0), viewMatrix * vector(0.0, -1.0, 0.0));
     ceiling->material.color = color(0.4, 0.8, 0.9);
     //ceiling->material.reflective = 0.25;
-    floor->material.pattern = std::make_shared<CheckerPattern>();
+    ceiling->material.pattern = std::make_shared<CheckerPattern>();
 
-    world.addObject(ceiling);
+    auto frontWall = std::make_shared<Plane>(viewMatrix * point(0.0, 0.0, -15.0), viewMatrix * rotateX(Math::pi_2) * vector(0.0, 1.0, 0.0));
+    frontWall->material.color = color(0.4, 0.8, 0.9);
+    //frontWall->material.specular = 0.1;
+    frontWall->material.pattern = std::make_shared<CheckerPattern>();
 
-    auto background = std::make_shared<Plane>(point(0.0, 0.0, -15.0), vector(0.0, 0.0, 1.0));
-    background->material.color = color(0.4, 0.8, 0.9);
+    auto backWall = std::make_shared<Plane>(viewMatrix * point(0.0, 0.0, 5.0), viewMatrix * vector(0.0, 0.0, -1.0));
+    backWall->material.color = color(0.4, 0.8, 0.9);
+    backWall->material.pattern = std::make_shared<CheckerPattern>();
 
-    world.addObject(background);
-
-    auto leftWall = std::make_shared<Plane>(point(-5.0, 0.0, 0.0), vector(1.0, 0.0, 0.0));
+    auto leftWall = std::make_shared<Plane>(viewMatrix * point(-5.0, 0.0, 0.0), viewMatrix * vector(1.0, 0.0, 0.0));
     leftWall->material.color = color(0.4, 0.8, 0.9);
+    leftWall->material.specular = 0.1;
+    //leftWall->material.pattern = std::make_shared<CheckerPattern>();
 
-    world.addObject(leftWall);
-
-    auto rightWall = std::make_shared<Plane>(point(5.0, 0.0, 0.0), vector(-1.0, 0.0, 0.0));
+    auto rightWall = std::make_shared<Plane>(viewMatrix * point(5.0, 0.0, 0.0), viewMatrix * vector(-1.0, 0.0, 0.0));
     rightWall->material.color = color(0.4, 0.8, 0.9);
+    rightWall->material.specular = 0.1;
+    //rightWall->material.pattern = std::make_shared<CheckerPattern>();
 
+    //world.addObject(floor);
+    world.addObject(ceiling);
+    world.addObject(frontWall);
+    world.addObject(frontWall);
+    world.addObject(leftWall);
     world.addObject(rightWall);
 
-    auto lightPosition = point(-3.0, 2.0, -3.0);
-
-    auto light = Light(viewMatrix * lightPosition, { 1.0, 1.0, 1.0 });
+    auto light = Light(point(-3.0, 2.0, -10.0), { 0.8, 0.8, 0.8 });
+    light.transform(viewMatrix);
 
     world.addLight(light);
 
-    auto lightSphere = std::make_shared<Sphere>(lightPosition, 0.25);
-    lightSphere->transform(viewMatrix);
+    auto lightSphere = std::make_shared<Sphere>(light.position, 0.25);
     lightSphere->bIsLight = true;
-    
-    world.addObject(lightSphere);
+
+    //world.addObject(lightSphere);
+
+    light = Light(point(3.0, 2.0, -7.0), { 0.8, 0.8, 0.8 });
+    light.transform(viewMatrix);
+
+    world.addLight(light);
+
+    lightSphere = std::make_shared<Sphere>(light.position, 0.25);
+    lightSphere->bIsLight = true;
+
+    //world.addObject(lightSphere);
 
     //world = defaultWorld();
 
     Timer timer;
-    #pragma omp parallel for schedule(dynamic, 4)       // OpenMP
+#pragma omp parallel for schedule(dynamic, 4)       // OpenMP
     for (auto y = 0; y < imageHeight; y++) {
         auto percentage = (double)y / (imageHeight - 1) * 100;
         fprintf(stderr, "\rRendering: (%i samples) %.2f%%", samplesPerPixel, percentage);

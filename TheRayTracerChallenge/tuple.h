@@ -18,11 +18,13 @@ public:
     }
 
     double magnitude() const {
-        double squaredLength = x * x + y * y + z * z;
+        return std::sqrt(magnitudeSqured());
+    }
 
-        double length = std::sqrt(squaredLength);
+    double magnitudeSqured() const {
+        double lengthSquared = x * x + y * y + z * z;
 
-        return length;
+        return lengthSquared;
     }
 
     Tuple normalize() {
@@ -39,7 +41,7 @@ public:
         return x * other.x + y * other.y + z * other.z + w * other.w;
     }
 
-    Tuple cross(const Tuple& other) {
+    Tuple cross(const Tuple& other) const {
         return Tuple(other.z * y - z * other.y,
                      other.x * z - x * other.z,
                      other.y * x - y * other.x, 0.0);
@@ -128,19 +130,19 @@ public:
     };
 };
 
-inline Tuple point(double x, double y, double z) {
+inline constexpr Tuple point(double x, double y, double z) {
     return Tuple(x, y, z, 1.0);
 }
 
-inline Tuple point() {
+inline constexpr Tuple point() {
     return Tuple(0.0, 0.0, 0.0, 1.0);
 }
 
-inline Tuple vector(double x, double y, double z) {
+inline constexpr Tuple vector(double x, double y, double z) {
     return Tuple(x, y, z);
 }
 
-inline Tuple vector() {
+inline constexpr Tuple vector() {
     return Tuple();
 }
 

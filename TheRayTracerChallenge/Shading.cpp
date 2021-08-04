@@ -95,7 +95,7 @@ Tuple shadeHit(const World& world, const HitInfo& hitInfo,
         surface += lighting(hitInfo.object->material, hitInfo.object, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
     }
 
-    auto reflected = Color::black; // reflectedColor(world, hitInfo, remaining);
+    auto reflected = reflectedColor(world, hitInfo, remaining);
 
     auto refracted = refractedColor(world, hitInfo, remaining);
 
@@ -114,18 +114,19 @@ Tuple colorAt(const World& world, Ray& ray, int32_t remaining) {
     if (intersections.size() == 0) {
         auto t = 0.5 * (ray.direction.y + 1.0);
         auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+        missColor = color(0.235294, 0.67451, 0.843137);
         return missColor;
     }
 
     // Nearest intersection
-    const auto& hit = intersections[0];
+    const auto& hit = nearestHit(intersections);
 
     if (!hit.bShading) {
         surface = Color::white;
         return surface;
     }
 
-    auto hitInfo = prepareComputations(hit, hit.ray);
+    auto hitInfo = prepareComputations(hit, hit.ray, intersections);
 
     surface = shadeHit(world, hitInfo, remaining, false, true);
 
@@ -143,6 +144,13 @@ Tuple reflectedColor(const World& world, const HitInfo& hitInfo, int32_t remaini
     return color * hitInfo.object->material.reflective;
 }
 
+Tuple refract(const Tuple& uv, const Tuple& n, double etai_over_etat) {
+    auto cos_theta = std::fmin(-uv.dot(n), 1.0);
+    Tuple r_out_perp = etai_over_etat * (uv + cos_theta * n);
+    Tuple r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.magnitudeSqured())) * n;
+    return r_out_perp + r_out_parallel;
+}
+
 Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaining) {
     if (hitInfo.object->material.transparency == 0.0 || remaining == 0) {
         return  Color::black;
@@ -152,15 +160,25 @@ Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaini
     // (Yup, this is inverted from the definition of Snell's Law.)
     auto ratio = hitInfo.n1 / hitInfo.n2;
 
+    if (ratio > 1.0) {
+        int a = 0;
+    }
+
     // cos(¦Èi) is the same as the dot product of the two vectors
     auto cos¦Èi = hitInfo.viewDirection.dot(hitInfo.normal);
+
+    auto sin¦Èi = std::sqrt(1.0 - cos¦Èi * cos¦Èi);
 
     // Find sin(¦¨t)^2 via trigonometric identity
     auto sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
 
-    if (sin¦Èt2 > 1.0) {
+    if (ratio * sin¦Èi > 1.0) {
         return Color::black;
     }
+
+    //if (sin¦Èt2 > 1.0) {
+    //    return Color::black;
+    //}
 
     // Find cos(¦Èt) via trigonometric identity
     auto cos¦Èt = std::sqrt(1.0 - sin¦Èt2);
@@ -169,6 +187,8 @@ Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaini
     // For the first recursion, viewDirection is the "real" view direction
     // after this viewDirect == -ray.direction(ray is incident ray)
     auto direction = hitInfo.normal * (ratio * cos¦Èi - cos¦Èt) - hitInfo.viewDirection * ratio;
+
+    direction = refract(-hitInfo.viewDirection, hitInfo.normal, ratio);
 
     // Create the refracted ray
     auto refractedRay = Ray(hitInfo.underPosition, direction);

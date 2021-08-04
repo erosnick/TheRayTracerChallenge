@@ -162,6 +162,7 @@
     <ClCompile Include="Refraction.features.cpp" />
     <ClCompile Include="Shadow.features.cpp" />
     <ClCompile Include="Shape.cpp" />
+    <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="World.features.cpp" />
     <ClCompile Include="Shading.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Triangle.h" />
     <ClInclude Include="Tuple.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="utils.h" />

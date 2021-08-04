@@ -115,7 +115,7 @@ SCENARIO("The hit, when an intersection occurs on the outside", "[World]") {
                 WHEN("comps = prepareComputatons(i, r)") {
                     auto comps = prepareComputations(i, r);
                     THEN("comps.inside == false") {
-                        REQUIRE(comps.inside == false);
+                        REQUIRE(comps.bInside == false);
                     }
                 }
             }
@@ -137,7 +137,7 @@ SCENARIO("The hit, when an intersection occurs on the inside", "[World]") {
                         AND_THEN("comps.viewDirection == vector(0.0, 0.0, -1.0)")
                             REQUIRE(comps.viewDirection == vector(0.0, 0.0, -1.0));
                         AND_THEN("comps.inside == true")
-                            REQUIRE(comps.inside == true);
+                            REQUIRE(comps.bInside == true);
                     }
                 }
             }

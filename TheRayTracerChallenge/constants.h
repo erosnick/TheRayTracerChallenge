@@ -15,6 +15,9 @@ namespace Math {
     constexpr double sin45d = 0.707107;
     constexpr double sin60D = 0.866025;
     constexpr double epsilon = 0.000001;
+    constexpr Tuple xAxis = vector(1.0, 0.0, 0.0);
+    constexpr Tuple yAxis = vector(0.0, 1.0, 0.0);
+    constexpr Tuple zAxis = vector(0.0, 0.0, -1.0);
 }
 
 namespace Color {

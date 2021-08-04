@@ -14,6 +14,18 @@ public:
         position.x = transformation[0][3];
         position.y = transformation[1][3];
         position.z = transformation[2][3];
+
+        horizontal = transformation * horizontal;
+        vertical = transformation * vertical;
+    }
+
+    inline void transform(const Matrix4& inTransformation) override {
+        Shape::transform(inTransformation);
+
+        normal = transformation * normal;
+        position = transformation * position;
+        horizontal = transformation * horizontal;
+        vertical = transformation * vertical;
     }
 
     inline Tuple normalAt(const Tuple& position) const override {
@@ -44,10 +56,12 @@ public:
                 auto intersection = Intersection();
                 auto hitPosition = ray.position(t);
 
-                if ((hitPosition.x >= -(xAxis * width / 2).x)
-                    && (hitPosition.x <= (xAxis * width / 2).x)
-                    && (hitPosition.z >= (zAxis * height / 2).z)
-                    && (hitPosition.z <= -(zAxis * height / 2).z)) {
+                if ((hitPosition.x >= -(horizontal * width / 2).x)
+                    && (hitPosition.x <= (horizontal * width / 2).x)
+                    && (hitPosition.z >= (vertical * height / 2).z)
+                    && (hitPosition.z <= -(vertical * height / 2).z)) {
+                    intersection.bHit = true;
+                    intersection.count = 1;
                     intersection.t = t;
                     intersection.object = GetPtr();
                     intersection.ray = ray;
@@ -61,8 +75,8 @@ public:
 
     Tuple position = point(0.0, -1.0, 0.0);
     Tuple normal = vector(0.0, 1.0, 0.0);
-    Tuple xAxis = vector(1.0, 0.0, 0.0);
-    Tuple zAxis = vector(0.0, 0.0, -1.0);
-    double width = 50.0;
-    double height = 50.0;
+    Tuple horizontal = vector(1.0, 0.0, 0.0);
+    Tuple vertical = vector(0.0, 0.0, -1.0);
+    double width = 100.0;
+    double height = 100.0;
 };

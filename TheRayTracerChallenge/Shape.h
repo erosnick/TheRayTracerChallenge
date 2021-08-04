@@ -13,6 +13,10 @@ public:
         transformation = inTransformation;
     }
 
+    virtual inline void transform(const Matrix4& inTransformation) {
+        transformation = transformation * inTransformation;
+    }
+
     virtual inline Tuple normalAt(const Tuple& position) const = 0;
 
     virtual std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) = 0;
