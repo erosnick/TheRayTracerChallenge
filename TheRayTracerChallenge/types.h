@@ -2,6 +2,12 @@
 
 #include <memory>
 
+enum class PlaneOrientation : uint8_t {
+    XY,
+    YZ,
+    XZ
+};
+
 class Tuple;
 
 class World;

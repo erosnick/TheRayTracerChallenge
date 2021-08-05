@@ -79,4 +79,5 @@ public:
     Tuple vertical = vector(0.0, 0.0, -1.0);
     double width = 100.0;
     double height = 100.0;
+    PlaneOrientation planeOrientation = PlaneOrientation::XZ;
 };

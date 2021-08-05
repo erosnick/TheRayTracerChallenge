@@ -23,4 +23,6 @@ public:
     double constant = 1.0;
     double linear = 0.045;
     double quadratic = 0.0075;
+
+    bool bAttenuation = true;;
 };

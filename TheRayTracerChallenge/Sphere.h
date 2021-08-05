@@ -45,14 +45,14 @@ public:
     //    }
     //}
 
-    inline Tuple normalAt(const Tuple& position) const override {
+    Tuple normalAt(const Tuple& position) const override {
         auto normal = (position - origin);
         //normal = (transform.inverse()).transpose() * normal;
         normal.w = 0.0;
         return  normal.normalize();
     }
 
-    inline void transform(const Matrix4& inTransformation) override {
+    void transform(const Matrix4& inTransformation) override {
         Shape::transform(inTransformation);
 
         origin.x = transformation[0][3];
@@ -60,7 +60,7 @@ public:
         origin.z = transformation[2][3];
     }
 
-    inline void scaling(double x, double y, double z) {
+    void scaling(double x, double y, double z) {
         scale.x = x;
         scale.y = y;
         scale.z = z;
@@ -68,7 +68,7 @@ public:
         radius = scale.x;
     }
 
-    inline void setTransformation(const Matrix4& inTransformation) override {
+    void setTransformation(const Matrix4& inTransformation) override {
         transformation = inTransformation;
 
         origin.x = transformation[0][3];

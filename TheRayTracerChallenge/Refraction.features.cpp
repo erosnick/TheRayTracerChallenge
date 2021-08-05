@@ -41,8 +41,8 @@ SCENARIO("Finding n1 and n2 at various intersections", "[Refraction]") {
                 AND_GIVEN("r = Ray(point(0.0, 0.0, 4.0), vector(0.0, 0.0, -1.0))") {
                     auto r = Ray(point(0.0, 0.0, 4.0), vector(0.0, 0.0, -1.0));
                     AND_GIVEN("xs = Intersections({{2, A}, {2.75, B}, {3.25, C}, {4.75, B}, {5.25, C}, {6, A}") {
-                        auto xs = intersections({ { 2.0, A }, { 2.75, B }, { 3.25, C }, 
-                                                  { 4.75, B }, { 5.25, C }, { 6.0, A} });
+                        auto xs = intersections({ { 2.0, A }, { 2.75, B }, { 3.25, C },
+                                                  { 4.75, B }, { 5.25, C }, { 6.0, A } });
                         WHEN("comps = prepareComputations(xs[<index>], r, xs)") {
                             auto comps = prepareComputations(xs[0], r, xs);
                             THEN("comps.n1 == <n1>") {
@@ -136,7 +136,7 @@ SCENARIO("The refracted color with an opaque surface", "[Refraction]") {
             AND_GIVEN("r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0))") {
                 auto r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0));
                 AND_GIVEN("xs = intersections({{4, shape}, {6, shape}})") {
-                    auto xs = intersections({ {4, shape}, {6, shape} });
+                    auto xs = intersections({ { 4, shape }, { 6, shape } });
                     WHEN("comps = prepareComputations(xs[0], r, xs)") {
                         auto comps = prepareComputations(xs[0], r, xs);
                         AND_WHEN("c = refractedColor(w, comps, 5") {
@@ -162,7 +162,7 @@ SCENARIO("The refracted color at the maximum recursive depth", "[Refraction]") {
                 AND_GIVEN("r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0))") {
                     auto r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0));
                     AND_GIVEN("xs = intersections({{4, shape}, {6, shape}})") {
-                        auto xs = intersections({ {4, shape}, {6, shape} });
+                        auto xs = intersections({ { 4, shape }, { 6, shape } });
                         WHEN("comps = prepareComputations(xs[0], r, xs)") {
                             auto comps = prepareComputations(xs[0], r, xs);
                             AND_WHEN("c = refractedColor(w, comps, 0") {
@@ -283,6 +283,117 @@ SCENARIO("shade_hit() with a transparent material", "[Refraction]") {
                                         auto color = shadeHit(w, comps, 5);
                                         THEN("color == color(0.944440, 0.0, 0.0)") {
                                             REQUIRE(color == ::color(0.944440, 0.0, 0.0));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("The Schlick approximation under total internal reflection", "[Refraction]") {
+    GIVEN("shape = glassSphere()") {
+        auto shape = glassSphere();
+        AND_GIVEN("r = Ray(point(0.0, 0.0, ¡Ì2/2), vector(0.0, 1.0, 0.0))") {
+            auto r = Ray(point(0.0, 0.0, Math::cos45d), vector(0.0, 1.0, 0.0));
+            AND_GIVEN("xs = intersections(-¡Ì2/2:shape, ¡Ì2/2:shape)") {
+                auto xs = intersections({ { -Math::cos45d, shape },
+                                           { Math::cos45d, shape } });
+                WHEN("comps = prepareComputations(xs[1], r, xs)") {
+                    auto comps = prepareComputations(xs[1], r, xs);
+                    AND_WHEN("reflectance = schlick(comps)") {
+                        auto reflectance = schlick(comps);
+                        THEN("reflectance == 1.0") {
+                            REQUIRE(reflectance == 1.0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("The Schlick approximation with a perpendicular viewing angle", "[Refraction]") {
+    GIVEN("shape = glassSphere()") {
+        auto shape = glassSphere();
+        AND_GIVEN("r = Ray(point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0))") {
+            auto r = Ray(point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
+            AND_GIVEN("xs = intersections(-1:shape, 1:shape)") {
+                auto xs = intersections({ { -1.0, shape },
+                                           { 1.0, shape } });
+                WHEN("comps = prepareComputations(xs[1], r, xs)") {
+                    auto comps = prepareComputations(xs[1], r, xs);
+                    AND_WHEN("reflectance = schlick(comps)") {
+                        auto reflectance = schlick(comps);
+                        THEN("reflectance == 0.04") {
+                            REQUIRE(reflectance == Approx(0.04));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("The Schlick approximation with small angle and n2 > n1", "[Refraction]") {
+    GIVEN("shape = glassSphere()") {
+        auto shape = glassSphere();
+        AND_GIVEN("r = Ray(point(0.0, 0.99, -2.0), vector(0.0, 0.0, 1.0))") {
+            auto r = Ray(point(0.0, 0.99, -2.0), vector(0.0, 0.0, 1.0));
+            AND_GIVEN("xs = intersections(1.8589:shape)") {
+                auto xs = intersections({ { 1.8589, shape } });
+                WHEN("comps = prepareComputations(xs[1], r, xs)") {
+                    auto comps = prepareComputations(xs[0], r, xs);
+                    AND_WHEN("reflectance = schlick(comps)") {
+                        auto reflectance = schlick(comps);
+                        THEN("reflectance == 0.48873") {
+                            REQUIRE(reflectance == Approx(0.48873));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+SCENARIO("shade_hit() with a reflective, transparent material", "[Refraction]") {
+    GIVEN("w = defaultWorld1()") {
+        auto w = defaultWorld1();
+        AND_GIVEN("r = Ray(point(0.0, 0.0, -3.0), vector(0.0, -¡Ì2/2, ¡Ì2/2))") {
+            auto r = Ray(point(0.0, 0.0, -3.0), vector(0.0, -Math::cos45d, Math::cos45d));
+            AND_GIVEN("floor = Plane() with:"
+            "| transform                 | translation(0, -1, 0) |"
+            "| material.reflective       | 0.5                   |"
+            "| material.transparency     | 0.5                   |"
+            "| material.refractive_index | 1.5                   |") {
+                auto floor = std::make_shared<Plane>();
+                floor->material.reflective = 0.5;
+                floor->material.transparency = 0.5;
+                floor->material.refractiveIndex = 1.5;
+                AND_GIVEN("floor is added to w") {
+                    w.addObject(floor);
+                    AND_GIVEN("ball = Sphere() with:"
+                        "| material.color   | (1, 0, 0)                  |"
+                        "| material.ambient | 0.5                        |"
+                        "| transform        | translation(0, -3.5, -0.5) |") {
+                        auto ball = std::make_shared<Sphere>();
+                        ball->setTransformation(translate(0.0, -3.5, -0.5));
+                        ball->material.color = color(1.0, 0.0, 0.0);
+                        ball->material.ambient = 0.5;
+                        AND_GIVEN("ball is added to w") {
+                            w.addObject(ball);
+                            AND_GIVEN("xs = intersectoins(¡Ì2:floor)") {
+                                auto xs = intersections({ { Math::sqrt_2, floor } });
+                                WHEN("comps = prepareComputations(xs[0], r, xs)") {
+                                    auto comps = prepareComputations(xs[0], r, xs);
+                                    AND_WHEN("color = shadeHit(w, comps, 5)") {
+                                        auto color = shadeHit(w, comps, 5);
+                                        THEN("color == color(0.938870, 0.0061850, 0.003711)") {
+                                            REQUIRE(color == ::color(0.938870, 0.0061850, 0.003711));
                                         }
                                     }
                                 }

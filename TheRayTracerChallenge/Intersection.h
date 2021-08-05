@@ -9,7 +9,7 @@
 
 struct HitInfo {
     double t;
-    ShapePtr object;
+    ShapePtr object = nullptr;
     Tuple position;
     Tuple viewDirection;
     Tuple normal;

@@ -9,15 +9,15 @@ struct Intersection;
 
 class Shape : public std::enable_shared_from_this<Shape> {
 public:
-    virtual inline void setTransformation(const Matrix4& inTransformation) {
+    virtual void setTransformation(const Matrix4& inTransformation) {
         transformation = inTransformation;
     }
 
-    virtual inline void transform(const Matrix4& inTransformation) {
+    virtual void transform(const Matrix4& inTransformation) {
         transformation = transformation * inTransformation;
     }
 
-    virtual inline Tuple normalAt(const Tuple& position) const = 0;
+    virtual Tuple normalAt(const Tuple& position) const = 0;
 
     virtual std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) = 0;
 

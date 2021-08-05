@@ -8,9 +8,26 @@ public:
     Triangle(const Tuple& inV0, const Tuple& inV1, const Tuple& inV2) 
     : v0(inV0), v1(inV1), v2(inV2) {}
 
-    void setTransformation(const Matrix4& inTransformation) override;
+    inline void setTransformation(const Matrix4& inTransformation) override {
+        Shape::setTransformation(inTransformation);
 
-    Tuple normalAt(const Tuple& position) const override;
+        v0 = transformation * v0;
+        v1 = transformation * v1;
+        v2 = transformation * v2;
+    }
+
+    inline void transform(const Matrix4& inTransformation) override {
+        Shape::transform(inTransformation);
+    };
+
+    inline Tuple normalAt(const Tuple& position) const override {
+        auto v0v1 = v1 - v0;
+        auto v0v2 = v2 - v0;
+
+        auto normal = v0v1.cross(v0v2);
+
+        return normal.normalize();
+    };
 
     std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) override;
 

@@ -1,23 +1,6 @@
 #include "Triangle.h"
 #include "Intersection.h"
 
-void Triangle::setTransformation(const Matrix4& inTransformation) {
-    Shape::setTransformation(inTransformation);
-
-    v0 = transformation * v0;
-    v1 = transformation * v1;
-    v2 = transformation * v2;
-}
-
-Tuple Triangle::normalAt(const Tuple& position) const {
-    auto v0v1 = v1 - v0;
-    auto v0v2 = v2 - v0;
-
-    auto normal = v0v1.cross(v0v2);
-
-    return normal.normalize();
-}
-
 std::vector<Intersection> Triangle::intersect(const Ray& ray, bool bTransformRay) {
     // TODO: Implement this function that tests whether the triangle
     // that's specified by v0, v1 and v2 intersects with the ray (whose

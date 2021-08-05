@@ -7,6 +7,7 @@ Tuple shadeHit(const World& world, const HitInfo& hitInfo,
 Tuple colorAt(const World& world, Ray& ray, int32_t remaining = 5);
 Tuple reflectedColor(const World& world, const HitInfo& hitInfo, int32_t remaining = 5);
 Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaining = 5);
+double schlick(const HitInfo& hitInfo);
 
 Tuple lighting(const Material& material, const ShapePtr& object, const Light& light, 
                const Tuple& position, const Tuple& viewDirection, 

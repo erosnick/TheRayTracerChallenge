@@ -23,7 +23,14 @@ namespace Math {
 namespace Color {
     constexpr Tuple black = color(0.0, 0.0, 0.0);
     constexpr Tuple white = color(1.0, 1.0, 1.0);
+    constexpr Tuple grey = color(0.5, 0.5, 0.5);
+    constexpr Tuple gray = color(0.7, 0.7, 0.7);
     constexpr Tuple red = color(1.0, 0.0, 0.0);
     constexpr Tuple green = color(0.0, 1.0, 0.0);
     constexpr Tuple blue = color(0.0, 0.0, 1.0);
+    constexpr Tuple pink = color(1.0, 0.55, 0.55);
+    constexpr Tuple roseRed = color(0.76, 0.12, 0.34);
+    constexpr Tuple crimsonRed = color(0.86, 0.08, 0.24);
+    constexpr Tuple lightGreen = color(0.38, 1.0, 0.18);
+    constexpr Tuple orange = color(0.85, 0.49, 0.32);
 }

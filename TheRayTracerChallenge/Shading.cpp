@@ -31,7 +31,12 @@ Tuple lighting(const Material& material, const ShapePtr& object, const Light& li
     auto lightDirection = (light.position - position);
     auto distance = lightDirection.magnitude();
 
-    auto attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    auto attenuation = 1.0;
+
+    if (light.bAttenuation) {
+        attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    }
+
     lightDirection = lightDirection / distance;
 
     auto diffuseTerm = normal.dot(lightDirection);
@@ -63,7 +68,7 @@ Tuple lighting(const Material& material, const ShapePtr& object, const Light& li
 Tuple lighting(const Material& material, const ShapePtr& object, const Light& light,
                const HitInfo& hitInfo, bool bInShadow, 
                bool bHalfLambert, bool bBlinnPhong) {
-    return lighting(material, object, light, hitInfo.position, hitInfo.viewDirection, hitInfo.normal, bInShadow, bHalfLambert, bBlinnPhong);
+    return lighting(material, object, light, hitInfo.overPosition, hitInfo.viewDirection, hitInfo.normal, bInShadow, bHalfLambert, bBlinnPhong);
 }
 
 bool isShadow(const World& world, const Light& light, const Tuple& position) {
@@ -76,7 +81,9 @@ bool isShadow(const World& world, const Light& light, const Tuple& position) {
     if (intersections.size() > 0) {
         const auto& intersection = intersections[0];
 
-        if (!intersection.object->bIsLight && intersection.t < distance) {
+        if (!intersection.object->bIsLight 
+          && intersection.object->material.bCastShadow
+          && intersection.t < distance) {
             return true;
         }
     }
@@ -96,10 +103,16 @@ Tuple shadeHit(const World& world, const HitInfo& hitInfo,
     }
 
     auto reflected = reflectedColor(world, hitInfo, remaining);
-
     auto refracted = refractedColor(world, hitInfo, remaining);
 
-    return surface + reflected + refracted;
+    auto material = hitInfo.object->material;
+    if (material.reflective > 0.0 && material.transparency > 0.0) {
+        auto reflectance = schlick(hitInfo);
+        return surface + reflected * reflectance + refracted * (1.0 - reflectance);
+    }
+    else {
+        return surface + reflected + refracted;
+    }
 }
 
 // colorat() 
@@ -198,4 +211,29 @@ Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaini
     auto color = colorAt(world, refractedRay, remaining - 1) * hitInfo.object->material.transparency;
 
     return color;
+}
+
+double schlick(const HitInfo& hitInfo) {
+    // Find the cosine of the angle between the eye and normal vectors
+    auto cos¦È = hitInfo.viewDirection.dot(hitInfo.normal);
+
+    // Total internal reflection can only occur if n1 > n2
+    if (hitInfo.n1 > hitInfo.n2) {
+        auto n = hitInfo.n1 / hitInfo.n2;
+        auto sin¦Èt2 = n * n * (1.0 - cos¦È * cos¦È);
+        if (sin¦Èt2 > 1.0) {
+            return 1.0;
+        }
+
+        // Compute cosine of ¦Èt using trigonometric identity
+        auto cos¦Èt = std::sqrt(1.0 - sin¦Èt2);
+
+        // When n1 > n2, use cos(¦Èt) instead
+        cos¦È = cos¦Èt;
+    }
+
+    // Return anything but 1.0 here, so that the test will fail
+    // Appropriately if something goes wrong.
+    auto r0 = std::pow(((hitInfo.n1 - hitInfo.n2) / (hitInfo.n1 + hitInfo.n2)), 2.0);
+    return r0 + (1.0 - r0) * std::pow((1.0 - cos¦È), 5.0);
 }
