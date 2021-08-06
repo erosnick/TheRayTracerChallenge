@@ -79,7 +79,7 @@ bool isShadow(const World& world, const Light& light, const Tuple& position) {
     auto intersections = world.intersect(ray);
 
     if (intersections.size() > 0) {
-        const auto& intersection = intersections[0];
+        const auto& intersection = nearestHit(intersections);
 
         if (!intersection.object->bIsLight 
           && intersection.object->material.bCastShadow

@@ -6,6 +6,7 @@
 #include <initializer_list>
 #include <vector>
 #include <memory>
+#include <tuple>
 
 struct HitInfo {
     double t;
@@ -24,8 +25,8 @@ struct HitInfo {
 struct Intersection {
     Intersection() {}
 
-    Intersection(double inT, const ShapePtr& inSphere)
-        : t(inT), object(inSphere) {
+    Intersection(double inT, const ShapePtr& inSphere, const Ray& inRay = Ray())
+        : t(inT), object(inSphere), ray(inRay) {
     }
 
     Intersection(bool bInHit, int32_t inCount, double inT, const ShapePtr& inSphere)
@@ -57,15 +58,15 @@ inline bool operator<(const Intersection& a, const Intersection& b) {
     return (a.t < b.t);
 }
 
-inline std::vector<Intersection> intersections(const std::initializer_list<Intersection>& args) {
-    auto records = std::vector<Intersection>();
+inline InsersectionSet intersections(const std::initializer_list<Intersection>& args) {
+    auto records = InsersectionSet();
     for (const auto& element : args) {
         records.push_back(element);
     }
     return records;
 }
 
-inline Intersection nearestHit(const std::vector<Intersection>& records) {
+inline Intersection nearestHit(const InsersectionSet& records) {
     auto result = Intersection();
 
     for (const auto& record : records) {
@@ -78,4 +79,4 @@ inline Intersection nearestHit(const std::vector<Intersection>& records) {
 }
 
 HitInfo prepareComputations(const Intersection& hit, const Ray& ray,
-                            const std::vector<Intersection>& intersections = std::vector<Intersection>());
+                            const InsersectionSet& intersections = InsersectionSet());

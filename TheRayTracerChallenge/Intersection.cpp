@@ -4,7 +4,7 @@
 #include "Shape.h"
 #include "Sphere.h"
 
-HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const std::vector<Intersection>& intersections) {
+HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const InsersectionSet& intersections) {
     // Instantiate a data structure for storing some precomputed values
     HitInfo hitInfo;
 
@@ -13,7 +13,8 @@ HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const std::
     hitInfo.object = hit.object;
 
     // Precompute some useful values
-    hitInfo.position = ray.position(hitInfo.t);
+    //hitInfo.position = ray.position(hitInfo.t);
+    hitInfo.position = hit.position;
     hitInfo.viewDirection = -ray.direction;
     hitInfo.normal = hitInfo.object->normalAt(hitInfo.position);
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <memory>
 
 enum class PlaneOrientation : uint8_t {
@@ -21,6 +22,8 @@ struct HitInfo;
 struct Material;
 
 struct Intersection;
+
+using InsersectionSet = std::vector<Intersection>;
 
 class Shape;
 

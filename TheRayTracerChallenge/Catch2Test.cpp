@@ -24,6 +24,7 @@
 #include "World.h"
 #include "Light.h"
 #include "Triangle.h"
+#include "Cube.h"
 
 void openImage(const std::wstring& path) {
 
@@ -258,8 +259,9 @@ World pondScene(const Matrix4& viewMatrix) {
 
     auto background = std::make_shared<Plane>(viewMatrix * point(0.0, 0.0, -40.0), viewMatrix * vector(0.0, 0.0, 1.0));
     background->material.pattern = std::make_shared<CheckerPattern>(Color::white, Color::gray, PlaneOrientation::XY, 0.2);
+    background->material.specular = 0.1;
 
-    world.addObject(background);
+    //world.addObject(background);
 
     auto water = std::make_shared<Plane>(viewMatrix * point(0.0, -1.0, 0.0), viewMatrix * vector(0.0, 1.0, 0.0));
     water->material.color = Color::black;
@@ -272,7 +274,7 @@ World pondScene(const Matrix4& viewMatrix) {
 
     auto underwater = std::make_shared<Plane>(viewMatrix * point(0.0, -15.0, 0.0), viewMatrix * vector(0.0, 1.0, 0.0));
     underwater->material.bCastShadow = false;
-    underwater->material.pattern = std::make_shared<CheckerPattern>(Color::lightGreen, Color::orange);
+    underwater->material.pattern = std::make_shared<CheckerPattern>();
 
     world.addObject(underwater);
 
@@ -325,6 +327,51 @@ World pondScene(const Matrix4& viewMatrix) {
     return world;
 }
 
+World cubeScene(const Matrix4& viewMatrix) {
+    auto world = World();
+
+    //auto cube = std::make_shared<Cube>();
+    //cube->setTransformation(viewMatrix * translate(0.0, 0.0, -5.0));
+
+    //world.addObject(cube);
+
+    auto sphere = std::make_shared<Sphere>(point(2.5, 0.0, -9.0), 1.0);
+
+    //world.addObject(sphere);
+
+    auto floor = std::make_shared<Plane>();
+    floor->width = 10;
+    floor->height = 10;
+    floor->setTransformation(viewMatrix * translate(0.0, -1.0, -10.0));
+    floor->material.color = color(0.4, 1.0, 0.4);
+    floor->material.reflective = 0.125;
+    floor->material.pattern = std::make_shared<CheckerPattern>();
+
+    world.addObject(floor);
+
+    auto right = std::make_shared<Plane>();
+    right->width = 1;
+    right->height = 1;
+    right->planeOrientation = PlaneOrientation::YZ;
+    right->setTransformation(viewMatrix * translate(1.0, 0.0, -10.0) * rotateZ(-Math::pi_2));
+    right->material.color = color(0.4, 0.8, 0.9);
+
+    world.addObject(right);
+
+    auto light = Light(point(0.0, 1.0, -4.0), { 1.0, 1.0, 1.0 });
+    light.transform(viewMatrix);
+    //light.bAttenuation = false;
+
+    world.addLight(light);
+
+    auto lightSphere = std::make_shared<Sphere>(light.position, 0.25);
+    lightSphere->bIsLight = true;
+
+    world.addObject(lightSphere);
+
+    return world;
+}
+
 #define RESOLUTION 1
 
 int main(int argc, char* argv[]) {
@@ -340,17 +387,19 @@ int main(int argc, char* argv[]) {
 
     constexpr auto samplesPerPixel = 1;
 
-    constexpr auto remaining = 8;
+    constexpr auto remaining = 5;
 
     auto imageWidth = canvas.getWidth();
     auto imageHeight = canvas.getHeight();
 
     Camera camera(imageWidth, imageHeight);
 
-    // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查
+    // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查(已解决，CheckerPattern算法的问题)
     auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 0.1), point(0.0, 0.0, -1.0), vector(0.0, 1.0, 0.0));
 
-    auto world = pondScene(viewMatrix);
+    auto world = cubeScene(viewMatrix);
+        
+    //world = pondScene(viewMatrix);
 
     //world = mainScene(viewMatrix);
 
@@ -367,19 +416,22 @@ int main(int argc, char* argv[]) {
             auto finalColor = color(0.0, 0.0, 0.0);
 
             for (auto sample = 0; sample < samplesPerPixel; sample++) {
-                auto rx = randomDouble();
-                auto ry = randomDouble();
+                auto rx = randomDouble() * 0.0;
+                auto ry = randomDouble() * 0.0;
                 auto dx = (static_cast<double>(x) + rx) / (imageWidth - 1);
                 auto dy = (static_cast<double>(y) + ry) / (imageHeight - 1);
 
                 auto ray = camera.getRay(dx, dy);
 
-                //if (x == 230 && y == 10) {
-                //    finalColor += Color::red;
+                if (x == 233 && y == 118) {
+                    finalColor += Color::green;
+                }
+
+                //if (x == 323 && y == 115) {
+                //    finalColor += Color::green;
                 //}
 
                 finalColor += colorAt(world, ray, remaining);
-
             }
 
             canvas.writePixel(x, y, finalColor / samplesPerPixel);

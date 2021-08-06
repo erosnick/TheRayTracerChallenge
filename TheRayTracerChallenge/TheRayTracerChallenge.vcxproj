@@ -150,6 +150,14 @@
     <ClCompile Include="Catch2Test.cpp" />
     <ClCompile Include="colors.features.cpp" />
     <ClCompile Include="Canvas.features.cpp" />
+    <ClCompile Include="Cube.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Cube.features.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Intersection.cpp" />
     <ClCompile Include="Intersection.features.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -177,6 +185,10 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Canvas.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="Cube.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Intersection.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="lodepng.h" />

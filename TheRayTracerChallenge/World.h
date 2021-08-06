@@ -8,7 +8,7 @@
 
 class World {
 public:
-    std::vector<Intersection> intersect(const Ray& ray) const;
+    InsersectionSet intersect(const Ray& ray) const;
 
     void addLight(const Light& light) {
         lights.push_back(light);

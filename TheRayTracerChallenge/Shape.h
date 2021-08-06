@@ -9,9 +9,7 @@ struct Intersection;
 
 class Shape : public std::enable_shared_from_this<Shape> {
 public:
-    virtual void setTransformation(const Matrix4& inTransformation) {
-        transformation = inTransformation;
-    }
+    virtual void setTransformation(const Matrix4& inTransformation);
 
     virtual void transform(const Matrix4& inTransformation) {
         transformation = transformation * inTransformation;
@@ -19,7 +17,7 @@ public:
 
     virtual Tuple normalAt(const Tuple& position) const = 0;
 
-    virtual std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) = 0;
+    virtual InsersectionSet intersect(const Ray& ray, bool bTransformRay = false) = 0;
 
     std::shared_ptr<Shape> GetPtr() {
         return shared_from_this();
@@ -35,7 +33,7 @@ class TestShape : public Shape
 {
 public:
     virtual Tuple normalAt(const Tuple& position) const override;
-    std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) override;
+    InsersectionSet intersect(const Ray& ray, bool bTransformRay = false) override;
 };
 
 inline TestShape testShape() {

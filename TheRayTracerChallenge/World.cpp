@@ -3,8 +3,8 @@
 #include "Ray.h"
 #include "Intersection.h"
 
-std::vector<Intersection> World::intersect(const Ray& ray) const {
-    std::vector<Intersection> intersections;
+InsersectionSet World::intersect(const Ray& ray) const {
+    InsersectionSet intersections;
 
     for (const auto& object : objects) {
         auto intersection = object->intersect(ray, false);

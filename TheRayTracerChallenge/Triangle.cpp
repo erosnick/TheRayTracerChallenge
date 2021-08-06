@@ -1,12 +1,12 @@
 #include "Triangle.h"
 #include "Intersection.h"
 
-std::vector<Intersection> Triangle::intersect(const Ray& ray, bool bTransformRay) {
+InsersectionSet Triangle::intersect(const Ray& ray, bool bTransformRay) {
     // TODO: Implement this function that tests whether the triangle
     // that's specified by v0, v1 and v2 intersects with the ray (whose
     // origin is *orig* and direction is *dir*)
     // Also don't forget to update tnear, u and v.
-    auto intersections = std::vector<Intersection>();
+    auto intersections = InsersectionSet();
     Tuple E1 = v1 - v0;
     Tuple E2 = v2 - v0;
     Tuple S = ray.origin - v0;
@@ -33,6 +33,7 @@ std::vector<Intersection> Triangle::intersect(const Ray& ray, bool bTransformRay
         intersection.t = t;
         intersection.object = GetPtr();
         intersection.ray = ray;
+        intersection.position = ray.position(t);
         intersections.push_back(intersection);
     }
 

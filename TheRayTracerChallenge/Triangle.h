@@ -29,7 +29,7 @@ public:
         return normal.normalize();
     };
 
-    std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false) override;
+    InsersectionSet intersect(const Ray& ray, bool bTransformRay = false) override;
 
     Tuple v0 = point(0.0, 1.0, 0.0);
     Tuple v1 = point(-1.0, 0.0, 0.0);

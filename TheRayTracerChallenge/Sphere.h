@@ -21,6 +21,8 @@ public:
         transformation[2][3] = origin.z;
     }
 
+    virtual ~Sphere() {}
+
     //inline std::tuple<bool, int32_t, double, double> intersect(const Ray& ray) {
     //    auto oc = (ray.origin - origin);
     //    auto a = ray.direction.dot(ray.direction);
@@ -76,7 +78,7 @@ public:
         origin.z = transformation[2][3];
     }
 
-    std::vector<Intersection> intersect(const Ray& ray, bool bTransformRay = false)  override;
+    InsersectionSet intersect(const Ray& ray, bool bTransformRay = false)  override;
 
     Tuple origin = { 0.0, 0.0, 0.0, 1.0 };
     double radius = 1.0;

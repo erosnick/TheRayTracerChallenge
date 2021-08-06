@@ -138,8 +138,16 @@ inline constexpr Tuple point() {
     return Tuple(0.0, 0.0, 0.0, 1.0);
 }
 
+inline constexpr Tuple point(double value) {
+    return point(value, value, value);
+}
+
 inline constexpr Tuple vector(double x, double y, double z) {
     return Tuple(x, y, z);
+}
+
+inline constexpr Tuple vector(double value) {
+    return vector(value, value, value);
 }
 
 inline constexpr Tuple vector() {

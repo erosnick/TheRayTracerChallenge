@@ -3,9 +3,11 @@
 #include "Tuple.h"
 
 namespace Math {
-    constexpr double pi = 3.14159265358979323846;
-    constexpr double pi_2 = 1.57079632679489661923;
-    constexpr double pi_4 = 0.785398163397448309616;
+    constexpr double pi = 3.1415926535897932;
+    constexpr double pi_3 = 1.0471975511965976;
+    constexpr double pi_2 = 1.5707963267948966;
+    constexpr double pi_4 = 0.7853981633974483;
+    constexpr double pi_6 = 0.5235987755982988;
     constexpr double sqrt_2 = 1.414214;
     constexpr double sqrt_3 = 1.732051;
     constexpr double cos30d = 0.866025;
@@ -18,6 +20,9 @@ namespace Math {
     constexpr Tuple xAxis = vector(1.0, 0.0, 0.0);
     constexpr Tuple yAxis = vector(0.0, 1.0, 0.0);
     constexpr Tuple zAxis = vector(0.0, 0.0, -1.0);
+    constexpr double infinityd = std::numeric_limits<double>::infinity();
+    constexpr double infinityf = std::numeric_limits<float>::infinity();
+    constexpr double infinityi = std::numeric_limits<int32_t>::infinity();
 }
 
 namespace Color {

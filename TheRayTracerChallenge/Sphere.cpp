@@ -1,8 +1,8 @@
 #include "Sphere.h"
 #include "Intersection.h"
 
-std::vector<Intersection> Sphere::intersect(const Ray& ray, bool bTransformRay) {
-    auto intersections = std::vector<Intersection>();
+InsersectionSet Sphere::intersect(const Ray& ray, bool bTransformRay) {
+    auto intersections = InsersectionSet();
     auto transformedRay = ray;
 
     if (bTransformRay) {
