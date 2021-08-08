@@ -461,10 +461,10 @@ inline Matrix4 rotateY(double radian) {
 inline Matrix4 rotateZ(double radian) {
     auto result = Matrix4();
 
-    result[0][0] = std::cos(radian);
+    result[0][0] =  std::cos(radian);
     result[0][1] = -std::sin(radian);
-    result[1][0] = std::sin(radian);
-    result[1][1] = std::cos(radian);
+    result[1][0] =  std::sin(radian);
+    result[1][1] =  std::cos(radian);
 
     return result;
 }
@@ -491,10 +491,10 @@ inline Ray transformRay(const Ray& ray, const Matrix4& matrix) {
     return result;
 }
 
-inline Matrix4 viewTransform(const Tuple& from, const Tuple& to, const Tuple& up) {
+inline Matrix4 viewTransform(const Tuple& eye, const Tuple& center, const Tuple& up) {
     auto viewMatrix = Matrix4();
 
-    auto forward = (to - from).normalize();
+    auto forward = (center - eye).normalize();
     auto right = (forward.cross(up)).normalize();
     auto trueUp = (right.cross(forward)).normalize();
 
@@ -502,9 +502,9 @@ inline Matrix4 viewTransform(const Tuple& from, const Tuple& to, const Tuple& up
     viewMatrix[1] = trueUp;
     viewMatrix[2] = -forward;
 
-    viewMatrix[0][3] = -right.dot(from);
-    viewMatrix[1][3] = -trueUp.dot(from);
-    viewMatrix[2][3] = forward.dot(from);
+    viewMatrix[0][3] = -right.dot(eye);
+    viewMatrix[1][3] = -trueUp.dot(eye);
+    viewMatrix[2][3] = forward.dot(eye);
 
     return viewMatrix;
 }

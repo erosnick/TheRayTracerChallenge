@@ -6,7 +6,9 @@
 #include <array>
 #include <vector>
 #include <tuple>
+#define NOMINMAX
 #include <windows.h>
+#undef NOMINMAX
 #include <omp.h>
 
 #include "catch.hpp"
@@ -335,28 +337,60 @@ World cubeScene(const Matrix4& viewMatrix) {
 
     //world.addObject(cube);
 
-    auto sphere = std::make_shared<Sphere>(point(2.5, 0.0, -9.0), 1.0);
+    auto position = point(-0.8, -0.5, -0.9);
+
+    auto translation = translate(0.0f, 0.0, 0.0);;
+
+    position = viewMatrix * position;
+
+    auto sphere = std::make_shared<Sphere>(point(-1.0, -0.5, -8.0));
+    auto rotation = rotateY(Math::radians(4.7));
+    sphere->setTransformation(viewMatrix);
 
     //world.addObject(sphere);
 
-    auto floor = std::make_shared<Plane>();
-    floor->width = 10;
-    floor->height = 10;
-    floor->setTransformation(viewMatrix * translate(0.0, -1.0, -10.0));
+    sphere = std::make_shared<Sphere>(point(1.0, -0.5, -8.0));
+    sphere->material.color = Color::green;
+    sphere->setTransformation(viewMatrix);
+
+    //world.addObject(sphere);
+
+    auto floor = std::make_shared<Plane>(point(0.0, -1.0, -5.0));
+    floor->width = 5;
+    floor->height = 5;
+    //floor->setTransformation(viewMatrix);
+    floor->setTransformation(viewMatrix * rotateY(Math::pi_4));
     floor->material.color = color(0.4, 1.0, 0.4);
     floor->material.reflective = 0.125;
     floor->material.pattern = std::make_shared<CheckerPattern>();
 
     world.addObject(floor);
 
+    auto top = std::make_shared<Plane>();
+    top->width = 1;
+    top->height = 1;
+    top->setTransformation(viewMatrix * translate(0.0, 0.5, -5.5));
+    top->material.color = color(0.4, 1.0, 0.4);
+
+    //world.addObject(top);
+
     auto right = std::make_shared<Plane>();
     right->width = 1;
     right->height = 1;
     right->planeOrientation = PlaneOrientation::YZ;
-    right->setTransformation(viewMatrix * translate(1.0, 0.0, -10.0) * rotateZ(-Math::pi_2));
+    right->setTransformation(viewMatrix * translate(0.5, 0.0, -5.5) * rotateZ(-Math::pi_2));
     right->material.color = color(0.4, 0.8, 0.9);
 
-    world.addObject(right);
+    //world.addObject(right);
+
+    auto front = std::make_shared<Plane>();
+    front->width = 1;
+    front->height = 1;
+    front->planeOrientation = PlaneOrientation::XY;
+    front->setTransformation(viewMatrix * translate(0.0, 0.0, -5.0) * rotateX(Math::pi_2));
+    front->material.color = color(0.4, 0.8, 0.9);
+
+    //world.addObject(front);
 
     auto light = Light(point(0.0, 1.0, -4.0), { 1.0, 1.0, 1.0 });
     light.transform(viewMatrix);
@@ -395,7 +429,7 @@ int main(int argc, char* argv[]) {
     Camera camera(imageWidth, imageHeight);
 
     // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查(已解决，CheckerPattern算法的问题)
-    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 0.1), point(0.0, 0.0, -1.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 5.0), point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
 
     auto world = cubeScene(viewMatrix);
         

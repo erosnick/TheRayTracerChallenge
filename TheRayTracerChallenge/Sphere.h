@@ -70,13 +70,7 @@ public:
         radius = scale.x;
     }
 
-    void setTransformation(const Matrix4& inTransformation) override {
-        transformation = inTransformation;
-
-        origin.x = transformation[0][3];
-        origin.y = transformation[1][3];
-        origin.z = transformation[2][3];
-    }
+    void setTransformation(const Matrix4& inTransformation) override;
 
     InsersectionSet intersect(const Ray& ray, bool bTransformRay = false)  override;
 

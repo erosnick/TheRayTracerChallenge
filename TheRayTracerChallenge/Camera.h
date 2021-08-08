@@ -32,24 +32,46 @@ public:
         return ray;
     }
 
-    inline Matrix4 viewTransform(const Tuple& inFrom, const Tuple& inTo, const Tuple& inUp) {
+    inline Matrix4 viewTransform(const Tuple& eye, const Tuple& center, const Tuple& up) {
         viewMatrix = Matrix4();
 
-        from = inFrom;
-        to = inTo;
-        up = inUp;
+        //viewMatrix[0][0] = right.x;
+        //viewMatrix[1][0] = right.y;
+        //viewMatrix[2][0] = right.z;
+        //viewMatrix[0][1] = trueUp.x;
+        //viewMatrix[1][1] = trueUp.y;
+        //viewMatrix[2][1] = trueUp.z;
+        //viewMatrix[0][2] = forward.x;
+        //viewMatrix[1][2] = forward.y;
+        //viewMatrix[2][3] = forward.z;
 
-        forward = (to - from).normalize();
-        right = (forward.cross(up)).normalize();
-        up = (right.cross(forward)).normalize();
+        //viewMatrix[0][3] = -right.dot(eye);
+        //viewMatrix[1][3] = -trueUp.dot(eye);
+        //viewMatrix[2][3] = -forward.dot(eye);
+
+        //auto forward = (center - eye).normalize();
+        //auto right = (forward.cross(up)).normalize();
+        //auto trueUp = (right.cross(forward)).normalize();
+
+        //viewMatrix[0] = right;
+        //viewMatrix[1] = trueUp;
+        //viewMatrix[2] = -forward;
+
+        //viewMatrix[0][3] = -right.dot(eye);
+        //viewMatrix[1][3] = -trueUp.dot(eye);
+        //viewMatrix[2][3] = forward.dot(eye);
+
+        auto forward = (center - eye).normalize();
+        auto right = (forward.cross(up)).normalize();
+        auto trueUp = (right.cross(forward)).normalize();
 
         viewMatrix[0] = right;
-        viewMatrix[1] = up;
+        viewMatrix[1] = trueUp;
         viewMatrix[2] = -forward;
 
-        viewMatrix[0][3] = -right.dot(from);
-        viewMatrix[1][3] = -up.dot(from);
-        viewMatrix[2][3] = forward.dot(from);
+        viewMatrix[0][3] = -right.dot(eye);
+        viewMatrix[1][3] = -trueUp.dot(eye);
+        viewMatrix[2][3] = forward.dot(eye);
 
         return viewMatrix;
     }

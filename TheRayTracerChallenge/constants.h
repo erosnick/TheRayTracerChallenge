@@ -23,6 +23,14 @@ namespace Math {
     constexpr double infinityd = std::numeric_limits<double>::infinity();
     constexpr double infinityf = std::numeric_limits<float>::infinity();
     constexpr double infinityi = std::numeric_limits<int32_t>::infinity();
+
+    inline double radians(double degree) {
+        return pi / 180.0 * degree;
+    }
+
+    inline double degrees(double radian) {
+        return radian * 180.0 / pi;
+    }
 }
 
 namespace Color {

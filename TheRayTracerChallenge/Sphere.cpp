@@ -1,6 +1,12 @@
 #include "Sphere.h"
 #include "Intersection.h"
 
+void Sphere::setTransformation(const Matrix4& inTransformation){
+    Shape::setTransformation(inTransformation);
+
+    origin = transformation * origin;
+}
+
 InsersectionSet Sphere::intersect(const Ray& ray, bool bTransformRay) {
     auto intersections = InsersectionSet();
     auto transformedRay = ray;
