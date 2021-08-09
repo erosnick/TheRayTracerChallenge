@@ -35,6 +35,10 @@ public:
     inline Matrix4 viewTransform(const Tuple& eye, const Tuple& center, const Tuple& up) {
         viewMatrix = Matrix4();
 
+        auto forward = (center - eye).normalize();
+        auto right = (forward.cross(up)).normalize();
+        auto trueUp = (right.cross(forward)).normalize();
+
         //viewMatrix[0][0] = right.x;
         //viewMatrix[1][0] = right.y;
         //viewMatrix[2][0] = right.z;
@@ -48,22 +52,6 @@ public:
         //viewMatrix[0][3] = -right.dot(eye);
         //viewMatrix[1][3] = -trueUp.dot(eye);
         //viewMatrix[2][3] = -forward.dot(eye);
-
-        //auto forward = (center - eye).normalize();
-        //auto right = (forward.cross(up)).normalize();
-        //auto trueUp = (right.cross(forward)).normalize();
-
-        //viewMatrix[0] = right;
-        //viewMatrix[1] = trueUp;
-        //viewMatrix[2] = -forward;
-
-        //viewMatrix[0][3] = -right.dot(eye);
-        //viewMatrix[1][3] = -trueUp.dot(eye);
-        //viewMatrix[2][3] = forward.dot(eye);
-
-        auto forward = (center - eye).normalize();
-        auto right = (forward.cross(up)).normalize();
-        auto trueUp = (right.cross(forward)).normalize();
 
         viewMatrix[0] = right;
         viewMatrix[1] = trueUp;

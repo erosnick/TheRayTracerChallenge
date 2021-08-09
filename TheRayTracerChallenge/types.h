@@ -40,3 +40,15 @@ using PlanePtr = std::shared_ptr<Plane>;
 class Pattern;
 
 using PatternPtr = std::shared_ptr<Pattern>;
+
+class Triangle;
+
+using TrianglePtr = std::shared_ptr<Triangle>;
+
+class Quad;
+
+using QuadPtr = std::shared_ptr<Quad>;
+
+class Cube;
+
+using CubePtr = std::shared_ptr<Cube>;

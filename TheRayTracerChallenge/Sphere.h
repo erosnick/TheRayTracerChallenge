@@ -70,7 +70,7 @@ public:
         radius = scale.x;
     }
 
-    void setTransformation(const Matrix4& inTransformation) override;
+    void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) override;
 
     InsersectionSet intersect(const Ray& ray, bool bTransformRay = false)  override;
 

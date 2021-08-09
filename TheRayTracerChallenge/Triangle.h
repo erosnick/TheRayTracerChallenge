@@ -8,7 +8,7 @@ public:
     Triangle(const Tuple& inV0, const Tuple& inV1, const Tuple& inV2) 
     : v0(inV0), v1(inV1), v2(inV2) {}
 
-    inline void setTransformation(const Matrix4& inTransformation) override {
+    inline void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) override {
         Shape::setTransformation(inTransformation);
 
         v0 = transformation * v0;

@@ -3,8 +3,8 @@
 #include <algorithm>
 #include "Plane.h"
 
-void Cube::setTransformation(const Matrix4& inTransformation) {
-    Shape::setTransformation(inTransformation);
+void Cube::setTransformation(const Matrix4& inTransformation, bool bTransformPosition) {
+    Shape::setTransformation(inTransformation, bTransformPosition);
 
     for (auto& plane : planes) {
         plane->transform(transformation);
@@ -141,13 +141,6 @@ std::tuple<double, double> Cube::checkAxis(double origin, double direction) {
     return { tmin, tmax };
 }
 
-void Cube::initPlanes() {
-    planes.resize(6);
+void Cube::initQuads() {
 
-    planes[0] = std::make_shared<Plane>(point(-1.0,  0.0,  0.0), -Math::xAxis);
-    planes[1] = std::make_shared<Plane>(point( 1.0,  0.0,  0.0),  Math::xAxis);
-    planes[2] = std::make_shared<Plane>(point( 0.0, -1.0,  0.0), -Math::yAxis);
-    planes[3] = std::make_shared<Plane>(point( 0.0,  1.0,  0.0),  Math::yAxis);
-    planes[4] = std::make_shared<Plane>(point( 0.0,  0.0, -1.0),  Math::zAxis);
-    planes[5] = std::make_shared<Plane>(point( 0.0,  0.0,  1.0), -Math::zAxis);
 }

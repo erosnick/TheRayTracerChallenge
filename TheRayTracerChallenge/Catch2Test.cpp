@@ -27,6 +27,7 @@
 #include "Light.h"
 #include "Triangle.h"
 #include "Cube.h"
+#include "Quad.h"
 
 void openImage(const std::wstring& path) {
 
@@ -337,62 +338,103 @@ World cubeScene(const Matrix4& viewMatrix) {
 
     //world.addObject(cube);
 
-    auto position = point(-0.8, -0.5, -0.9);
-
-    auto translation = translate(0.0f, 0.0, 0.0);;
-
-    position = viewMatrix * position;
-
-    auto sphere = std::make_shared<Sphere>(point(-1.0, -0.5, -8.0));
-    auto rotation = rotateY(Math::radians(4.7));
+    auto sphere = std::make_shared<Sphere>(point(-1.0, 0.0, -8.0));
     sphere->setTransformation(viewMatrix);
 
-    //world.addObject(sphere);
+    world.addObject(sphere);
 
-    sphere = std::make_shared<Sphere>(point(1.0, -0.5, -8.0));
+    sphere = std::make_shared<Sphere>(point(1.0, 0.0, -8.0));
     sphere->material.color = Color::green;
     sphere->setTransformation(viewMatrix);
 
-    //world.addObject(sphere);
+    world.addObject(sphere);
 
-    auto floor = std::make_shared<Plane>(point(0.0, -1.0, -5.0));
-    floor->width = 5;
-    floor->height = 5;
-    //floor->setTransformation(viewMatrix);
-    floor->setTransformation(viewMatrix * rotateY(Math::pi_4));
-    floor->material.color = color(0.4, 1.0, 0.4);
-    floor->material.reflective = 0.125;
-    floor->material.pattern = std::make_shared<CheckerPattern>();
+    //auto floor = std::make_shared<Plane>(point(0.0, -1.0, -8.0));
+    //floor->width = 6;
+    //floor->height = 6;
+    ////floor->setTransformation(viewMatrix);
+    ////floor->setTransformation(viewMatrix * rotateY(Math::pi_6));
+    //floor->setTransformation(viewMatrix * rotateY(Math::pi_4));
+    ////floor->setTransformation(viewMatrix, true);
+    //floor->material.color = color(0.4, 1.0, 0.4);
+    //floor->material.reflective = 0.125;
+    //floor->material.pattern = std::make_shared<CheckerPattern>();
+    ////auto transformation = viewMatrix * rotateY(Math::pi_4);
+    ////floor->material.pattern.value()->setTransformation(viewMatrix);
+    ////floor->material.pattern.value()->setTransformation(rotateY(Math::pi_4));
+    ////floor->material.pattern.value()->setTransformation(viewMatrix * rotateY(Math::pi_4));
+    //auto transformation = viewMatrix;
+    //transformation[3][0] = 0.0f;
+    //transformation[3][1] = 0.0f;
+    //transformation[3][2] = 0.0;
+    ////floor->material.pattern.value()->setTransformation(transformation * rotateY(Math::pi_4));
 
-    world.addObject(floor);
+    //world.addObject(floor);
 
-    auto top = std::make_shared<Plane>();
-    top->width = 1;
-    top->height = 1;
-    top->setTransformation(viewMatrix * translate(0.0, 0.5, -5.5));
-    top->material.color = color(0.4, 1.0, 0.4);
+    //auto top = std::make_shared<Plane>(point(0.0, -1.0, -8.0));
+    //top->width = 2;
+    //top->height = 2;
+    //top->setTransformation(viewMatrix, true);
+    //top->material.color = color(0.4, 0.8, 0.9);
 
     //world.addObject(top);
 
-    auto right = std::make_shared<Plane>();
-    right->width = 1;
-    right->height = 1;
-    right->planeOrientation = PlaneOrientation::YZ;
-    right->setTransformation(viewMatrix * translate(0.5, 0.0, -5.5) * rotateZ(-Math::pi_2));
-    right->material.color = color(0.4, 0.8, 0.9);
+    //auto front = std::make_shared<Plane>(point(0.0, -1.0, -7.0));
+    //front->width = 2;
+    //front->height = 2;
+    //front->planeOrientation = PlaneOrientation::XZ;
+    //front->setTransformation(rotateX(Math::pi_2));
+    //front->setTransformation(viewMatrix, true);
+    //front->material.color = color(0.4, 0.8, 0.9);
+
+    ////world.addObject(front);
+
+    //auto right = std::make_shared<Plane>(point(0.0, -2.0, -7.0));
+    //right->width = 1;
+    //right->height = 1;
+    //right->planeOrientation = PlaneOrientation::YZ;
+    //right->setTransformation(viewMatrix, true);
+    //right->material.color = color(0.4, 0.8, 0.9);
 
     //world.addObject(right);
+    auto floor = std::make_shared<Quad>();
+    floor->setTransformation(viewMatrix * translate(0.0, -2.0, -6.0) * scaling(3.0, 1.0, 3.0));
+    floor->material.pattern = std::make_shared<CheckerPattern>();
+    floor->material.pattern.value()->setTransformation(scaling(0.25, 1.0, 0.25));
 
-    auto front = std::make_shared<Plane>();
-    front->width = 1;
-    front->height = 1;
-    front->planeOrientation = PlaneOrientation::XY;
-    front->setTransformation(viewMatrix * translate(0.0, 0.0, -5.0) * rotateX(Math::pi_2));
-    front->material.color = color(0.4, 0.8, 0.9);
+    world.addObject(floor);
 
-    //world.addObject(front);
+    auto top = std::make_shared<Quad>();
+    top->setTransformation(viewMatrix * translate(0.0, 0.0, -6.0) * scaling(1.0, 1.0, 1.0));
 
-    auto light = Light(point(0.0, 1.0, -4.0), { 1.0, 1.0, 1.0 });
+    world.addObject(top);
+
+    auto bottom = std::make_shared<Quad>();
+    bottom->setTransformation(viewMatrix * translate(0.0, -2.0, -6.0) * scaling(1.0, 1.0, 1.0));
+
+    world.addObject(bottom);
+
+    auto back = std::make_shared<Quad>();
+    back->setTransformation(viewMatrix * translate(0.0, -1.0, -7.0) * rotateX(Math::pi_2) * scaling(1.0, 1.0, 1.0));
+
+    world.addObject(back);
+
+    auto front = std::make_shared<Quad>();
+    front->setTransformation(viewMatrix * translate(0.0, -1.0, -5.0) * rotateX(Math::pi_2) * scaling(1.0, 1.0, 1.0));
+
+    world.addObject(front);
+
+    auto left = std::make_shared<Quad>();
+    left->setTransformation(viewMatrix * translate(-1.0, -1.0, -6.0) * rotateZ(Math::pi_2) * scaling(1.0, 1.0, 1.0));
+
+    world.addObject(left);
+
+    auto right = std::make_shared<Quad>();
+    right->setTransformation(viewMatrix * translate(1.0, -1.0, -6.0) * rotateZ(Math::pi_2) * scaling(1.0, 1.0, 1.0));
+
+    world.addObject(right);
+
+    auto light = Light(point(0.0, 1.0, -2.0), { 1.0, 1.0, 1.0 });
     light.transform(viewMatrix);
     //light.bAttenuation = false;
 
@@ -419,7 +461,7 @@ int main(int argc, char* argv[]) {
     auto canvas = createCanvas(1920, 1080);
 #endif
 
-    constexpr auto samplesPerPixel = 1;
+    constexpr auto samplesPerPixel = 8;
 
     constexpr auto remaining = 5;
 
@@ -429,7 +471,7 @@ int main(int argc, char* argv[]) {
     Camera camera(imageWidth, imageHeight);
 
     // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查(已解决，CheckerPattern算法的问题)
-    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 5.0), point(0.0, 0.0, 0.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(3.0, 0.0, 4.0), point(0.0, 0.0, -8.0), vector(0.0, 1.0, 0.0));
 
     auto world = cubeScene(viewMatrix);
         
@@ -450,16 +492,16 @@ int main(int argc, char* argv[]) {
             auto finalColor = color(0.0, 0.0, 0.0);
 
             for (auto sample = 0; sample < samplesPerPixel; sample++) {
-                auto rx = randomDouble() * 0.0;
-                auto ry = randomDouble() * 0.0;
+                auto rx = randomDouble();
+                auto ry = randomDouble();
                 auto dx = (static_cast<double>(x) + rx) / (imageWidth - 1);
                 auto dy = (static_cast<double>(y) + ry) / (imageHeight - 1);
 
                 auto ray = camera.getRay(dx, dy);
 
-                if (x == 233 && y == 118) {
-                    finalColor += Color::green;
-                }
+                //if (x == 233 && y == 118) {
+                //    finalColor += Color::green;
+                //}
 
                 //if (x == 323 && y == 115) {
                 //    finalColor += Color::green;
@@ -482,6 +524,7 @@ int main(int argc, char* argv[]) {
 
     auto size = std::tuple_size<decltype(tuple)>::value;
 
-    int result = Catch::Session().run(argc, argv);
+    int result = 0; // Catch::Session().run(argc, argv);
+
     return result;
 }

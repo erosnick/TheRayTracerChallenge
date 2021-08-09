@@ -1,8 +1,8 @@
 #include "Sphere.h"
 #include "Intersection.h"
 
-void Sphere::setTransformation(const Matrix4& inTransformation){
-    Shape::setTransformation(inTransformation);
+void Sphere::setTransformation(const Matrix4& inTransformation, bool bTransformPosition){
+    Shape::setTransformation(inTransformation, bTransformPosition);
 
     origin = transformation * origin;
 }

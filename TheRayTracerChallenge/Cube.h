@@ -6,11 +6,11 @@
 class Cube : public Shape {
 public:
     Cube() {
-        initPlanes();
     }
+
     virtual  ~Cube() {}
 
-    void setTransformation(const Matrix4& inTransformation) override;
+    void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) override;
 
     void transform(const Matrix4& inTransformation) override {
         Shape::transform(inTransformation);
@@ -22,9 +22,9 @@ public:
 
     std::tuple<double, double> checkAxis(double origin, double direction);
 
-    void initPlanes();
+    void initQuads();
 
-    std::vector<std::shared_ptr<Plane>> planes;
+    std::vector<std::shared_ptr<Quad>> planes;
 
     Tuple center = point(0.0, 0.0, 0.0);
 };

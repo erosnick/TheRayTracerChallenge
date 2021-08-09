@@ -166,6 +166,7 @@
     <ClCompile Include="Pattern.cpp" />
     <ClCompile Include="Pattern.features.cpp" />
     <ClCompile Include="Plane.features.cpp" />
+    <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Reflection.features.cpp" />
     <ClCompile Include="Refraction.features.cpp" />
     <ClCompile Include="Shadow.features.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Object.h" />
     <ClInclude Include="Pattern.h" />
     <ClInclude Include="Plane.h" />
+    <ClInclude Include="Quad.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Shading.h" />
     <ClInclude Include="Shape.h" />

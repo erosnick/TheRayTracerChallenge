@@ -88,6 +88,7 @@ public:
     }
 
     double scale = 1.0;
+    Tuple transformedPosition;
     PlaneOrientation planeOrientation = PlaneOrientation::XZ;
 };
 

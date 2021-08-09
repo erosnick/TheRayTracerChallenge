@@ -9,6 +9,6 @@ InsersectionSet TestShape::intersect(const Ray& ray, bool bTransformRay) {
     return InsersectionSet();
 }
 
-void Shape::setTransformation(const Matrix4& inTransformation) {
+void Shape::setTransformation(const Matrix4& inTransformation, bool bTransformPosition) {
     transformation = inTransformation;
 }
