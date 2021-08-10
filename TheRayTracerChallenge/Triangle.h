@@ -18,6 +18,10 @@ public:
 
     inline void transform(const Matrix4& inTransformation) override {
         Shape::transform(inTransformation);
+
+        v0 = inTransformation * v0;
+        v1 = inTransformation * v1;
+        v2 = inTransformation * v2;
     };
 
     inline Tuple normalAt(const Tuple& position) const override {

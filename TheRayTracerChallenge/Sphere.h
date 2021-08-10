@@ -90,8 +90,8 @@ inline bool operator==(const Sphere& a, const Sphere& b) {
 inline SpherePtr glassSphere() {
     auto sphere = std::make_shared<Sphere>();
 
-    sphere->material.transparency = 1.0;
-    sphere->material.refractiveIndex = 1.5;
+    sphere->material->transparency = 1.0;
+    sphere->material->refractiveIndex = 1.5;
 
     return sphere;
 }

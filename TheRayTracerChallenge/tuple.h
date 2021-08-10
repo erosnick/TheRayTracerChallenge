@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.h"
+
 #include <limits>
 #include <cstdint>
 #include <cmath>
@@ -158,6 +159,12 @@ inline constexpr Tuple color(double inRed, double inGreen, double inBlue) {
     return Tuple(inRed, inGreen, inBlue);
 }
 
+inline constexpr Tuple color(int32_t inRed, int32_t inGreen, int32_t inBlue) {
+    return Tuple(1.0 / 255 * inRed,
+                 1.0 / 255 * inGreen,
+                 1.0 / 255 * inBlue);
+}
+
 inline bool operator==(const Vector2& a, const Vector2& b) {
     constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
     auto dx = std::abs(std::abs(a.x) - std::abs(b.x));
@@ -200,7 +207,11 @@ inline bool operator==(const Tuple& a, const Tuple& b) {
     return false;
 }
 
-inline Tuple operator+(const Tuple& a, const Tuple& b) {
+inline bool operator!=(const Tuple& a, const Tuple& b) {
+    return !operator==(a, b);
+}
+
+inline constexpr Tuple operator+(const Tuple& a, const Tuple& b) {
     return Tuple(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 }
 

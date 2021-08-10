@@ -12,9 +12,9 @@ SCENARIO("A helper for producing a sphere with a glassy material", "[Refraction]
         THEN("s.transformation == identity_matrix") {
             REQUIRE(s->transformation == Matrix4());
             AND_THEN("s.material.transparency == 1.0")
-                REQUIRE(s->material.transparency == 1.0);
+                REQUIRE(s->material->transparency == 1.0);
             AND_THEN("s.material.refractiveIndex == 1.5")
-                REQUIRE(s->material.refractiveIndex == 1.5);
+                REQUIRE(s->material->refractiveIndex == 1.5);
         }
     }
 }
@@ -25,19 +25,19 @@ SCENARIO("Finding n1 and n2 at various intersections", "[Refraction]") {
         "| material.refractive_index | 1.5              |") {
         auto A = glassSphere();
         A->scaling(2.0, 2.0, 2.0);
-        A->material.refractiveIndex = 1.5;
+        A->material->refractiveIndex = 1.5;
         AND_GIVEN("B = glassSphere() with:"
             "| transform                 | translation(0, 0, 0.25) |"
             "| material.refractive_index | 2.0                      |") {
             auto B = glassSphere();
             B->setTransformation(translate(0.0, 0.0, 0.25));
-            B->material.refractiveIndex = 2.0;
+            B->material->refractiveIndex = 2.0;
             AND_GIVEN("C = glassSphere() with:"
                 "| transform                 | translation(0, 0, -0.25) |"
                 "| material.refractive_index | 2.5                     |") {
                 auto C = glassSphere();
                 C->setTransformation(translate(0.0, 0.0, -0.25));
-                C->material.refractiveIndex = 2.5;
+                C->material->refractiveIndex = 2.5;
                 AND_GIVEN("r = Ray(point(0.0, 0.0, 4.0), vector(0.0, 0.0, -1.0))") {
                     auto r = Ray(point(0.0, 0.0, 4.0), vector(0.0, 0.0, -1.0));
                     AND_GIVEN("xs = Intersections({{2, A}, {2.75, B}, {3.25, C}, {4.75, B}, {5.25, C}, {6, A}") {
@@ -157,8 +157,8 @@ SCENARIO("The refracted color at the maximum recursive depth", "[Refraction]") {
             AND_GIVEN("shape has:"
             "| material.transparency     | 1.0 |"
             "| material.refractive_index | 1.5 |") {
-                shape->material.transparency = 1.0;
-                shape->material.refractiveIndex = 1.5;
+                shape->material->transparency = 1.0;
+                shape->material->refractiveIndex = 1.5;
                 AND_GIVEN("r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0))") {
                     auto r = Ray(point(0.0, 0.0, 5.0), vector(0.0, 0.0, -1.0));
                     AND_GIVEN("xs = intersections({{4, shape}, {6, shape}})") {
@@ -187,8 +187,8 @@ SCENARIO("The refracted color under total internal reflection", "[Refraction]") 
             AND_GIVEN("shape has:"
                 "| material.transparency     | 1.0 |"
                 "| material.refractive_index | 1.5 |") {
-                shape->material.transparency = 1.0;
-                shape->material.refractiveIndex = 1.5;
+                shape->material->transparency = 1.0;
+                shape->material->refractiveIndex = 1.5;
                 AND_GIVEN("r = Ray(point(0.0, 0.0, ¡Ì2/2), vector(0.0, 1.0, 0.0))") {
                     auto r = Ray(point(0.0, 0.0, Math::cos45d), vector(0.0, 1.0, 0.0));
                     AND_GIVEN("xs = intersections({{-¡Ì2/2, shape}, {¡Ì2/2, shape}})") {
@@ -219,15 +219,15 @@ SCENARIO("The refracted color with a refracted ray", "[Refraction]") {
             AND_GIVEN("A has:"
             "| material.ambient | 1.0            |"
             "| material.pattern | test_pattern() |") {
-                A->material.ambient = 1.0;
-                A->material.pattern = std::make_shared<TestPattern>();
+                A->material->ambient = 1.0;
+                A->material->pattern = std::make_shared<TestPattern>();
                 AND_GIVEN("B = the second object in w") {
                     auto B = w.getObjects()[1];
                     AND_GIVEN("B has:"
                         "| material.transparency     | 1.0 |"
                         "| material.refractive_index | 1.5 |") {
-                        B->material.transparency = 1.0;
-                        B->material.refractiveIndex = 1.5;
+                        B->material->transparency = 1.0;
+                        B->material->refractiveIndex = 1.5;
                         AND_GIVEN("r = Ray(point(0.0, 0.0, 0.1), vector(0.0, 1.0, 0.0))") {
                             auto r = Ray(point(0.0, 0.0, 0.1), vector(0.0, 1.0, 0.0));
                             AND_GIVEN("xs = intersections(-0.9899:A, -0.4899:B, 0.4899:B, 0.9899:A)") {
@@ -259,8 +259,8 @@ SCENARIO("shade_hit() with a transparent material", "[Refraction]") {
         "| material.refractive_index | 1.5                   |") {
             auto floor = std::make_shared<Plane>();
             floor->setTransformation(translate(0.0, -1.0, 0.0));
-            floor->material.transparency = 0.5;
-            floor->material.refractiveIndex = 1.5;
+            floor->material->transparency = 0.5;
+            floor->material->refractiveIndex = 1.5;
             AND_GIVEN("floor is added to w") {
                 w.addObject(floor);
                 AND_GIVEN("ball = Sphere() with:"
@@ -268,8 +268,8 @@ SCENARIO("shade_hit() with a transparent material", "[Refraction]") {
                         "| material.ambient | 0.5 |"
                         "| transform | translation(0, -3.5, -0.5) |") {
                     auto ball = std::make_shared<Sphere>();
-                    ball->material.color = Color::red;
-                    ball->material.ambient = 0.5;
+                    ball->material->color = Color::red;
+                    ball->material->ambient = 0.5;
                     ball->setTransformation(translate(0.0, -3.5, -0.5));
                     AND_GIVEN("ball is added to w") {
                         w.addObject(ball);
@@ -371,9 +371,9 @@ SCENARIO("shade_hit() with a reflective, transparent material", "[Refraction]") 
             "| material.transparency     | 0.5                   |"
             "| material.refractive_index | 1.5                   |") {
                 auto floor = std::make_shared<Plane>();
-                floor->material.reflective = 0.5;
-                floor->material.transparency = 0.5;
-                floor->material.refractiveIndex = 1.5;
+                floor->material->reflective = 0.5;
+                floor->material->transparency = 0.5;
+                floor->material->refractiveIndex = 1.5;
                 AND_GIVEN("floor is added to w") {
                     w.addObject(floor);
                     AND_GIVEN("ball = Sphere() with:"
@@ -382,8 +382,8 @@ SCENARIO("shade_hit() with a reflective, transparent material", "[Refraction]") 
                         "| transform        | translation(0, -3.5, -0.5) |") {
                         auto ball = std::make_shared<Sphere>();
                         ball->setTransformation(translate(0.0, -3.5, -0.5));
-                        ball->material.color = color(1.0, 0.0, 0.0);
-                        ball->material.ambient = 0.5;
+                        ball->material->color = color(1.0, 0.0, 0.0);
+                        ball->material->ambient = 0.5;
                         AND_GIVEN("ball is added to w") {
                             w.addObject(ball);
                             AND_GIVEN("xs = intersectoins(¡Ì2:floor)") {

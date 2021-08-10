@@ -55,167 +55,167 @@ World mainScene(const Matrix4& viewMatrix) {
 
     auto sphere = std::make_shared<Sphere>(point(2.5, 0.0, -11.0), 1.0);
     sphere->transform(viewMatrix);
-    sphere->material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
-    //sphere->material.pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
-    //sphere->material.pattern.value()->transform(rotateZ(Math::pi_4));
+    sphere->material = std::make_shared<Material>(color(1.0, 0.0, 0.0), 0.1, 1.0, 0.9, 128.0);
+    //sphere->material->pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
+    //sphere->material->pattern.value()->transform(rotateZ(Math::pi_4));
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(2.0, -0.5, -9.0), 0.5);
     sphere->transform(viewMatrix);
-    sphere->material = { { 0.0, 1.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
-    //sphere->material.pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
-    //sphere->material.pattern.value()->transform(rotateZ(Math::pi_4));
+    sphere->material = std::make_shared<Material>(color(0.0, 1.0, 0.0), 0.1, 1.0, 0.9, 128.0);
+    //sphere->material->pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
+    //sphere->material->pattern.value()->transform(rotateZ(Math::pi_4));
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(-2.5, 0.0, -11.0), 1.0);
     sphere->transform(viewMatrix);
-    sphere->material = { { 0.0, 0.0, 1.0}, 0.1, 1.0, 0.9, 128.0 };
-    //sphere->material.pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
-    //sphere->material.pattern.value()->transform(rotateZ(Math::pi_4));
+    sphere->material = std::make_shared<Material>(color(0.0, 0.0, 1.0), 0.1, 1.0, 0.9, 128.0);
+    //sphere->material->pattern = std::make_shared<StripePattern>(Color::blue, Color::red);
+    //sphere->material->pattern.value()->transform(rotateZ(Math::pi_4));
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(0.0, 0.0, -11.0), 1.0);
     sphere->transform(viewMatrix);
-    sphere->material = { { 0.6, 0.7, 0.8 }, 0.1, 1.0, 0.9, 128.0 };
-    //sphere->material.reflective = 0.25;
-    //sphere->material.transparency = 1.0;
-    //sphere->material.refractiveIndex = 1.5;
-    //sphere->material.pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
+    sphere->material = std::make_shared<Material>(color(0.6, 0.7, 0.8), 0.1, 1.0, 0.9, 128.0);
+    //sphere->material->reflective = 0.25;
+    //sphere->material->transparency = 1.0;
+    //sphere->material->refractiveIndex = 1.5;
+    //sphere->material->pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
 
     world.addObject(sphere);
 
     auto glassSphere = std::make_shared<Sphere>(point(1.3, 0.3, -7.0), 1.3);
     glassSphere->transform(viewMatrix);
-    glassSphere->material = { { 0.0, 0.0, 0.0 }, 0.1, 1.0, 0.9, 128.0 };
-    glassSphere->material.reflective = 0.9;
-    glassSphere->material.transparency = 1.0;
-    glassSphere->material.refractiveIndex = 1.5;
-    //sphere->material.pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
+    glassSphere->material = std::make_shared<Material>(color(0.0, 0.0, 0.0), 0.1, 1.0, 0.9, 128.0);
+    glassSphere->material->reflective = 0.9;
+    glassSphere->material->transparency = 1.0;
+    glassSphere->material->refractiveIndex = 1.5;
+    //sphere->material->pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
 
     world.addObject(glassSphere);
 
     glassSphere = std::make_shared<Sphere>(point(-1.0, 0.0, -7.0), 1.0);
     glassSphere->transform(viewMatrix);
-    glassSphere->material = { { 0.0, 0.0, 0.0 }, 0.1, 1.0, 0.9, 128.0 };
-    glassSphere->material.reflective = 0.9;
-    glassSphere->material.transparency = 1.0;
-    glassSphere->material.refractiveIndex = 2.417;
-    //sphere->material.pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
+    glassSphere->material = std::make_shared<Material>(color(0.0, 0.0, 0.0), 0.1, 1.0, 0.9, 128.0);
+    glassSphere->material->reflective = 0.9;
+    glassSphere->material->transparency = 1.0;
+    glassSphere->material->refractiveIndex = 2.417;
+    //sphere->material->pattern = std::make_shared<GradientPattern>(Color::red, Color::green);
 
     world.addObject(glassSphere);
 
     auto steelSphere = std::make_shared<Sphere>(point(0.0, -0.4, -5.0), 0.6);
     steelSphere->transform(viewMatrix);
-    steelSphere->material = { { 0.0, 0.0, 0.0 }, 0.1, 1.0, 0.9, 128.0 };
-    steelSphere->material.reflective = 1.0;
-    steelSphere->material.transparency = 0.0;
+    steelSphere->material = std::make_shared<Material>(color(0.0, 0.0, 0.0), 0.1, 1.0, 0.9, 128.0);
+    steelSphere->material->reflective = 1.0;
+    steelSphere->material->transparency = 0.0;
 
     //world.addObject(steelSphere);
 
     sphere = std::make_shared<Sphere>(point(-0.7, -0.6, -5.0), 0.4);
     sphere->transform(viewMatrix);
-    sphere->material = { { 0.0, 0.0, 0.0 }, 0.1, 1.0, 0.9, 128.0 };
-    sphere->material.reflective = 1.0;
+    sphere->material = std::make_shared<Material>(color(0.0, 0.0, 0.0), 0.1, 1.0, 0.9, 128.0);
+    sphere->material->reflective = 1.0;
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(0.0, -0.7, -5.0), 0.3);
     sphere->transform(viewMatrix);
-    sphere->material = { Color::crimsonRed, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material = std::make_shared<Material>(Color::crimsonRed, 0.1, 1.0, 0.9, 128.0);
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(0.7, -0.6, -5.0), 0.4);
     sphere->transform(viewMatrix);
-    sphere->material = { { 0.0, 0.0, 0.0 }, 0.1, 1.0, 0.9, 128.0 };
-    sphere->material.reflective = 1.0;
+    sphere->material = std::make_shared<Material>(color(0.0, 0.0, 0.0), 0.1, 1.0, 0.9, 128.0);
+    sphere->material->reflective = 1.0;
 
     world.addObject(sphere);
 
-    auto triangle = std::make_shared<Triangle>(point(-1.0, -1.0, -1.0), point(-1.0, 0.0, 1.0), point(1.0, 0.0, 1.0));
+    auto triangle = std::make_shared<Triangle>(color(-1.0, -1.0, -1.0), point(-1.0, 0.0, 1.0), point(1.0, 0.0, 1.0));
     triangle->setTransformation(viewMatrix * translate(0.0, 0.0, -6.0) * scaling(3.0, 1.0, 3.0));
-    triangle->material.color = color(0.4, 1.0, 0.4);
-    triangle->material.pattern = std::make_shared<CheckerPattern>();
+    triangle->material->color = color(0.4, 1.0, 0.4);
+    triangle->material->pattern = std::make_shared<CheckerPattern>();
 
     //world.addObject(triangle);
 
     triangle = std::make_shared<Triangle>(point(-1.0, -1.0, -1.0), point(1.0, 0.0, 1.0), point(1.0, 0.0, -1.0));
     triangle->setTransformation(viewMatrix * translate(0.0, 0.0, -6.0) * scaling(3.0, 1.0, 3.0));
-    triangle->material.color = color(0.4, 1.0, 0.4);
-    triangle->material.pattern = std::make_shared<CheckerPattern>();
+    triangle->material->color = color(0.4, 1.0, 0.4);
+    triangle->material->pattern = std::make_shared<CheckerPattern>();
 
     //world.addObject(triangle);
 
     sphere = std::make_shared<Sphere>(point(1.0, -1.0, -3.0), 1.0);
     sphere->transform(viewMatrix);
-    sphere->material = { { 0.4, 0.6, 0.9 }, 0.1, 1.0, 0.9, 128.0 };
-    //sphere->material.pattern = std::make_shared<RingPattern>(Color::red, Color::green);
-    //sphere->material.pattern.value()->transform(scaling(0.125, 0.125, 0.125));
+    sphere->material = std::make_shared<Material>(point(0.4, 0.6, 0.9), 0.1, 1.0, 0.9, 128.0);
+    //sphere->material->pattern = std::make_shared<RingPattern>(Color::red, Color::green);
+    //sphere->material->pattern.value()->transform(scaling(0.125, 0.125, 0.125));
 
     //world.addObject(sphere);
 
     //auto floor = std::make_shared<Sphere>(point(0.0, -201.0, -3.0), 200.0);
     //floor->transform(viewMatrix);
-    //floor->material.color = color(0.4, 1.0, 0.4);
+    //floor->material->color = color(0.4, 1.0, 0.4);
 
     //world.addObject(floor);
 
     //auto ceiling = std::make_shared<Sphere>(point(0.0, 1005.0, -3.0), 1000.0);
     //ceiling->transform(viewMatrix);
-    //ceiling->material.color = color(0.4, 0.8, 0.9);
+    //ceiling->material->color = color(0.4, 0.8, 0.9);
 
     //world.addObject(ceiling);
 
     //auto background = std::make_shared<Sphere>(point(0.0, 0.0, -1005.0), 1000.0);
     //background->transform(viewMatrix);
-    //background->material.color = color(0.4, 0.8, 0.9);
+    //background->material->color = color(0.4, 0.8, 0.9);
 
     //world.addObject(background);
 
     //auto leftWall = std::make_shared<Sphere>(point(-1005.0, 0.0, -3.0), 1000.0);
     //leftWall->transform(viewMatrix);
-    //leftWall->material.color = color(0.4, 0.8, 0.9);
+    //leftWall->material->color = color(0.4, 0.8, 0.9);
 
     //world.addObject(leftWall);
 
     //auto rightWall = std::make_shared<Sphere>(point(1005.0, 0.0, -3.0), 1000.0);
     //rightWall->transform(viewMatrix);
-    //rightWall->material.color = color(0.4, 0.8, 0.9);
+    //rightWall->material->color = color(0.4, 0.8, 0.9);
 
     //world.addObject(rightWall);
 
     auto floor = std::make_shared<Plane>(viewMatrix * point(0.0, -1.0, 0.0), viewMatrix * vector(0.0, 1.0, 0.0));
-    floor->material.color = color(0.4, 1.0, 0.4);
-    floor->material.reflective = 0.125;
-    floor->material.pattern = std::make_shared<CheckerPattern>();
-    //floor->material.pattern = std::make_shared<CheckerPattern>(color(0.67, 0.67, 0.14), color(0.58, 0.14, 0.0));
+    floor->material->color = color(0.4, 1.0, 0.4);
+    floor->material->reflective = 0.125;
+    floor->material->pattern = std::make_shared<CheckerPattern>();
+    //floor->material->pattern = std::make_shared<CheckerPattern>(color(0.67, 0.67, 0.14), color(0.58, 0.14, 0.0));
 
     auto ceiling = std::make_shared<Plane>(viewMatrix * point(0.0, 5.0, 0.0), viewMatrix * vector(0.0, -1.0, 0.0));
-    ceiling->material.color = color(0.4, 0.8, 0.9);
-    //ceiling->material.reflective = 0.25;
-    ceiling->material.pattern = std::make_shared<CheckerPattern>();
+    ceiling->material->color = color(0.4, 0.8, 0.9);
+    //ceiling->material->reflective = 0.25;
+    ceiling->material->pattern = std::make_shared<CheckerPattern>();
 
     auto frontWall = std::make_shared<Plane>(viewMatrix * point(0.0, 0.0, -15.0), viewMatrix * rotateX(Math::pi_2) * vector(0.0, 1.0, 0.0));
-    frontWall->material.color = color(0.4, 0.8, 0.9);
-    //frontWall->material.specular = 0.1;
-    frontWall->material.pattern = std::make_shared<CheckerPattern>(Color::white, Color::black, PlaneOrientation::XY);
+    frontWall->material->color = color(0.4, 0.8, 0.9);
+    //frontWall->material->specular = 0.1;
+    frontWall->material->pattern = std::make_shared<CheckerPattern>(Color::white, Color::black, PlaneOrientation::XY);
 
     auto backWall = std::make_shared<Plane>(viewMatrix * point(0.0, 0.0, 3.0), viewMatrix * vector(0.0, 0.0, -1.0));
-    backWall->material.color = color(0.4, 0.8, 0.9);
-    backWall->material.pattern = std::make_shared<CheckerPattern>(Color::white, Color::black, PlaneOrientation::XY);
+    backWall->material->color = color(0.4, 0.8, 0.9);
+    backWall->material->pattern = std::make_shared<CheckerPattern>(Color::white, Color::black, PlaneOrientation::XY);
 
     auto leftWall = std::make_shared<Plane>(viewMatrix * point(-5.0, 0.0, 0.0), viewMatrix * vector(1.0, 0.0, 0.0));
-    leftWall->material.color = color(0.4, 0.8, 0.9);
-    leftWall->material.specular = 0.1;
-    //leftWall->material.pattern = std::make_shared<CheckerPattern>();
+    leftWall->material->color = color(0.4, 0.8, 0.9);
+    leftWall->material->specular = 0.1;
+    //leftWall->material->pattern = std::make_shared<CheckerPattern>();
 
     auto rightWall = std::make_shared<Plane>(viewMatrix * point(5.0, 0.0, 0.0), viewMatrix * vector(-1.0, 0.0, 0.0));
-    rightWall->material.color = color(0.4, 0.8, 0.9);
-    rightWall->material.specular = 0.1;
-    //rightWall->material.pattern = std::make_shared<CheckerPattern>();
+    rightWall->material->color = color(0.4, 0.8, 0.9);
+    rightWall->material->specular = 0.1;
+    //rightWall->material->pattern = std::make_shared<CheckerPattern>();
 
     world.addObject(floor);
     world.addObject(ceiling);
@@ -261,47 +261,47 @@ World pondScene(const Matrix4& viewMatrix) {
     auto world = World();
 
     auto background = std::make_shared<Plane>(viewMatrix * point(0.0, 0.0, -40.0), viewMatrix * vector(0.0, 0.0, 1.0));
-    background->material.pattern = std::make_shared<CheckerPattern>(Color::white, Color::gray, PlaneOrientation::XY, 0.2);
-    background->material.specular = 0.1;
+    background->material->pattern = std::make_shared<CheckerPattern>(Color::white, Color::gray, PlaneOrientation::XY, 0.2);
+    background->material->specular = 0.1;
 
     //world.addObject(background);
 
     auto water = std::make_shared<Plane>(viewMatrix * point(0.0, -1.0, 0.0), viewMatrix * vector(0.0, 1.0, 0.0));
-    water->material.color = Color::black;
-    water->material.bCastShadow = false;
-    water->material.refractiveIndex = 1.333;
-    water->material.reflective = 1.0;
-    water->material.transparency = 1.0;
+    water->material->color = Color::black;
+    water->material->bCastShadow = false;
+    water->material->refractiveIndex = 1.333;
+    water->material->reflective = 1.0;
+    water->material->transparency = 1.0;
 
     world.addObject(water);
 
     auto underwater = std::make_shared<Plane>(viewMatrix * point(0.0, -15.0, 0.0), viewMatrix * vector(0.0, 1.0, 0.0));
-    underwater->material.bCastShadow = false;
-    underwater->material.pattern = std::make_shared<CheckerPattern>();
+    underwater->material->bCastShadow = false;
+    underwater->material->pattern = std::make_shared<CheckerPattern>();
 
     world.addObject(underwater);
 
     auto sphere = std::make_shared<Sphere>(point(0.0, -0.25, -15.0), 0.5);
     sphere->transform(viewMatrix);
-    sphere->material = { Color::crimsonRed, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material = std::make_shared<Material>(Color::crimsonRed, 0.1, 1.0, 0.9, 128.0);
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(0.0, -3.0, -8.0), 0.5);
     sphere->transform(viewMatrix);
-    sphere->material = { Color::blue, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material = std::make_shared<Material>(Color::blue, 0.1, 1.0, 0.9, 128.0);
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(2.0, -5.0, -11.0), 0.5);
     sphere->transform(viewMatrix);
-    sphere->material = { Color::pink, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material = std::make_shared<Material>(Color::pink, 0.1, 1.0, 0.9, 128.0);
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(-2.0, -5.0, -11.0), 0.5);
     sphere->transform(viewMatrix);
-    sphere->material = { Color::green, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material = std::make_shared<Material>(Color::green, 0.1, 1.0, 0.9, 128.0);
 
     world.addObject(sphere);
 
@@ -330,24 +330,31 @@ World pondScene(const Matrix4& viewMatrix) {
     return world;
 }
 
-World cubeScene(const Matrix4& viewMatrix) {
+World houseScene(const Matrix4& viewMatrix) {
     auto world = World();
 
-    //auto cube = std::make_shared<Cube>();
-    //cube->setTransformation(viewMatrix * translate(0.0, 0.0, -5.0));
+    auto glassSphere = std::make_shared<Sphere>(point(2.0, -0.55, -6.0), 0.25);
+    glassSphere->setTransformation(viewMatrix);
+    glassSphere->material->color = Color::black;
+    glassSphere->material->shininess = 256.0;
+    glassSphere->material->reflective = 0.9;
+    glassSphere->material->transparency = 1.0;
+    glassSphere->material->refractiveIndex = 1.53;
 
-    //world.addObject(cube);
+    world.addObject(glassSphere);
 
-    auto sphere = std::make_shared<Sphere>(point(-1.0, 0.0, -8.0));
-    sphere->setTransformation(viewMatrix);
+    auto steelSphere = std::make_shared<Sphere>(point(3.5, -0.55, -8.0), 0.25);
+    steelSphere->material->color = Color::black;
+    steelSphere->material->reflective = 0.9;
+    steelSphere->setTransformation(viewMatrix);
 
-    world.addObject(sphere);
+    world.addObject(steelSphere);
 
-    sphere = std::make_shared<Sphere>(point(1.0, 0.0, -8.0));
-    sphere->material.color = Color::green;
-    sphere->setTransformation(viewMatrix);
+    auto colorSphere = std::make_shared<Sphere>(point(2.0, -0.55, -8.0), 0.25);
+    colorSphere->material->color = Color::green;
+    colorSphere->setTransformation(viewMatrix);
 
-    world.addObject(sphere);
+    world.addObject(colorSphere);
 
     //auto floor = std::make_shared<Plane>(point(0.0, -1.0, -8.0));
     //floor->width = 6;
@@ -356,18 +363,18 @@ World cubeScene(const Matrix4& viewMatrix) {
     ////floor->setTransformation(viewMatrix * rotateY(Math::pi_6));
     //floor->setTransformation(viewMatrix * rotateY(Math::pi_4));
     ////floor->setTransformation(viewMatrix, true);
-    //floor->material.color = color(0.4, 1.0, 0.4);
-    //floor->material.reflective = 0.125;
-    //floor->material.pattern = std::make_shared<CheckerPattern>();
+    //floor->material->color = color(0.4, 1.0, 0.4);
+    //floor->material->reflective = 0.125;
+    //floor->material->pattern = std::make_shared<CheckerPattern>();
     ////auto transformation = viewMatrix * rotateY(Math::pi_4);
-    ////floor->material.pattern.value()->setTransformation(viewMatrix);
-    ////floor->material.pattern.value()->setTransformation(rotateY(Math::pi_4));
-    ////floor->material.pattern.value()->setTransformation(viewMatrix * rotateY(Math::pi_4));
+    ////floor->material->pattern.value()->setTransformation(viewMatrix);
+    ////floor->material->pattern.value()->setTransformation(rotateY(Math::pi_4));
+    ////floor->material->pattern.value()->setTransformation(viewMatrix * rotateY(Math::pi_4));
     //auto transformation = viewMatrix;
     //transformation[3][0] = 0.0f;
     //transformation[3][1] = 0.0f;
     //transformation[3][2] = 0.0;
-    ////floor->material.pattern.value()->setTransformation(transformation * rotateY(Math::pi_4));
+    ////floor->material->pattern.value()->setTransformation(transformation * rotateY(Math::pi_4));
 
     //world.addObject(floor);
 
@@ -375,7 +382,7 @@ World cubeScene(const Matrix4& viewMatrix) {
     //top->width = 2;
     //top->height = 2;
     //top->setTransformation(viewMatrix, true);
-    //top->material.color = color(0.4, 0.8, 0.9);
+    //top->material->color = color(0.4, 0.8, 0.9);
 
     //world.addObject(top);
 
@@ -385,7 +392,7 @@ World cubeScene(const Matrix4& viewMatrix) {
     //front->planeOrientation = PlaneOrientation::XZ;
     //front->setTransformation(rotateX(Math::pi_2));
     //front->setTransformation(viewMatrix, true);
-    //front->material.color = color(0.4, 0.8, 0.9);
+    //front->material->color = color(0.4, 0.8, 0.9);
 
     ////world.addObject(front);
 
@@ -394,49 +401,203 @@ World cubeScene(const Matrix4& viewMatrix) {
     //right->height = 1;
     //right->planeOrientation = PlaneOrientation::YZ;
     //right->setTransformation(viewMatrix, true);
-    //right->material.color = color(0.4, 0.8, 0.9);
+    //right->material->color = color(0.4, 0.8, 0.9);
 
     //world.addObject(right);
+
     auto floor = std::make_shared<Quad>();
-    floor->setTransformation(viewMatrix * translate(0.0, -2.0, -6.0) * scaling(3.0, 1.0, 3.0));
-    floor->material.pattern = std::make_shared<CheckerPattern>();
-    floor->material.pattern.value()->setTransformation(scaling(0.25, 1.0, 0.25));
+    auto transformation = translate(0.0, -2.0, -6.0) * scaling(3.0, 1.0, 3.0);
+    floor->setTransformation(transformation);
+    floor->transform(viewMatrix);
+    floor->material->reflective = 0.125;
+    floor->material->pattern = std::make_shared<CheckerPattern>();
+    floor->material->pattern.value()->setTransformation(scaling(0.25, 1.0, 0.25));
+    //floor->material->pattern = std::make_shared<StripePattern>();
+    //floor->material->pattern.value()->setTransformation(scaling(0.25, 1.0, 0.25));
+
+    //world.addObject(floor);
+
+    auto top = std::make_shared<Quad>();
+    top->setTransformation(viewMatrix * translate(0.0, 0.0, -6.0));
+
+    //world.addObject(top);
+
+    auto bottom = std::make_shared<Quad>();
+    bottom->setTransformation(viewMatrix * translate(0.0, -2.0, -6.0));
+
+    //world.addObject(bottom);
+
+    auto back = std::make_shared<Quad>();
+    back->setTransformation(viewMatrix * translate(0.0, -1.0, -7.0) * rotateX(Math::pi_2));
+
+    //world.addObject(back);
+
+    auto front = std::make_shared<Quad>();
+    front->setTransformation(viewMatrix * translate(0.0, -1.0, -5.0) * rotateX(Math::pi_2));
+
+    //world.addObject(front);
+
+    auto left = std::make_shared<Quad>();
+    left->setTransformation(viewMatrix * translate(-1.0, -1.0, -6.0) * rotateZ(Math::pi_2));
+
+    //world.addObject(left);
+
+    auto right = std::make_shared<Quad>();
+    right->setTransformation(viewMatrix * translate(1.0, -1.0, -6.0) * rotateZ(Math::pi_2));
+
+    //world.addObject(right);
+
+    auto cube = std::make_shared<Cube>();
+    cube->setTransformation(viewMatrix * translate(-0.5, -0.28, -7.0) * scaling(0.5, 0.5, 0.5));
+    auto material = std::make_shared<Material>();
+    material->color = Color::black;
+    material->reflective = 0.9;
+    material->transparency = 0.9;
+    material->refractiveIndex = 1.33;
+    //material->color = Color::cornflower;
+    cube->setMaterial(material);
+
+    world.addObject(cube);
+    
+    cube = std::make_shared<Cube>();
+    cube->setTransformation(viewMatrix * translate(-4.0, -0.55, -5.0) * rotateY(Math::pi_4) * scaling(0.25, 0.25, 0.25));
+    material = std::make_shared<Material>();
+    material->color = Color::yellow;
+    cube->setMaterial(material);
+
+    world.addObject(cube);
+
+    auto block = std::make_shared<Cube>();
+    block->setTransformation(viewMatrix * translate(0.0, -0.7, -8.0) * rotateY(-Math::pi_6) * scaling(0.4, 0.08, 0.08));
+    material = std::make_shared<Material>();
+    material->color = Color::pink;
+    block->setMaterial(material);
+
+    world.addObject(block);
+
+    block = std::make_shared<Cube>();
+    block->setTransformation(viewMatrix * translate(-3.0, -0.5, -8.0) * rotateZ(-Math::pi_2) * scaling(0.3, 0.08, 0.08));
+    material = std::make_shared<Material>();
+    material->color = Color::lightGreen;
+    block->setMaterial(material);
+
+    world.addObject(block);
+
+    block = std::make_shared<Cube>();
+    block->setTransformation(viewMatrix * translate(1.0, -0.38, -8.0) * rotateZ(-Math::pi_2) * scaling(0.4, 0.08, 0.08));
+    material = std::make_shared<Material>();
+    material->color = Color::pinkBlue;
+    block->setMaterial(material);
+
+    world.addObject(block);
+
+    block = std::make_shared<Cube>();
+    block->setTransformation(viewMatrix* translate(-2.0, -0.725, -6.0) * rotateY(-Math::pi_6) * scaling(0.4, 0.08, 0.08));
+    material = std::make_shared<Material>();
+    material->color = Color::background;
+    block->setMaterial(material);
+
+    world.addObject(block);
+
+    auto house = std::make_shared<Cube>();
+    house->setTransformation(viewMatrix * translate(-0.5, 0.0, -7.0) * scaling(20.0, 6.0, 20.0));
+    material = std::make_shared<Material>();
+    material->specular = 0.1;
+    material->color = color(0.3, 0.6, 1.0);
+    house->setMaterial(material);
+    material = std::make_shared<Material>();
+    material->reflective = 0.5;
+    material->specular = 0.5;
+    material->pattern = std::make_shared<CheckerPattern>();
+    material->pattern.value()->setTransformation(scaling(0.1, 1.0, 0.1));
+    house->setMaterial(material, 1);
+
+    world.addObject(house);
+
+    auto desktop = std::make_shared<Cube>();
+    desktop->setTransformation(viewMatrix * translate(-0.5, -1.0, -8.0) * scaling(5.0, 0.2, 4.0));
+    material = std::make_shared<Material>();
+    //material->reflective = 1.0;
+    material->pattern = std::make_shared<StripePattern>(Color::cornflower, Color::cornflower * 0.7);
+    material->pattern.value()->setTransformation(scaling(0.1, 1.0, 0.1));
+    desktop->setMaterial(material);
+
+    world.addObject(desktop);
+
+    auto mirror = std::make_shared<Quad>();
+    //mirror->material->bCastShadow = false;
+    mirror->material->color = Color::dawn;
+    mirror->material->reflective = 1.0;
+    mirror->setTransformation(viewMatrix * translate(-4.0, 0.0, -26) * rotateX(Math::pi_2) * scaling(8.0, 1.0, 4.0));
+
+    world.addObject(mirror);
+
+    auto light = Light(point(-18.0, 3.0, 25.0), { 1.0, 1.0, 1.0 });
+    light.transform(viewMatrix);
+    //light.bAttenuation = false;
+
+    world.addLight(light);
+
+    auto lightSphere = std::make_shared<Sphere>(light.position, 0.25);
+    lightSphere->bIsLight = true;
+
+    world.addObject(lightSphere);
+
+    light = Light(point(-18.0, 3.0, -25.0), { 1.0, 1.0, 1.0 });
+    light.transform(viewMatrix);
+    //light.bAttenuation = false;
+
+    world.addLight(light);
+
+    lightSphere = std::make_shared<Sphere>(light.position, 0.25);
+    lightSphere->bIsLight = true;
+
+    world.addObject(lightSphere);
+
+    light = Light(point(-1.5, 3.0, -0.0), { 1.0, 1.0, 1.0 });
+    light.transform(viewMatrix);
+    //light.bAttenuation = false;
+
+    world.addLight(light);
+
+    lightSphere = std::make_shared<Sphere>(light.position, 0.25);
+    lightSphere->bIsLight = true;
+
+    world.addObject(lightSphere);
+
+    return world;
+}
+
+World cubeScene(const Matrix4& viewMatrix) {
+    auto world = World();
+
+    auto floor = std::make_shared<Quad>();
+    auto transformation = translate(0.0, -2.0, -6.0) * scaling(5.0, 1.0, 5.0);
+    floor->setTransformation(transformation);
+    floor->transform(viewMatrix);
+    floor->material->reflective = 0.125;
+    floor->material->pattern = std::make_shared<CheckerPattern>();
+    floor->material->pattern.value()->setTransformation(scaling(0.25, 1.0, 0.25));
 
     world.addObject(floor);
 
-    auto top = std::make_shared<Quad>();
-    top->setTransformation(viewMatrix * translate(0.0, 0.0, -6.0) * scaling(1.0, 1.0, 1.0));
+    auto cube = std::make_shared<Cube>();
+    cube->setTransformation(viewMatrix * translate(0.0, -1.01, -5.0) * scaling(1.0, 1.0, 1.0));
+    auto material = std::make_shared<Material>();
+    material->color = Color::black;
+    material->reflective = 0.9;
+    material->transparency = 1.0;
+    material->refractiveIndex = 1.55;
+    cube->setMaterial(material);
 
-    world.addObject(top);
+    world.addObject(cube);
 
-    auto bottom = std::make_shared<Quad>();
-    bottom->setTransformation(viewMatrix * translate(0.0, -2.0, -6.0) * scaling(1.0, 1.0, 1.0));
+    auto sphere = std::make_shared<Sphere>(point(-2.0, -1.1, -5.0), 0.8);
+    sphere->setTransformation(viewMatrix);
+    world.addObject(sphere);
 
-    world.addObject(bottom);
-
-    auto back = std::make_shared<Quad>();
-    back->setTransformation(viewMatrix * translate(0.0, -1.0, -7.0) * rotateX(Math::pi_2) * scaling(1.0, 1.0, 1.0));
-
-    world.addObject(back);
-
-    auto front = std::make_shared<Quad>();
-    front->setTransformation(viewMatrix * translate(0.0, -1.0, -5.0) * rotateX(Math::pi_2) * scaling(1.0, 1.0, 1.0));
-
-    world.addObject(front);
-
-    auto left = std::make_shared<Quad>();
-    left->setTransformation(viewMatrix * translate(-1.0, -1.0, -6.0) * rotateZ(Math::pi_2) * scaling(1.0, 1.0, 1.0));
-
-    world.addObject(left);
-
-    auto right = std::make_shared<Quad>();
-    right->setTransformation(viewMatrix * translate(1.0, -1.0, -6.0) * rotateZ(Math::pi_2) * scaling(1.0, 1.0, 1.0));
-
-    world.addObject(right);
-
-    auto light = Light(point(0.0, 1.0, -2.0), { 1.0, 1.0, 1.0 });
+    auto light = Light(point(0.0, 2.0, -6.0), { 0.4, 0.4, 0.4 });
     light.transform(viewMatrix);
-    //light.bAttenuation = false;
 
     world.addLight(light);
 
@@ -448,7 +609,7 @@ World cubeScene(const Matrix4& viewMatrix) {
     return world;
 }
 
-#define RESOLUTION 1
+#define RESOLUTION 2
 
 int main(int argc, char* argv[]) {
 #if 1
@@ -471,9 +632,12 @@ int main(int argc, char* argv[]) {
     Camera camera(imageWidth, imageHeight);
 
     // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查(已解决，CheckerPattern算法的问题)
-    auto viewMatrix = camera.lookAt(60.0, point(3.0, 0.0, 4.0), point(0.0, 0.0, -8.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(10.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
+    //auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
 
     auto world = cubeScene(viewMatrix);
+        
+     //world = houseScene(viewMatrix);
         
     //world = pondScene(viewMatrix);
 
@@ -499,7 +663,7 @@ int main(int argc, char* argv[]) {
 
                 auto ray = camera.getRay(dx, dy);
 
-                //if (x == 233 && y == 118) {
+                //if (x == 330 && y == 67) {
                 //    finalColor += Color::green;
                 //}
 

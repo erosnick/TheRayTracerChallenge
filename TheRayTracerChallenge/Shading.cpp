@@ -9,24 +9,24 @@
 
 #include <algorithm>
 
-Tuple lighting(const Material& material, const ShapePtr& object, const Light& light, const Tuple& position,
+Tuple lighting(const MaterialPtr& material, const ShapePtr& object, const Light& light, const Tuple& position,
                const Tuple& viewDirection, const Tuple& normal, bool bInShadow, 
                bool bHalfLambert, bool bBlinnPhong) {
-    auto materialColor = material.color;
+    auto materialColor = material->color;
 
-    if (material.pattern.has_value()) {
-        materialColor = material.pattern.value()->patternAtShape(object, position);
+    if (material->pattern.has_value()) {
+        materialColor = material->pattern.value()->patternAtShape(object, position);
     }
 
-    auto ambientColor = materialColor * material.ambient;
+    auto ambientColor = materialColor * material->ambient;
     
     if (bInShadow) {
         return ambientColor;
     }
 
     auto surfaceColor = light.intensity * materialColor;
-    auto diffuseColor = surfaceColor * material.diffuse;
-    auto specularColor = light.intensity * material.specular;
+    auto diffuseColor = surfaceColor * material->diffuse;
+    auto specularColor = light.intensity * material->specular;
     
     auto lightDirection = (light.position - position);
     auto distance = lightDirection.magnitude();
@@ -53,10 +53,10 @@ Tuple lighting(const Material& material, const ShapePtr& object, const Light& li
         auto reflectVector = 2.0 * (diffuseTerm) * normal - lightDirection;
         if (bBlinnPhong) {
             auto halfVector = (lightDirection + viewDirection) / (lightDirection + viewDirection).magnitude();
-            specular = std::pow(std::max(halfVector.dot(normal), 0.0), material.shininess * 2) * attenuation;
+            specular = std::pow(std::max(halfVector.dot(normal), 0.0), material->shininess * 2) * attenuation;
         }
         else {
-            specular = std::pow(std::max(reflectVector.dot(viewDirection), 0.0), material.shininess) * attenuation;
+            specular = std::pow(std::max(reflectVector.dot(viewDirection), 0.0), material->shininess) * attenuation;
         }
     }
 
@@ -65,7 +65,7 @@ Tuple lighting(const Material& material, const ShapePtr& object, const Light& li
     return finalColor;
 }
 
-Tuple lighting(const Material& material, const ShapePtr& object, const Light& light,
+Tuple lighting(const MaterialPtr& material, const ShapePtr& object, const Light& light,
                const HitInfo& hitInfo, bool bInShadow, 
                bool bHalfLambert, bool bBlinnPhong) {
     return lighting(material, object, light, hitInfo.overPosition, hitInfo.viewDirection, hitInfo.normal, bInShadow, bHalfLambert, bBlinnPhong);
@@ -82,7 +82,7 @@ bool isShadow(const World& world, const Light& light, const Tuple& position) {
         const auto& intersection = nearestHit(intersections);
 
         if (!intersection.object->bIsLight 
-          && intersection.object->material.bCastShadow
+          && intersection.object->material->bCastShadow
           && intersection.t < distance) {
             return true;
         }
@@ -106,7 +106,7 @@ Tuple shadeHit(const World& world, const HitInfo& hitInfo,
     auto refracted = refractedColor(world, hitInfo, remaining);
 
     auto material = hitInfo.object->material;
-    if (material.reflective > 0.0 && material.transparency > 0.0) {
+    if (material->reflective > 0.0 && material->transparency > 0.0) {
         auto reflectance = schlick(hitInfo);
         return surface + reflected * reflectance + refracted * (1.0 - reflectance);
     }
@@ -127,7 +127,7 @@ Tuple colorAt(const World& world, Ray& ray, int32_t remaining) {
     if (intersections.size() == 0) {
         auto t = 0.5 * (ray.direction.y + 1.0);
         auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
-        missColor = color(0.235294, 0.67451, 0.843137);
+        missColor = Color::background;
         return missColor;
     }
 
@@ -147,25 +147,25 @@ Tuple colorAt(const World& world, Ray& ray, int32_t remaining) {
 }
 
 Tuple reflectedColor(const World& world, const HitInfo& hitInfo, int32_t remaining) {
-    if (hitInfo.object->material.reflective == 0.0 || remaining == 0) {
+    if (hitInfo.object->material->reflective == 0.0 || remaining == 0) {
         return Color::black;
     }
 
     auto reflectedRay = Ray(hitInfo.overPosition, hitInfo.reflectVector);
     auto color = colorAt(world, reflectedRay, remaining - 1);
 
-    return color * hitInfo.object->material.reflective;
+    return color * hitInfo.object->material->reflective;
 }
 
-Tuple refract(const Tuple& uv, const Tuple& n, double etai_over_etat) {
-    auto cos_theta = std::fmin(-uv.dot(n), 1.0);
-    Tuple r_out_perp = etai_over_etat * (uv + cos_theta * n);
-    Tuple r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.magnitudeSqured())) * n;
-    return r_out_perp + r_out_parallel;
+Tuple refract(const Tuple& uv, const Tuple& n, double etaiOverEtat) {
+    auto costheta = std::fmin(-uv.dot(n), 1.0);
+    Tuple rOutPerp = etaiOverEtat * (uv + costheta * n);
+    Tuple rOutParallel = -std::sqrt(std::fabs(1.0 - rOutPerp.magnitudeSqured())) * n;
+    return rOutPerp + rOutParallel;
 }
 
 Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaining) {
-    if (hitInfo.object->material.transparency == 0.0 || remaining == 0) {
+    if (hitInfo.object->material->transparency == 0.0 || remaining == 0) {
         return  Color::black;
     }
 
@@ -208,7 +208,7 @@ Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaini
 
     // Find the color of the refracted ray, making sure to multiply
     // by the transparency value to account for any opacity
-    auto color = colorAt(world, refractedRay, remaining - 1) * hitInfo.object->material.transparency;
+    auto color = colorAt(world, refractedRay, remaining - 1) * hitInfo.object->material->transparency;
 
     return color;
 }

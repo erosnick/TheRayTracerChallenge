@@ -41,7 +41,7 @@ SCENARIO("The reflected color for a non-reflective material", "[Reflection]") {
             AND_GIVEN("shape = the second object in w") {
                 auto shape = w.getObjects()[1];
                 AND_GIVEN("shape.material.ambient = 1.0") {
-                    shape->material.ambient = 1.0;
+                    shape->material->ambient = 1.0;
                     AND_GIVEN("i = Intersection(1.0, shape)") {
                         auto i = Intersection(1.0, shape);
                         WHEN("comps = prepareComputations(i, r)") {
@@ -67,7 +67,7 @@ SCENARIO("The reflected color for a reflective material", "[Reflection]") {
                 "| material.reflective | 0.5 |"
                 "| transform | translation(0.0, -1.0, 0.0) |") {
             auto shape = std::make_shared<Plane>();
-            shape->material.reflective = 0.5;
+            shape->material->reflective = 0.5;
             shape->setTransformation(translate(0.0, -1.0, 0.0));
             AND_GIVEN("shape is added to w") {
                 w.addObject(shape);
@@ -98,8 +98,8 @@ SCENARIO("shade_hit() with a reflective material", "[Reflection]") {
             "| material.reflective | 0.5 |"
             "| transform | translation(0.0, -1.0, 0.0) |") {
             auto shape = std::make_shared<Plane>();
-            shape->material.reflective = 0.5;
-            shape->material.color = { 1.0, 1.0, 1.0 };
+            shape->material->reflective = 0.5;
+            shape->material->color = { 1.0, 1.0, 1.0 };
             shape->setTransformation(translate(0.0, -1.0, 0.0));
             AND_GIVEN("shape is added to w") {
                 w.addObject(shape);
@@ -133,7 +133,7 @@ SCENARIO("colorAt() with mutually reflective surfaces", "[Reflection]") {
                     "| material.reflective | 1 |"
                     "| transform | translation(0, -1, 0) |") {
                 auto lower = std::make_shared<Plane>();
-                lower->material.reflective = 1.0;
+                lower->material->reflective = 1.0;
                 lower->setTransformation(translate(0.0, -1.0, 0.0));
                 AND_GIVEN("lower is added to w") {
                     w.addObject(lower);
@@ -141,7 +141,7 @@ SCENARIO("colorAt() with mutually reflective surfaces", "[Reflection]") {
                         "| material.reflective | 1 |"
                         "| transform | translation(0, 1, 0) |") {
                         auto upper = std::make_shared<Plane>();
-                        upper->material.reflective = 1.0;
+                        upper->material->reflective = 1.0;
                         upper->setTransformation(translate(0.0, 1.0, 0.0));
                         AND_GIVEN("upper is added to w") {
                             w.addObject(upper);
@@ -166,8 +166,8 @@ SCENARIO(" The reflected color at the maximum recursive depth", "[Reflection]") 
             "| material.reflective | 0.5 |"
             "| transform | translation(0.0, -1.0, 0.0) |") {
             auto shape = std::make_shared<Plane>();
-            shape->material.reflective = 0.5;
-            shape->material.color = { 1.0, 1.0, 1.0 };
+            shape->material->reflective = 0.5;
+            shape->material->color = { 1.0, 1.0, 1.0 };
             shape->setTransformation(translate(0.0, -1.0, 0.0));
             AND_GIVEN("shape is added to w") {
                 w.addObject(shape);

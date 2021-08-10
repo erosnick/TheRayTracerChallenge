@@ -21,6 +21,8 @@ struct HitInfo;
 
 struct Material;
 
+using MaterialPtr = std::shared_ptr<Material>;
+
 struct Intersection;
 
 using InsersectionSet = std::vector<Intersection>;

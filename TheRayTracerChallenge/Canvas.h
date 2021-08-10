@@ -86,12 +86,12 @@ public:
             for (auto x = 0; x < width; x++) {
                 auto index = y * width + x;
                 const auto& pixelColor = pixelData[index];
-                //auto r = static_cast<uint8_t>(256 * std::clamp(std::sqrt(pixelColor.red), 0.0, 0.999));
-                //auto g = static_cast<uint8_t>(256 * std::clamp(std::sqrt(pixelColor.green), 0.0, 0.999));
-                //auto b = static_cast<uint8_t>(256 * std::clamp(std::sqrt(pixelColor.blue), 0.0, 0.999));
-                auto r = static_cast<uint8_t>(256 * std::clamp(pixelColor.red, 0.0, 0.999));
-                auto g = static_cast<uint8_t>(256 * std::clamp(pixelColor.green, 0.0, 0.999));
-                auto b = static_cast<uint8_t>(256 * std::clamp(pixelColor.blue, 0.0, 0.999));
+                auto r = static_cast<uint8_t>(256 * std::clamp(std::sqrt(pixelColor.red), 0.0, 0.999));
+                auto g = static_cast<uint8_t>(256 * std::clamp(std::sqrt(pixelColor.green), 0.0, 0.999));
+                auto b = static_cast<uint8_t>(256 * std::clamp(std::sqrt(pixelColor.blue), 0.0, 0.999));
+                //auto r = static_cast<uint8_t>(256 * std::clamp(pixelColor.red, 0.0, 0.999));
+                //auto g = static_cast<uint8_t>(256 * std::clamp(pixelColor.green, 0.0, 0.999));
+                //auto b = static_cast<uint8_t>(256 * std::clamp(pixelColor.blue, 0.0, 0.999));
                 pixelBuffer.push_back(r);
                 pixelBuffer.push_back(g);
                 pixelBuffer.push_back(b);

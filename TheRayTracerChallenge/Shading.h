@@ -9,12 +9,12 @@ Tuple reflectedColor(const World& world, const HitInfo& hitInfo, int32_t remaini
 Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaining = 5);
 double schlick(const HitInfo& hitInfo);
 
-Tuple lighting(const Material& material, const ShapePtr& object, const Light& light, 
+Tuple lighting(const MaterialPtr& material, const ShapePtr& object, const Light& light, 
                const Tuple& position, const Tuple& viewDirection, 
                const Tuple& normal, bool bInShadow = false, 
                bool bHalfLambert = false, bool bBlinnPhong = false);
 
-Tuple lighting(const Material& material, const ShapePtr& object, const Light& light,
+Tuple lighting(const MaterialPtr& material, const ShapePtr& object, const Light& light,
                const HitInfo& hitInfo, bool bInShadow = false,
                bool bHalfLambert = false, bool bBlinnPhong = false);
 

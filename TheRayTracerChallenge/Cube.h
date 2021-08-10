@@ -5,16 +5,13 @@
 
 class Cube : public Shape {
 public:
-    Cube() {
-    }
+    Cube();
 
     virtual  ~Cube() {}
 
     void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) override;
 
-    void transform(const Matrix4& inTransformation) override {
-        Shape::transform(inTransformation);
-    }
+    void transform(const Matrix4& inTransformation) override;
 
     Tuple normalAt(const Tuple& position) const override;
 
@@ -24,7 +21,11 @@ public:
 
     void initQuads();
 
-    std::vector<std::shared_ptr<Quad>> planes;
+    void setMaterial(const MaterialPtr& inMaterial);
+
+    void setMaterial(const MaterialPtr& inMaterial, int32_t quadIndex);
+
+    std::vector<std::shared_ptr<Quad>> quads;
 
     Tuple center = point(0.0, 0.0, 0.0);
 };

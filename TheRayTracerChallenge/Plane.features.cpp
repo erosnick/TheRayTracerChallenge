@@ -2,6 +2,7 @@
 #include "Shape.h"
 #include "Plane.h"
 #include "types.h"
+#include "Material.h"
 
 SCENARIO("The default transformation", "[Plane]") {
     GIVEN("s = testShape()") {
@@ -30,7 +31,7 @@ SCENARIO("The default material", "[Plane]") {
         WHEN("m = s.material") {
             auto m = s.material;
             THEN("m == Material()") {
-                REQUIRE(m == Material());
+                REQUIRE((*m.get()) == Material());
             }
         }
     }
@@ -40,9 +41,9 @@ SCENARIO("Assigning a material", "[Plane]") {
     GIVEN("s = testShape()") {
         auto s = testShape();
         AND_GIVEN("m = Material()") {
-            auto m = Material();
+            auto m = std::make_shared<Material>();
             AND_GIVEN("m.ambient = 1.0") {
-                m.ambient = 1.0;
+                m->ambient = 1.0;
                 WHEN("s.material = m") {
                     s.material = m;
                     THEN("s.material == m") {

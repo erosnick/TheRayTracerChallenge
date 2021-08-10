@@ -26,7 +26,7 @@ HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const Inser
     hitInfo.overPosition = hitInfo.position + hitInfo.normal * Math::epsilon;
     hitInfo.underPosition = hitInfo.position - hitInfo.normal * Math::epsilon;
 
-    if (hitInfo.object->material.reflective > 0.0) {
+    if (hitInfo.object->material->reflective > 0.0) {
         hitInfo.reflectVector = reflect(ray.direction, hitInfo.normal);
     }
 
@@ -42,7 +42,7 @@ HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const Inser
                 hitInfo.n1 = 1.0;
             }
             else {
-                hitInfo.n1 = container[container.size() - 1]->material.refractiveIndex;
+                hitInfo.n1 = container[container.size() - 1]->material->refractiveIndex;
             }
         }
 
@@ -66,7 +66,7 @@ HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const Inser
                 hitInfo.n2 = 1.0;
             }
             else {
-                hitInfo.n2 = container[container.size() - 1]->material.refractiveIndex;
+                hitInfo.n2 = container[container.size() - 1]->material->refractiveIndex;
             }
             break;
         }

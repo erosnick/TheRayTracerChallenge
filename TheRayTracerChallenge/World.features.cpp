@@ -27,20 +27,20 @@ SCENARIO("The default world", "[World]") {
             "| material.specular | 0.9             |") {
             auto s1 = std::make_shared<Sphere>();
             s1->setTransformation(translate(-1.0, 0.0, -3.0));
-            auto material = Material();
-            material.color = color(1.0, 0.0, 0.0);
-            material.diffuse = 1.0;
-            material.specular = 0.9;
-            material.shininess = 128.0;
+            auto material = std::make_shared<Material>();
+            material->color = color(1.0, 0.0, 0.0);
+            material->diffuse = 1.0;
+            material->specular = 0.9;
+            material->shininess = 128.0;
             s1->material = material;
             AND_GIVEN("s2 = std::make_shared<Sphere>()") {
                 auto s2 = std::make_shared<Sphere>();
                 s2->setTransformation(translate(1.0, 0.0, -3.0));
-                material = Material();
-                material.color = color(1.0, 0.2, 1.0);
-                material.diffuse = 1.0;
-                material.specular = 0.9;
-                material.shininess = 128.0;
+                material = std::make_shared<Material>();
+                material->color = color(1.0, 0.2, 1.0);
+                material->diffuse = 1.0;
+                material->specular = 0.9;
+                material->shininess = 128.0;
                 s2->material = material;
                 WHEN("w = defaultWorld()") {
                     auto w = defaultWorld();

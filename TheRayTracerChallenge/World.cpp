@@ -21,13 +21,13 @@ World defaultWorld() {
 
     auto sphere = std::make_shared<Sphere>();
     sphere->setTransformation(translate(-1.0, 0.0, -3.0));
-    sphere->material = { { 1.0, 0.0, 0.0}, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material = std::make_shared<Material>(color(1.0, 0.0, 0.0), 0.1, 1.0, 0.9, 128.0);
 
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>();
     sphere->setTransformation(translate(1.0, 0.0, -3.0));
-    sphere->material = { { 1.0, 0.2, 1.0}, 0.1, 1.0, 0.9, 128.0 };
+    sphere->material = std::make_shared<Material>(color(1.0, 0.2, 1.0), 0.1, 1.0, 0.9, 128.0);
 
     world.addObject(sphere);
 
@@ -42,7 +42,7 @@ World defaultWorld1() {
     auto world = World();
 
     auto sphere = std::make_shared<Sphere>();
-    sphere->material = { { 0.8, 1.0, 0.6}, 0.1, 0.7, 0.2, 128.0 };
+    sphere->material = std::make_shared<Material>(color(0.8, 1.0, 0.6), 0.1, 0.7, 0.2, 128.0);
 
     world.addObject(sphere);
 
@@ -62,7 +62,7 @@ World defaultWorld2() {
     auto world = World();
 
     auto sphere = std::make_shared<Sphere>();
-    sphere->material = { { 0.8, 1.0, 0.6}, 0.1, 0.7, 0.2, 128.0 };
+    sphere->material = std::make_shared<Material>(color(0.8, 1.0, 0.6), 0.1, 0.7, 0.2, 128.0);
 
     world.addObject(sphere);
 
@@ -77,7 +77,7 @@ World defaultWorld3() {
     auto world = World();
 
     auto sphere = std::make_shared<Sphere>();
-    sphere->material = { { 0.8, 1.0, 0.6}, 0.1, 0.7, 0.2, 128.0 };
+    sphere->material = std::make_shared<Material>(color(0.8, 1.0, 0.6), 0.1, 0.7, 0.2, 128.0);
 
     world.addObject(sphere);
 

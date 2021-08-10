@@ -1,122 +1,53 @@
 #include "Cube.h"
 #include "Intersection.h"
-#include <algorithm>
 #include "Plane.h"
+#include "Quad.h"
+
+#include <algorithm>
+
+Cube::Cube() {
+    initQuads();
+}
 
 void Cube::setTransformation(const Matrix4& inTransformation, bool bTransformPosition) {
     Shape::setTransformation(inTransformation, bTransformPosition);
 
-    for (auto& plane : planes) {
-        plane->transform(transformation);
+    for (auto& quad : quads) {
+        quad->setTransformation(transformation);
+    }
+}
+
+void Cube::transform(const Matrix4& inTransformation) {
+    Shape::transform(inTransformation);
+
+    for (auto& quad : quads) {
+        quad->setTransformation(transformation);
     }
 }
 
 Tuple Cube::normalAt(const Tuple& position) const {
-    //auto rotation = transformation;
-    //rotation[0][3] = 0.0;
-    //rotation[1][3] = 0.0;
-    //rotation[2][3] = 0.0;
-    //auto transformedPosition = position;
-
-    //auto maxComponent = std::max(std::abs(transformedPosition.x),
-    //                    std::max(std::abs(transformedPosition.y),
-    //                             std::abs(transformedPosition.z)));
-
-    //auto normal = vector(0.0);
-
-    //if ((maxComponent - std::abs(transformedPosition.x)) < Math::epsilon) {
-    //    normal = vector(transformedPosition.x, 0.0, 0.0);
-    //}
-    //else if ((maxComponent - std::abs(transformedPosition.y)) < Math::epsilon) {
-    //    normal = vector(0.0, transformedPosition.y, 0.0);
-    //}
-
-    //normal = vector(0.0, 0.0, -transformedPosition.z);
-
-    //normal = transformation * normal;
-
-    //return normal.normalize();
-
-    for (const auto& plane : planes) {
-        if (plane->onPlane(position)) {
-            return plane->normal;
+    auto normal = vector(0.0);
+    for (const auto& quad : quads) {
+        if (quad->onQuad(position, normal)) {
+            return normal;
         }
     }
 
-    return vector(0.0);
+    return Tuple();
 }
 
 InsersectionSet Cube::intersect(const Ray& ray, bool bTransformRay) {
-    
-    //auto transformedRay = ray;
-    auto xtmin = -Math::infinityd;
-    if (planes[0]->intersect(ray).size() > 0) {
-        xtmin = planes[0]->intersect(ray)[0].t;
+    auto results = InsersectionSet();
+    for (const auto& quad : quads) {
+        if (auto result = quad->intersect(ray); result.size() > 0) {
+            //result[0].object = GetPtr();
+            results.push_back(result[0]);
+        }
     }
 
-    auto xtmax = -Math::infinityd;
+    std::sort(results.begin(), results.end());
 
-    if (planes[1]->intersect(ray).size() > 0) {
-        xtmax = planes[1]->intersect(ray)[0].t;
-    }
-
-    if (xtmin > xtmax) {
-        std::swap(xtmin, xtmax);
-    }
-
-    auto ytmin = -Math::infinityd;
-
-    if (planes[2]->intersect(ray).size() > 0) {
-        ytmin = planes[2]->intersect(ray)[0].t;
-    }
-
-    auto ytmax = -Math::infinityd;
-
-    if (planes[3]->intersect(ray).size() > 0) {
-        ytmax = planes[3]->intersect(ray)[0].t;
-    }
-
-    if (ytmin > ytmax) {
-        std::swap(ytmin, ytmax);
-    }
-
-    auto ztmin = -Math::infinityd;
-
-    if (planes[4]->intersect(ray).size() > 0) {
-        ztmin = planes[4]->intersect(ray)[0].t;
-    }
-
-    auto ztmax = -Math::infinityd;
-
-    if (planes[5]->intersect(ray).size() > 0) {
-        ztmax = planes[5]->intersect(ray)[0].t;
-    }
-
-    if (ztmin > ztmax) {
-        std::swap(ztmin, ztmax);
-    }
-
-    auto tmin = std::max(xtmin, std::max(ytmin, ztmin));
-    auto tmax = std::min(xtmax, std::min(ytmax, ztmax));
-
-    //transformedRay.origin = transformation.inverse() * transformedRay.origin;
-    //transformedRay.direction = transformation.inverse() * transformedRay.direction;
-
-    //auto [xtmin, xtmax] = checkAxis(transformedRay.origin.x, transformedRay.direction.x);
-    //auto [ytmin, ytmax] = checkAxis(transformedRay.origin.y, transformedRay.direction.y);
-    //auto [ztmin, ztmax] = checkAxis(transformedRay.origin.z, transformedRay.direction.z);
-
-    if ((tmin > tmax) || (tmin == -Math::infinityd || tmax == -Math::infinityd)) {
-        return InsersectionSet();
-    }
-
-    auto position1 = ray.position(tmin);
-    auto position2 = ray.position(tmax);
-    auto normal1 = normalAt(position1);
-    auto normal2 = normalAt(position2);
-
-    return { { true, !bIsLight, 1, tmin, GetPtr(), position1, normal1, ray }, { true, !bIsLight, 1, tmax, GetPtr(), position2, normal2, ray } };
-    return InsersectionSet();
+    return results;
 }
 
 std::tuple<double, double> Cube::checkAxis(double origin, double direction) {
@@ -142,5 +73,48 @@ std::tuple<double, double> Cube::checkAxis(double origin, double direction) {
 }
 
 void Cube::initQuads() {
+    auto top = std::make_shared<Quad>("Top");
+    top->setTransformation(translate(0.0, 1.0, 0.0));
 
+    quads.push_back(top);
+
+    auto bottom = std::make_shared<Quad>();
+    bottom->setTransformation(translate(0.0, -1.0, 0.0));
+
+    quads.push_back(bottom);
+
+    auto back = std::make_shared<Quad>();
+    back->setTransformation(translate(0.0, 0.0, -1.0) * rotateX(Math::pi_2));
+
+    quads.push_back(back);
+
+    auto front = std::make_shared<Quad>();
+    front->setTransformation(translate(0.0, 0.0, 1.0) * rotateX(Math::pi_2));
+
+    quads.push_back(front);
+
+    auto left = std::make_shared<Quad>();
+    left->setTransformation(translate(-1.0, 0.0, 0.0) * rotateZ(Math::pi_2));
+
+    quads.push_back(left);
+
+    auto right = std::make_shared<Quad>();
+    right->setTransformation(translate(1.0, 0.0, 0.0) * rotateZ(Math::pi_2));
+
+    quads.push_back(right);
+}
+
+void Cube::setMaterial(const MaterialPtr& inMaterial) {
+    material = inMaterial;
+    for (auto& quad : quads) {
+        quad->setMaterial(inMaterial);
+    }
+}
+
+void Cube::setMaterial(const MaterialPtr& inMaterial, int32_t quadIndex) {
+    if (quadIndex > quads.size() - 1) {
+        return;
+    }
+
+    quads[quadIndex]->setMaterial(inMaterial);
 }
