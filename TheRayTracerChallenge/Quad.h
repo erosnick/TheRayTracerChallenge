@@ -15,6 +15,8 @@ public:
 
     void transform(const Matrix4& inTransformation) override;
 
+    void transformNormal(const Matrix4& worldMatrix);
+
     Tuple normalAt(const Tuple& position) const override;
 
     InsersectionSet intersect(const Ray& ray, bool bTransformRay = false) override;

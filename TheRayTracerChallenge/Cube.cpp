@@ -25,10 +25,19 @@ void Cube::transform(const Matrix4& inTransformation) {
     }
 }
 
+void Cube::transformNormal(const Matrix4& worldMatrix) {
+
+}
+
 Tuple Cube::normalAt(const Tuple& position) const {
     auto normal = vector(0.0);
     for (const auto& quad : quads) {
         if (quad->onQuad(position, normal)) {
+            //if ((normal.x > -1.0 || normal.x < 1.0)
+            // || (normal.y > -1.0 || normal.y < 1.0)
+            // || (normal.z > -1.0 || normal.z < 1.0)) {
+            //    std::cout << normal.x << ", " << normal.y << ", " << normal.z << std::endl;
+            //}
             return normal;
         }
     }
@@ -40,12 +49,14 @@ InsersectionSet Cube::intersect(const Ray& ray, bool bTransformRay) {
     auto results = InsersectionSet();
     for (const auto& quad : quads) {
         if (auto result = quad->intersect(ray); result.size() > 0) {
-            //result[0].object = GetPtr();
+            result[0].object = GetPtr();
             results.push_back(result[0]);
         }
     }
 
-    std::sort(results.begin(), results.end());
+    if (results.size() == 1 && results[0].t < Math::epsilon) {
+        results.clear();
+    }
 
     return results;
 }
@@ -78,28 +89,32 @@ void Cube::initQuads() {
 
     quads.push_back(top);
 
-    auto bottom = std::make_shared<Quad>();
+    auto bottom = std::make_shared<Quad>("Bottom");
     bottom->setTransformation(translate(0.0, -1.0, 0.0));
 
     quads.push_back(bottom);
 
-    auto back = std::make_shared<Quad>();
-    back->setTransformation(translate(0.0, 0.0, -1.0) * rotateX(Math::pi_2));
+    auto back = std::make_shared<Quad>("Back");
+    back->transformNormal(rotateX(-Math::pi_2));
+    back->setTransformation(translate(0.0, 0.0, -1.0) * rotateX(-Math::pi_2));
 
     quads.push_back(back);
 
-    auto front = std::make_shared<Quad>();
+    auto front = std::make_shared<Quad>("Front");
+    front->transformNormal(rotateX(Math::pi_2));
     front->setTransformation(translate(0.0, 0.0, 1.0) * rotateX(Math::pi_2));
 
     quads.push_back(front);
 
-    auto left = std::make_shared<Quad>();
+    auto left = std::make_shared<Quad>("Left");
+    left->transformNormal(rotateZ(Math::pi_2));
     left->setTransformation(translate(-1.0, 0.0, 0.0) * rotateZ(Math::pi_2));
 
     quads.push_back(left);
 
-    auto right = std::make_shared<Quad>();
-    right->setTransformation(translate(1.0, 0.0, 0.0) * rotateZ(Math::pi_2));
+    auto right = std::make_shared<Quad>("Right");
+    right->transformNormal(rotateZ(-Math::pi_2));
+    right->setTransformation(translate(1.0, 0.0, 0.0) * rotateZ(-Math::pi_2));
 
     quads.push_back(right);
 }

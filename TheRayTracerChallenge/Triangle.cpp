@@ -25,10 +25,15 @@ InsersectionSet Triangle::intersect(const Ray& ray, bool bTransformRay) {
     // 3.v must be a non-negative number with a 
     // value less than or equal to 1.
     // 4.v + u must be a number less than or equal to 1
-    if ((t >= std::numeric_limits<float>::epsilon())
-        && (b1 >= std::numeric_limits<float>::epsilon())
-        && (b2 >= std::numeric_limits<float>::epsilon())
-        && ((1.0f - b1 - b2) >= std::numeric_limits<float>::epsilon())) {
+    // 理论上来说只返回射线前进方向上的交点(t > 0)，这里
+    // 返回特殊情况下t < 0的交点(射线在Cube内时产生的两个交点)，
+    // 计算折射率时候需要用到，和Sphere的原理类似
+    if ((t > -Math::epsilon * 2
+        && t < Math::epsilon)
+        || (t >= Math::epsilon)
+        && (b1 >= Math::epsilon)
+        && (b2 >= Math::epsilon)
+        && ((1.0f - b1 - b2) >= Math::epsilon)) {
         auto intersection = Intersection();
         intersection.t = t;
         intersection.object = GetPtr();
@@ -36,6 +41,18 @@ InsersectionSet Triangle::intersect(const Ray& ray, bool bTransformRay) {
         intersection.position = ray.position(t);
         intersections.push_back(intersection);
     }
+
+    //if ((t >= Math::epsilon)
+    //    && (b1 >= Math::epsilon)
+    //    && (b2 >= Math::epsilon)
+    //    && ((1.0f - b1 - b2) >= Math::epsilon)) {
+    //    auto intersection = Intersection();
+    //    intersection.t = t;
+    //    intersection.object = GetPtr();
+    //    intersection.ray = ray;
+    //    intersection.position = ray.position(t);
+    //    intersections.push_back(intersection);
+    //}
 
     return intersections;
 }

@@ -165,6 +165,10 @@ inline constexpr Tuple color(int32_t inRed, int32_t inGreen, int32_t inBlue) {
                  1.0 / 255 * inBlue);
 }
 
+inline constexpr Tuple color(double value) {
+    return color(value, value, value);
+}
+
 inline bool operator==(const Vector2& a, const Vector2& b) {
     constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
     auto dx = std::abs(std::abs(a.x) - std::abs(b.x));

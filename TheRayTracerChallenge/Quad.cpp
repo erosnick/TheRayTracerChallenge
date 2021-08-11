@@ -27,13 +27,23 @@ void Quad::transform(const Matrix4& inTransformation) {
     }
 }
 
+void Quad::transformNormal(const Matrix4& worldMatrix) {
+    for (auto& triangle : triangles) {
+        triangle->transformNormal(worldMatrix);
+    }
+}
+
 Tuple Quad::normalAt(const Tuple& position) const {
     return triangles[0]->normalAt(position);
 }
 
 InsersectionSet Quad::intersect(const Ray& ray, bool bTransformRay) {
     auto intersections1 = triangles[0]->intersect(ray, bTransformRay);
-    auto intersections2 = triangles[1]->intersect(ray, bTransformRay);
+    auto intersections2 = InsersectionSet();
+    
+    if (intersections1.size() == 0) {
+        intersections2 = triangles[1]->intersect(ray, bTransformRay);
+    }
 
     auto result = InsersectionSet();
 
@@ -45,8 +55,12 @@ InsersectionSet Quad::intersect(const Ray& ray, bool bTransformRay) {
         result = intersections2;
     }
 
-    if (result.size() > 0) {
+    // 过滤掉Quad单独使用(不是Cube的部分)时t < 0的情况
+    if (result.size() > 0 && result[0].t > Math::epsilon) {
         result[0].object = GetPtr();
+    }
+    else {
+        result.clear();
     }
 
     return result;

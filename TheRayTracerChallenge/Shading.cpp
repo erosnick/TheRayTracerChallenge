@@ -102,10 +102,20 @@ Tuple shadeHit(const World& world, const HitInfo& hitInfo,
         surface += lighting(hitInfo.object->material, hitInfo.object, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
     }
 
-    auto reflected = reflectedColor(world, hitInfo, remaining);
-    auto refracted = refractedColor(world, hitInfo, remaining);
-
     auto material = hitInfo.object->material;
+
+    auto reflected = color(0.0f);
+    
+    if (material->reflective > 0.0) {
+        reflected = reflectedColor(world, hitInfo, remaining);
+    }
+
+    auto refracted = color(0.0f);
+    
+    if (material->transparency > 0.0) {
+        refracted = refractedColor(world, hitInfo, remaining);
+    }
+
     if (material->reflective > 0.0 && material->transparency > 0.0) {
         auto reflectance = schlick(hitInfo);
         return surface + reflected * reflectance + refracted * (1.0 - reflectance);
@@ -137,6 +147,10 @@ Tuple colorAt(const World& world, Ray& ray, int32_t remaining) {
     if (!hit.bShading) {
         surface = Color::white;
         return surface;
+    }
+
+    if (intersections.size() > 1 && remaining < 5) {
+        int a = 0;
     }
 
     auto hitInfo = prepareComputations(hit, hit.ray, intersections);

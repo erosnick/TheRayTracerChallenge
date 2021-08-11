@@ -571,7 +571,7 @@ World houseScene(const Matrix4& viewMatrix) {
 World cubeScene(const Matrix4& viewMatrix) {
     auto world = World();
 
-    auto floor = std::make_shared<Quad>();
+    auto floor = std::make_shared<Quad>("Floor");
     auto transformation = translate(0.0, -2.0, -6.0) * scaling(5.0, 1.0, 5.0);
     floor->setTransformation(transformation);
     floor->transform(viewMatrix);
@@ -581,20 +581,44 @@ World cubeScene(const Matrix4& viewMatrix) {
 
     world.addObject(floor);
 
+    auto wall = std::make_shared<Quad>("Wall");
+    transformation = translate(0.0, -2.0, -10.0) * rotateX(Math::pi_2) * scaling(5.0, 1.0, 5.0);
+    wall->setTransformation(transformation);
+    wall->transform(viewMatrix);
+    wall->material->reflective = 0.125;
+    wall->material->pattern = std::make_shared<CheckerPattern>();
+    wall->material->pattern.value()->setTransformation(scaling(0.25, 1.0, 0.25));
+
+    //world.addObject(wall);
+
+    // 法线不应该用view matrix进行变换！！！
     auto cube = std::make_shared<Cube>();
-    cube->setTransformation(viewMatrix * translate(0.0, -1.01, -5.0) * scaling(1.0, 1.0, 1.0));
+    cube->setTransformation(viewMatrix * translate(0.0, -1.1, -3.0) * scaling(1.0, 1.0, 1.0));
     auto material = std::make_shared<Material>();
-    material->color = Color::black;
-    material->reflective = 0.9;
+    material->color = Color::dawn;
+    //material->reflective = 0.9;
     material->transparency = 1.0;
     material->refractiveIndex = 1.55;
+    //cube->material->bCastShadow = false;
     cube->setMaterial(material);
 
     world.addObject(cube);
 
+    cube = std::make_shared<Cube>();
+    cube->setTransformation(viewMatrix * translate(0.0, -1.9, -5.0) * scaling(3.0, 0.1, 0.1));
+    material = std::make_shared<Material>();
+    cube->setMaterial(material);
+
+    //world.addObject(cube);
+
     auto sphere = std::make_shared<Sphere>(point(-2.0, -1.1, -5.0), 0.8);
+    sphere->material->color = Color::black;
+    sphere->material->reflective = 0.0;
+    sphere->material->transparency = 1.0;
+    sphere->material->refractiveIndex = 1.55;
     sphere->setTransformation(viewMatrix);
-    world.addObject(sphere);
+
+    //world.addObject(sphere);
 
     auto light = Light(point(0.0, 2.0, -6.0), { 0.4, 0.4, 0.4 });
     light.transform(viewMatrix);
@@ -609,7 +633,7 @@ World cubeScene(const Matrix4& viewMatrix) {
     return world;
 }
 
-#define RESOLUTION 2
+#define RESOLUTION 1
 
 int main(int argc, char* argv[]) {
 #if 1
@@ -622,7 +646,7 @@ int main(int argc, char* argv[]) {
     auto canvas = createCanvas(1920, 1080);
 #endif
 
-    constexpr auto samplesPerPixel = 8;
+    constexpr auto samplesPerPixel = 1;
 
     constexpr auto remaining = 5;
 
@@ -632,8 +656,8 @@ int main(int argc, char* argv[]) {
     Camera camera(imageWidth, imageHeight);
 
     // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查(已解决，CheckerPattern算法的问题)
-    auto viewMatrix = camera.lookAt(60.0, point(10.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
-    //auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
+    //auto viewMatrix = camera.lookAt(60.0, point(5.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 3.0), point(0.0, 0.0, -3.0), vector(0.0, 1.0, 0.0));
 
     auto world = cubeScene(viewMatrix);
         
@@ -647,7 +671,7 @@ int main(int argc, char* argv[]) {
 
     Timer timer;
     double percentage = 0.0;
-    #pragma omp parallel for schedule(dynamic, 1)       // OpenMP
+    //#pragma omp parallel for schedule(dynamic, 1)       // OpenMP
     for (auto y = 0; y < imageHeight; y++) {
         percentage = (double)y / (imageHeight - 1) * 100;
         fprintf(stderr, "\rRendering: (%i samples) %.2f%%", samplesPerPixel, percentage);
@@ -656,18 +680,18 @@ int main(int argc, char* argv[]) {
             auto finalColor = color(0.0, 0.0, 0.0);
 
             for (auto sample = 0; sample < samplesPerPixel; sample++) {
-                auto rx = randomDouble();
-                auto ry = randomDouble();
+                auto rx = randomDouble() * 0.0;
+                auto ry = randomDouble() * 0.0;
                 auto dx = (static_cast<double>(x) + rx) / (imageWidth - 1);
                 auto dy = (static_cast<double>(y) + ry) / (imageHeight - 1);
 
                 auto ray = camera.getRay(dx, dy);
 
-                //if (x == 330 && y == 67) {
-                //    finalColor += Color::green;
-                //}
+                if (x == 195 && y == 0) {
+                    finalColor += Color::green;
+                }
 
-                //if (x == 323 && y == 115) {
+                //if (x == 238 && y == 126) {
                 //    finalColor += Color::green;
                 //}
 
