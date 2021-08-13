@@ -1,5 +1,5 @@
 #include "catch.hpp"
-#include "constants.h"
+#include "Constants.h"
 #include "Pattern.h"
 #include "Material.h"
 #include "Light.h"

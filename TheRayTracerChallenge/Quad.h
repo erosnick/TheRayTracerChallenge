@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Shape.h"
-#include "types.h"
+#include "Types.h"
 
 #include <string>
 
@@ -24,6 +24,8 @@ public:
     bool onQuad(const Tuple& inPosition, Tuple& normal);
 
     void setMaterial(const MaterialPtr& inMaterial) override;
+
+    bool bCube = false;
 
 private:
     std::vector<TrianglePtr> triangles;

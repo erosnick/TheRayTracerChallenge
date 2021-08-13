@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types.h"
-#include "constants.h"
+#include "Types.h"
+#include "Constants.h"
 #include "Ray.h"
 #include <initializer_list>
 #include <vector>
@@ -41,6 +41,7 @@ struct Intersection {
     bool bShading = true;
     int32_t count = 0;
     double t = std::numeric_limits<double>::infinity();
+    ShapePtr subObject;
     ShapePtr object;
     Tuple position;
     Tuple normal;

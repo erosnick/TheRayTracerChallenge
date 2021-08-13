@@ -113,7 +113,7 @@ public:
     Vector3(double inX, double inY, double inZ)
         : x(inX), y(inY), z(inZ) {}
 
-    const double operator[](int32_t index) const {
+    double operator[](int32_t index) const {
         return elements[index];
     }
 

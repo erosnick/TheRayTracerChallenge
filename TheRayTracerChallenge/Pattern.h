@@ -2,8 +2,8 @@
 
 #include "Tuple.h"
 #include "Matrix.h"
-#include "constants.h"
-#include "types.h"
+#include "Constants.h"
+#include "Types.h"
 
 #include <cmath>
 

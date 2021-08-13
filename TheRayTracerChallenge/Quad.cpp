@@ -56,11 +56,12 @@ InsersectionSet Quad::intersect(const Ray& ray, bool bTransformRay) {
     }
 
     // 过滤掉Quad单独使用(不是Cube的部分)时t < 0的情况
-    if (result.size() > 0 && result[0].t > Math::epsilon) {
+    if (result.size() > 0) {
         result[0].object = GetPtr();
-    }
-    else {
-        result.clear();
+
+        if (!bCube && result[0].t < Math::epsilon) {
+            result.clear();
+        }
     }
 
     return result;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tuple.h"
-#include "types.h"
+#include "Types.h"
 #include <optional>
 
 struct Material {

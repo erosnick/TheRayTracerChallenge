@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TheRayTracerChallenge", "TheRayTracerChallenge\TheRayTracerChallenge.vcxproj", "{3117C30E-E753-45D9-9387-A8E5850EFCF5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CudaTest", "CudaTest\CudaTest.vcxproj", "{DC270C4D-5FEE-4341-9BC8-933508A7825E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -27,6 +29,14 @@ Global
 		{3117C30E-E753-45D9-9387-A8E5850EFCF5}.Release|x64.Build.0 = Release|x64
 		{3117C30E-E753-45D9-9387-A8E5850EFCF5}.Release|x86.ActiveCfg = Release|Win32
 		{3117C30E-E753-45D9-9387-A8E5850EFCF5}.Release|x86.Build.0 = Release|Win32
+		{DC270C4D-5FEE-4341-9BC8-933508A7825E}.Debug|Win32.ActiveCfg = Debug|x64
+		{DC270C4D-5FEE-4341-9BC8-933508A7825E}.Debug|x64.ActiveCfg = Debug|x64
+		{DC270C4D-5FEE-4341-9BC8-933508A7825E}.Debug|x64.Build.0 = Debug|x64
+		{DC270C4D-5FEE-4341-9BC8-933508A7825E}.Debug|x86.ActiveCfg = Debug|x64
+		{DC270C4D-5FEE-4341-9BC8-933508A7825E}.Release|Win32.ActiveCfg = Release|x64
+		{DC270C4D-5FEE-4341-9BC8-933508A7825E}.Release|x64.ActiveCfg = Release|x64
+		{DC270C4D-5FEE-4341-9BC8-933508A7825E}.Release|x64.Build.0 = Release|x64
+		{DC270C4D-5FEE-4341-9BC8-933508A7825E}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

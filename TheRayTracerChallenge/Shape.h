@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include "Matrix.h"
-#include "types.h"
+#include "Types.h"
 
 struct Intersection;
 
@@ -17,7 +17,7 @@ public:
         transformation = inTransformation * transformation;
     }
 
-    virtual Tuple normalAt(const Tuple& position) const = 0;
+    virtual Tuple normalAt(const Tuple& position = point(0.0)) const = 0;
 
     virtual InsersectionSet intersect(const Ray& ray, bool bTransformRay = false) = 0;
 

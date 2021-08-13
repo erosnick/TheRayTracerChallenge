@@ -29,7 +29,7 @@ InsersectionSet Triangle::intersect(const Ray& ray, bool bTransformRay) {
     // 返回特殊情况下t < 0的交点(射线在Cube内时产生的两个交点)，
     // 计算折射率时候需要用到，和Sphere的原理类似
     if ((t > -Math::epsilon * 2
-        && t < Math::epsilon)
+        && t < 0.0)
         || (t >= Math::epsilon)
         && (b1 >= Math::epsilon)
         && (b2 >= Math::epsilon)

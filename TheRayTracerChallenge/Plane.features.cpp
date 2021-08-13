@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include "Shape.h"
 #include "Plane.h"
-#include "types.h"
+#include "Types.h"
 #include "Material.h"
 
 SCENARIO("The default transformation", "[Plane]") {

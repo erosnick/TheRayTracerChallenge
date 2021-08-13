@@ -160,13 +160,13 @@ Tuple colorAt(const World& world, Ray& ray, int32_t remaining) {
     return surface;
 }
 
-Tuple reflectedColor(const World& world, const HitInfo& hitInfo, int32_t remaining) {
-    if (hitInfo.object->material->reflective == 0.0 || remaining == 0) {
+Tuple reflectedColor(const World& world, const HitInfo& hitInfo, int32_t reflectionRemaining) {
+    if (hitInfo.object->material->reflective == 0.0 || reflectionRemaining == 0) {
         return Color::black;
     }
 
     auto reflectedRay = Ray(hitInfo.overPosition, hitInfo.reflectVector);
-    auto color = colorAt(world, reflectedRay, remaining - 1);
+    auto color = colorAt(world, reflectedRay, reflectionRemaining - 1);
 
     return color * hitInfo.object->material->reflective;
 }
@@ -178,8 +178,8 @@ Tuple refract(const Tuple& uv, const Tuple& n, double etaiOverEtat) {
     return rOutPerp + rOutParallel;
 }
 
-Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaining) {
-    if (hitInfo.object->material->transparency == 0.0 || remaining == 0) {
+Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t refractionRemaining) {
+    if (hitInfo.object->material->transparency == 0.0 || refractionRemaining == 0) {
         return  Color::black;
     }
 
@@ -200,7 +200,15 @@ Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaini
     auto sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
 
     if (ratio * sin¦Èi > 1.0) {
-        return Color::black;
+        auto angle = Math::degrees(std::asin(sin¦Èi));
+
+        if (angle > 41.5) {
+            //std::cout << angle << std::endl;
+        }
+
+        return Color::red;
+        ratio = 1.0;
+        sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
     }
 
     //if (sin¦Èt2 > 1.0) {
@@ -217,12 +225,16 @@ Tuple refractedColor(const World& world, const HitInfo& hitInfo, int32_t remaini
 
     direction = refract(-hitInfo.viewDirection, hitInfo.normal, ratio);
 
+    //if (refractionRemaining < 2) {
+    //    direction = -hitInfo.viewDirection;
+    //}
+
     // Create the refracted ray
     auto refractedRay = Ray(hitInfo.underPosition, direction);
 
     // Find the color of the refracted ray, making sure to multiply
     // by the transparency value to account for any opacity
-    auto color = colorAt(world, refractedRay, remaining - 1) * hitInfo.object->material->transparency;
+    auto color = colorAt(world, refractedRay, refractionRemaining - 1) * hitInfo.object->material->transparency;
 
     return color;
 }

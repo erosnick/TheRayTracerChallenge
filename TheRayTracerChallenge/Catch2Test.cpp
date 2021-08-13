@@ -575,6 +575,7 @@ World cubeScene(const Matrix4& viewMatrix) {
     auto transformation = translate(0.0, -2.0, -6.0) * scaling(5.0, 1.0, 5.0);
     floor->setTransformation(transformation);
     floor->transform(viewMatrix);
+    floor->transformNormal(viewMatrix);
     floor->material->reflective = 0.125;
     floor->material->pattern = std::make_shared<CheckerPattern>();
     floor->material->pattern.value()->setTransformation(scaling(0.25, 1.0, 0.25));
@@ -592,12 +593,14 @@ World cubeScene(const Matrix4& viewMatrix) {
     //world.addObject(wall);
 
     // 法线不应该用view matrix进行变换！！！
+    // Left和Right因为全内反射是黑色？
     auto cube = std::make_shared<Cube>();
     cube->setTransformation(viewMatrix * translate(0.0, -1.1, -3.0) * scaling(1.0, 1.0, 1.0));
+    cube->transformNormal(viewMatrix);
     auto material = std::make_shared<Material>();
     material->color = Color::dawn;
-    //material->reflective = 0.9;
-    material->transparency = 1.0;
+    material->reflective = 0.9;
+    material->transparency = 0.9;
     material->refractiveIndex = 1.55;
     //cube->material->bCastShadow = false;
     cube->setMaterial(material);
@@ -611,9 +614,9 @@ World cubeScene(const Matrix4& viewMatrix) {
 
     //world.addObject(cube);
 
-    auto sphere = std::make_shared<Sphere>(point(-2.0, -1.1, -5.0), 0.8);
+    auto sphere = std::make_shared<Sphere>(point(2.0, -1.1, -3.0), 0.8);
     sphere->material->color = Color::black;
-    sphere->material->reflective = 0.0;
+    sphere->material->reflective = 1.0;
     sphere->material->transparency = 1.0;
     sphere->material->refractiveIndex = 1.55;
     sphere->setTransformation(viewMatrix);
@@ -648,7 +651,11 @@ int main(int argc, char* argv[]) {
 
     constexpr auto samplesPerPixel = 1;
 
-    constexpr auto remaining = 5;
+    // 反射次数
+    constexpr auto reflectionRemaining = 5;
+
+    // 折射次数
+    constexpr auto refractionRemaining = 2;
 
     auto imageWidth = canvas.getWidth();
     auto imageHeight = canvas.getHeight();
@@ -657,10 +664,10 @@ int main(int argc, char* argv[]) {
 
     // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查(已解决，CheckerPattern算法的问题)
     //auto viewMatrix = camera.lookAt(60.0, point(5.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
-    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 3.0), point(0.0, 0.0, -3.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(0.0, 1.0, 3.0), point(0.0, 0.0, -3.0), vector(0.0, 1.0, 0.0));
 
     auto world = cubeScene(viewMatrix);
-        
+    
      //world = houseScene(viewMatrix);
         
     //world = pondScene(viewMatrix);
@@ -671,7 +678,7 @@ int main(int argc, char* argv[]) {
 
     Timer timer;
     double percentage = 0.0;
-    //#pragma omp parallel for schedule(dynamic, 1)       // OpenMP
+    #pragma omp parallel for schedule(dynamic, 1)       // OpenMP
     for (auto y = 0; y < imageHeight; y++) {
         percentage = (double)y / (imageHeight - 1) * 100;
         fprintf(stderr, "\rRendering: (%i samples) %.2f%%", samplesPerPixel, percentage);
@@ -687,15 +694,23 @@ int main(int argc, char* argv[]) {
 
                 auto ray = camera.getRay(dx, dy);
 
-                if (x == 195 && y == 0) {
-                    finalColor += Color::green;
-                }
+                //if (x == 195 && y == 6) {
+                    //finalColor += Color::green;
+                //}
+
+                //if (x == 0 && y == 76) {
+                //    finalColor += Color::green;
+                //}
+
+                //if (x == 0 && y == 75) {
+                //    finalColor += Color::green;
+                //}
 
                 //if (x == 238 && y == 126) {
                 //    finalColor += Color::green;
                 //}
 
-                finalColor += colorAt(world, ray, remaining);
+                finalColor += colorAt(world, ray, reflectionRemaining);
             }
 
             canvas.writePixel(x, y, finalColor / samplesPerPixel);

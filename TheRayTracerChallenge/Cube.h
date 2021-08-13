@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Shape.h"
-#include "types.h"
+#include "Types.h"
 
 class Cube : public Shape {
 public:
@@ -29,5 +29,7 @@ public:
 
     std::vector<std::shared_ptr<Quad>> quads;
 
-    Tuple center = point(0.0, 0.0, 0.0);
+    Tuple normal = vector(0.0);
+
+    Tuple center = point(0.0);
 };
