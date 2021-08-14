@@ -8,36 +8,36 @@ class Test {
     Tuple position;
 };
 
-HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const InsersectionSet& intersections) {
+HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const IntersectionSet& intersections) {
     // Instantiate a data structure for storing some precomputed values
     HitInfo hitInfo;
 
-    // Copy the intersection's properties for convenience
-    hitInfo.t = hit.t;
-    hitInfo.object = hit.object;
+    ////// Copy the intersection's properties for convenience
+    ////hitInfo.t = hit.t;
+    ////hitInfo.object = hit.object;
 
-    // Precompute some useful values
-    //hitInfo.position = ray.position(hitInfo.t);
-    hitInfo.position = hit.position;
-    hitInfo.viewDirection = -ray.direction;
-    hitInfo.normal = hitInfo.object->normalAt(hitInfo.position);
+    ////// Precompute some useful values
+    //////hitInfo.position = ray.position(hitInfo.t);
+    ////hitInfo.position = hit.position;
+    ////hitInfo.viewDirection = -ray.direction;
+    ////hitInfo.normal = hitInfo.object->normalAt(hitInfo.position);
 
-    if (hitInfo.normal.dot(hitInfo.viewDirection) < 0.0) {
-        hitInfo.bInside = true;
-        hitInfo.normal = -hitInfo.normal;
-    }
+    ////if (hitInfo.normal.dot(hitInfo.viewDirection) < 0.0) {
+    ////    hitInfo.bInside = true;
+    ////    hitInfo.normal = -hitInfo.normal;
+    ////}
 
-    hitInfo.overPosition = hitInfo.position + hitInfo.normal * Math::epsilon;
-    hitInfo.underPosition = hitInfo.position - hitInfo.normal * Math::epsilon;
+    ////hitInfo.overPosition = hitInfo.position + hitInfo.normal * Math::epsilon;
+    ////hitInfo.underPosition = hitInfo.position - hitInfo.normal * Math::epsilon;
 
-    if (hitInfo.object->material->reflective > 0.0) {
-        hitInfo.reflectVector = reflect(ray.direction, hitInfo.normal);
-    }
+    ////if (hitInfo.object->material->reflective > 0.0) {
+    ////    hitInfo.reflectVector = reflect(ray.direction, hitInfo.normal);
+    ////}
 
-    // List of objects have been encountered but not yet exited
-    auto container = std::vector<ShapePtr>();
+    ////// List of objects have been encountered but not yet exited
+    ////auto container = std::vector<ShapePtr>();
 
-    for (const auto& intersection : intersections) {
+    ////for (const auto& intersection : intersections) {
         //// If the intersection is the hit, set n1 to the refractive index of the last object
         //// in the containers list.If that list is empty, then there is no containing object,
         //// and n1 should be set to 1.
@@ -74,7 +74,7 @@ HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const Inser
         //    }
         //    break;
         //}
-    }
+    //}
 
     return hitInfo;
 }

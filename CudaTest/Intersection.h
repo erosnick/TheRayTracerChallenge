@@ -28,15 +28,17 @@ struct Intersection {
     CUDA_HOST_DEVICE Intersection()
     : t(0.0), object(nullptr), subObject(nullptr) {}
 
-    Intersection(double inT, Shape* inSphere, const Ray& inRay = Ray())
+    CUDA_HOST_DEVICE ~Intersection() {}
+     
+    CUDA_DEVICE Intersection(double inT, Shape* inSphere, const Ray& inRay = Ray())
     : t(inT), object(inSphere), subObject(nullptr), ray(inRay) {
     }
 
-    Intersection(bool bInHit, int32_t inCount, double inT, Shape* inSphere)
+    CUDA_DEVICE Intersection(bool bInHit, int32_t inCount, double inT, Shape* inSphere)
     : bHit(bInHit), count(inCount), t(inT), object(inSphere), subObject(nullptr) {
     }
 
-    Intersection(bool bInHit, bool bInShading, int32_t inCount, double inT, Shape* inSphere, const Tuple& inPosition, const Tuple& inNormal, const Ray& inRay)
+    CUDA_DEVICE Intersection(bool bInHit, bool bInShading, int32_t inCount, double inT, Shape* inSphere, const Tuple& inPosition, const Tuple& inNormal, const Ray& inRay)
     : bHit(bInHit), bShading(bInShading), count(inCount), t(inT), object(inSphere), subObject(nullptr), position(inPosition), normal(inNormal), ray(inRay) {
     }
 
@@ -62,15 +64,15 @@ inline bool operator<(const Intersection& a, const Intersection& b) {
     return (a.t < b.t);
 }
 
-inline InsersectionSet intersections(const std::initializer_list<Intersection>& args) {
-    auto records = InsersectionSet();
+inline IntersectionSet intersections(const std::initializer_list<Intersection>& args) {
+    auto records = IntersectionSet();
     for (const auto& element : args) {
         records.push_back(element);
     }
     return records;
 }
 
-inline Intersection nearestHit(const InsersectionSet& records) {
+inline Intersection nearestHit(const IntersectionSet& records) {
     auto result = Intersection();
 
     for (const auto& record : records) {
@@ -95,4 +97,4 @@ inline CUDA_HOST_DEVICE Intersection nearestHitCUDA(Intersection* intersections,
 }
 
 HitInfo prepareComputations(const Intersection& hit, const Ray& ray,
-                            const InsersectionSet& intersections = InsersectionSet());
+                            const IntersectionSet& intersections = IntersectionSet());

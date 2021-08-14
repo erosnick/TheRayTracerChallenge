@@ -4,12 +4,10 @@
 void Sphere::setTransformation(const Matrix4& inTransformation, bool bTransformPosition) {
     Shape::setTransformation(inTransformation, bTransformPosition);
 
-    origin = transformation * origin;
+    //origin = transformation * origin;
 }
 
-InsersectionSet Sphere::intersect(const Ray& ray, bool bTransformRay) {
-    auto intersections = InsersectionSet();
-
+void Sphere::intersect(const Ray& ray, Intersection* intersections) {
     auto oc = (ray.origin - origin);
     auto a = ray.direction.dot(ray.direction);
     auto b = 2.0 * ray.direction.dot(oc);
@@ -18,7 +16,7 @@ InsersectionSet Sphere::intersect(const Ray& ray, bool bTransformRay) {
     auto discriminant = b * b - 4 * a * c;
 
     if (discriminant < 0.0) {
-        return intersections;
+        return;
     }
 
     // 与巨大球体求交的时候，会出现判别式大于0，但是有两个负根的情况，
@@ -38,6 +36,4 @@ InsersectionSet Sphere::intersect(const Ray& ray, bool bTransformRay) {
         intersections[0] = { true, !bIsLight, 1, t1, this, position1, normal1, ray };
         intersections[1] = { true, !bIsLight, 1, t2, this, position2, normal2, ray };
     }
-
-    return intersections;
 }

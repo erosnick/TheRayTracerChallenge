@@ -7,8 +7,11 @@
 #include "Tuple.h"
 #include "Constants.h"
 #include "Ray.h"
-#include "Sphere.h"
+//#include "Sphere.h"
+#include "Shape.h"
 #include "Utils.h"
+#include "Types.h"
+#include "Material.h"
 
 #include <math.h>
 
@@ -27,20 +30,6 @@ struct Matrix {
     double* elements;
 };
 
-__device__ double magnitudeSquared(const Tuple& v) {
-    double lengthSquared = v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
-    return lengthSquared;
-}
-
-__device__ double magnitude(const Tuple& v) {
-    return std::sqrt(magnitudeSquared(v));
-}
-
-__device__ Tuple normalize(const Tuple& v) {
-    double length = magnitude(v);
-    return Tuple(v.x() / length, v.y() / length, v.z() / length);
-}
-
 struct Viewport {
     double scale;
     double fov;
@@ -48,6 +37,75 @@ struct Viewport {
     double width;
     double height;
 };
+
+struct Payload {
+    Intersection* intersections;
+    Sphere* object;
+    Viewport* viewport;
+    Tuple* pixelBuffer;
+    class Test* test;
+};
+
+class Sphere : public Shape {
+public:
+    CUDA_HOST_DEVICE Sphere()
+    : origin({ 0.0, 0.0, 0.0 }), radius(1.0) {}
+
+    CUDA_HOST_DEVICE Sphere(const Tuple& inOrigin, double inRadius = 1.0) {}
+
+    CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position) const {
+        auto normal = (position - origin);
+        return  normal.normalize();
+    }
+
+    CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection* intersections) {
+        //auto oc = (ray.origin - origin);
+        //auto a = ray.direction.dot(ray.direction);
+        //auto b = 2.0 * ray.direction.dot(oc);
+        //auto c = oc.dot(oc) - radius * radius;
+
+        //auto discriminant = b * b - 4 * a * c;
+
+        //if (discriminant < 0.0) {
+        //    return;
+        //}
+
+        //// 与巨大球体求交的时候，会出现判别式大于0，但是有两个负根的情况，
+        //// 这种情况出现在射线方向的反向延长线能和球体相交的场合。
+        //auto t1 = (-b - std::sqrt(discriminant)) / (2 * a);
+        //auto t2 = (-b + std::sqrt(discriminant)) / (2 * a);
+
+        //auto position1 = ray.position(t1);
+
+        //auto normal1 = normalAt(position1);
+
+        //auto position2 = ray.position(t2);
+
+        //auto normal2 = normalAt(position2);
+
+        //if ((t1 > 0.0) || (t2 > 0.0)) {
+        //    intersections[0] = { true, false, 1, t1, this, position1, normal1, ray };
+        //    intersections[1] = { true, false, 1, t2, this, position2, normal2, ray };
+        //}
+    }
+
+    Tuple origin;
+    double radius;
+};
+
+CUDA_DEVICE double magnitudeSquared(const Tuple& v) {
+    double lengthSquared = v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
+    return lengthSquared;
+}
+
+CUDA_DEVICE double magnitude(const Tuple& v) {
+    return std::sqrt(magnitudeSquared(v));
+}
+
+CUDA_DEVICE Tuple normalize(const Tuple& v) {
+    double length = magnitude(v);
+    return Tuple(v.x() / length, v.y() / length, v.z() / length);
+}
 
 #define gpuErrorCheck(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort = true)
@@ -60,17 +118,17 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
 }
 
 // 获取矩阵A的(row, column)元素
-__device__ double getElement(Matrix* A, int32_t row, int32_t column) {
+CUDA_DEVICE double getElement(Matrix* A, int32_t row, int32_t column) {
     return A->elements[row * A->width + column];
 }
 
 // 为矩阵A的(row, column)元素赋值
-__device__ void setElement(Matrix* A, int32_t row, int32_t column, double value) {
+CUDA_DEVICE void setElement(Matrix* A, int32_t row, int32_t column, double value) {
     A->elements[row * A->width + column] = value;
 }
 
 // 矩阵相乘kernel，2D，每个线程计算一个元素
-__global__ void matrixMulKernel(Matrix* A, Matrix* B, Matrix* C) {
+CUDA_GLOBAL void matrixMulKernel(Matrix* A, Matrix* B, Matrix* C) {
     double value = 0.0;
     int32_t row = threadIdx.y + blockIdx.y * blockDim.y;
     int32_t column = threadIdx.x + blockIdx.x * blockDim.x;
@@ -84,14 +142,65 @@ __global__ void matrixMulKernel(Matrix* A, Matrix* B, Matrix* C) {
 
 void matrixMulCuda();
 
-__device__ void writePixel(Tuple* pixelBuffer, int32_t index, const Tuple& pixelColor) {
+class Test : public Shape {
+public:
+    CUDA_HOST_DEVICE Test()
+        : origin({ 0.0, 0.0, 0.0 }), radius(1.0) {}
+
+    CUDA_HOST_DEVICE Test(const Tuple& inOrigin, double inRadius = 1.0) {}
+
+    CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position) const {
+        auto normal = (position - origin);
+        return  normal.normalize();
+    }
+
+    CUDA_HOST_DEVICE void foo(const Ray& ray, Intersection* intersections) {}
+
+    CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection* intersections) {
+        //auto oc = (ray.origin - origin);
+        //auto a = ray.direction.dot(ray.direction);
+        //auto b = 2.0 * ray.direction.dot(oc);
+        //auto c = oc.dot(oc) - radius * radius;
+
+        //auto discriminant = b * b - 4 * a * c;
+
+        //if (discriminant < 0.0) {
+        //    return;
+        //}
+
+        //// 与巨大球体求交的时候，会出现判别式大于0，但是有两个负根的情况，
+        //// 这种情况出现在射线方向的反向延长线能和球体相交的场合。
+        //auto t1 = (-b - std::sqrt(discriminant)) / (2 * a);
+        //auto t2 = (-b + std::sqrt(discriminant)) / (2 * a);
+
+        //auto position1 = ray.position(t1);
+
+        //auto normal1 = normalAt(position1);
+
+        //auto position2 = ray.position(t2);
+
+        //auto normal2 = normalAt(position2);
+
+        //if ((t1 > 0.0) || (t2 > 0.0)) {
+        //    intersections[0] = { true, false, 1, t1, this, position1, normal1, ray };
+        //    intersections[1] = { true, false, 1, t2, this, position2, normal2, ray };
+        //}
+    }
+
+    Tuple origin;
+    double radius;
+};
+
+CUDA_DEVICE void writePixel(Tuple* pixelBuffer, int32_t index, const Tuple& pixelColor) {
     pixelBuffer[index] = pixelColor;
 }
 
-__global__ void fillBufferKernel(int32_t width, int32_t height, Viewport* viewport, Tuple* pixelBuffer, Sphere* sphere) {
+__global__ void fillBufferKernel(int32_t width, int32_t height, Payload* payload) {
     int32_t row = threadIdx.y + blockIdx.y * blockDim.y;
     int32_t column = threadIdx.x + blockIdx.x * blockDim.x;
     int32_t index = row * width + column;
+
+    auto viewport = payload->viewport;
 
     auto x = (viewport->height * (column + 0.5) / width - 1) * viewport->imageAspectRatio * viewport->scale;
     auto y = (1.0 - viewport->height * (row + 0.5) / height) * viewport->scale;
@@ -100,34 +209,28 @@ __global__ void fillBufferKernel(int32_t width, int32_t height, Viewport* viewpo
 
     auto ray = Ray(point(0.0), direction.normalize());
 
-    //int32_t* data = new int[10];
+    auto sphere = payload->object;
 
-    //auto intersections = sphere->intersect(ray);
+    payload->test->foo(ray, payload->intersections);
 
-    //auto intersections = sphere->intersectCUDA(ray);
+    //Test t;
+    //t.foo(ray, payload->intersections);
 
-    //Sphere* s = new Sphere();
+    //auto s = &t;
 
-    //sphere->intersectCUDA(ray);
+    //s->foo(ray, payload->intersections);
 
-    //auto v = thrust::device_vector<Intersection>();
-    auto v = thrust::device_vector<Tuple>();
-
-    for (int i = 0; i < v.size(); i++) {
-
-    }
-
-    Matrix4 matrix;
+    //sphere->intersect(ray, payload->intersections);
 
     Tuple pixelColor = Color::skyBlue;
 
-    //auto hit = nearestHitCUDA(intersections, 2);
+    //auto hit = nearestHitCUDA(payload->intersections, 2);
 
     //if (hit.bHit) {
     //    pixelColor = hit.normal;
     //}
 
-    writePixel(pixelBuffer, index, pixelColor);
+    writePixel(payload->pixelBuffer, index, pixelColor);
 }
 
 void fillBufferCuda();
@@ -217,47 +320,49 @@ void fillBufferCuda() {
     constexpr auto width = 640;
     constexpr auto height = 480;
 
-    Tuple* pixelBuffer = nullptr;
+    Payload* payload = nullptr;
 
-    gpuErrorCheck(cudaMallocManaged((void**)&pixelBuffer, width * height * sizeof(Tuple)));
+    gpuErrorCheck(cudaMallocManaged((void**)&payload, sizeof(Payload)));
+
+    gpuErrorCheck(cudaMallocManaged((void**)&payload->pixelBuffer, width * height * sizeof(Tuple)));
 
     dim3 blockSize(32, 32);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
                   (height + blockSize.y - 1) / blockSize.y);
 
-    Viewport* viewport = nullptr;
+    gpuErrorCheck(cudaMallocManaged((void**)&payload->viewport, sizeof(Viewport)));
 
-    gpuErrorCheck(cudaMallocManaged((void**)&viewport, sizeof(Viewport)));
+    payload->viewport->fov = 90.0;
+    payload->viewport->scale = std::tan(Math::radians(payload->viewport->fov / 2));
 
-    viewport->fov = 90.0;
-    viewport->scale = std::tan(Math::radians(viewport->fov / 2));
+    payload->viewport->imageAspectRatio = static_cast<double>(width) / height;
 
-    viewport->imageAspectRatio = static_cast<double>(width) / height;
+    payload->viewport->height = 2.0 * payload->viewport->scale;
+    payload->viewport->width = payload->viewport->height * payload->viewport->imageAspectRatio;
 
-    viewport->height = 2.0 * viewport->scale;
-    viewport->width = viewport->height * viewport->imageAspectRatio;
+    gpuErrorCheck(cudaMallocManaged((void**)&payload->object, sizeof(Sphere)));
 
-    Sphere* sphere;
-    gpuErrorCheck(cudaMallocManaged((void**)&sphere, sizeof(Sphere)));
+    //gpuErrorCheck(cudaMallocManaged((void**)&payload->object->material, sizeof(Material)));
 
-    sphere->radius = 1.0;
-    sphere->origin = point(0.0, 0.0, -3.0);
+    payload->object->radius = 1.0;
+    payload->object->origin = point(0.0, 0.0, -3.0);
 
-    Ray* ray = nullptr;
-    gpuErrorCheck(cudaMallocManaged((void**)&ray, sizeof(Ray)));
+    gpuErrorCheck(cudaMallocManaged((void**)&payload->intersections, sizeof(Intersection) * 2));
+
+    gpuErrorCheck(cudaMallocManaged((void**)&payload->test, sizeof(Test)));
     
     Timer timer;
 
-    fillBufferKernel << <gridSize, blockSize >> > (width, height, viewport, pixelBuffer, sphere);
+    fillBufferKernel << <gridSize, blockSize >> > (width, height, payload);
 
     gpuErrorCheck(cudaDeviceSynchronize());
 
     timer.stop();
 
-    writeToPPM("render.ppm", width, height, pixelBuffer);
+    writeToPPM("render.ppm", width, height, payload->pixelBuffer);
 
-    gpuErrorCheck(cudaFree(viewport));
-    gpuErrorCheck(cudaFree(sphere));
-    gpuErrorCheck(cudaFree(ray));
-    gpuErrorCheck(cudaFree(pixelBuffer));
+    gpuErrorCheck(cudaFree(payload->intersections));
+    gpuErrorCheck(cudaFree(payload->object));
+    gpuErrorCheck(cudaFree(payload->viewport));
+    gpuErrorCheck(cudaFree(payload->pixelBuffer));
 }

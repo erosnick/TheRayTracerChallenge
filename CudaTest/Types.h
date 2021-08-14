@@ -25,7 +25,7 @@ using MaterialPtr = std::shared_ptr<Material>;
 
 struct Intersection;
 
-using InsersectionSet = std::vector<Intersection>;
+using IntersectionSet = std::vector<Intersection>;
 
 class Shape;
 

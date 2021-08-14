@@ -22,7 +22,7 @@ struct Material {
     double transparency = 0.0;
     double refractiveIndex = 1.0;
     bool bCastShadow = true;
-    std::optional<PatternPtr> pattern;
+    //std::optional<PatternPtr> pattern;
 };
 
 inline bool operator==(const Material& a, const Material& b) {
