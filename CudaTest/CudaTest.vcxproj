@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{DC270C4D-5FEE-4341-9BC8-933508A7825E}</ProjectGuid>
+    <ProjectGuid>{A7C3227E-6EAE-49A5-9D82-016F7BB1BB34}</ProjectGuid>
     <RootNamespace>CudaTest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -85,10 +85,24 @@
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Utils.h" />
+    <ClCompile Include="Intersection.cpp" />
+    <ClCompile Include="Shape.cpp" />
+    <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Utils.cpp" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="CUDA.h" />
+    <ClInclude Include="Intersection.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="Ray.h" />
+    <ClInclude Include="Shape.h" />
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="Tuple.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -23,30 +23,6 @@ public:
 
     virtual ~Sphere() {}
 
-    //inline std::tuple<bool, int32_t, double, double> intersect(const Ray& ray) {
-    //    auto oc = (ray.origin - origin);
-    //    auto a = ray.direction.dot(ray.direction);
-    //    auto b = 2.0 * ray.direction.dot(oc);
-    //    auto c = oc.dot(oc) - radius * radius;
-
-    //    auto discriminant = b * b - 4 * a * c;
-
-    //    if (discriminant < 0.0) {
-    //        return { false, 0, std::numeric_limits<double>::infinity(),
-    //                        std::numeric_limits<double>::infinity() };
-    //    }
-
-    //    auto t1 = (-b - std::sqrt(discriminant)) / (2 * a);
-    //    auto t2 = (-b + std::sqrt(discriminant)) / (2 * a);
-
-    //    if (t1 > t2) {
-    //        return { true, 2, t2, t1 };
-    //    }
-    //    else {
-    //        return { true, 2, t1, t2 };
-    //    }
-    //}
-
     Tuple normalAt(const Tuple& position) const override {
         auto normal = (position - origin);
         //normal = (transform.inverse()).transpose() * normal;

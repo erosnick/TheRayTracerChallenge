@@ -1,7 +1,10 @@
 #pragma once
 
-#include "utils.h"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
+#include "utils.h"
+#include "CUDA.h"
 #include <limits>
 #include <cstdint>
 #include <cmath>
@@ -9,63 +12,95 @@
 class Tuple {
 public:
     constexpr Tuple()
-    : x(0.0), y(0.0), z(0.0), w(0.0) {}
+    : data({ 0.0, 0.0, 0.0, 0.0 }) {}
     constexpr Tuple(double inX, double inY, double inZ, double inW = 0.0)
-    : x(inX), y(inY), z(inZ), w(inW) {
+    : data({ inX, inY, inZ, inW }) {
     }
 
-    Tuple operator-() const {
-        return Tuple(-x, -y, -z, -w);
+    inline constexpr Tuple operator-() const {
+        return Tuple(-x(), -y(), -z(), -w());
     }
 
-    double magnitude() const {
+    inline CUDA_HOST_DEVICE double magnitude() const {
         return std::sqrt(magnitudeSqured());
     }
 
-    double magnitudeSqured() const {
-        double lengthSquared = x * x + y * y + z * z;
+    inline CUDA_HOST_DEVICE double magnitudeSqured() const {
+        double lengthSquared = x() * x() + y() * y() + z() * z();
 
         return lengthSquared;
     }
 
-    Tuple normalize() {
+    inline CUDA_HOST_DEVICE Tuple normalize() {
         double length = magnitude();
 
-        x /= length;
-        y /= length;
-        z /= length;
+        x() /= length;
+        y() /= length;
+        z() /= length;
         
         return *this;
     }
 
-    double dot(const Tuple& other) const {
-        return x * other.x + y * other.y + z * other.z + w * other.w;
+    inline CUDA_HOST_DEVICE constexpr double x() const {
+        return data.x;
     }
 
-    Tuple cross(const Tuple& other) const {
-        return Tuple(other.z * y - z * other.y,
-                     other.x * z - x * other.z,
-                     other.y * x - y * other.x, 0.0);
+    inline CUDA_HOST_DEVICE constexpr double& x() {
+        return data.x;
     }
 
-    double operator[](int32_t index) const {
-        return elements[index];
+    inline CUDA_HOST_DEVICE constexpr double y() const {
+        return data.y;
     }
 
-    double& operator[](int32_t index) {
-        return elements[index];
+    inline CUDA_HOST_DEVICE constexpr double& y() {
+        return data.y;
+    }
+
+    inline CUDA_HOST_DEVICE constexpr double z() const {
+        return data.z;
+    }
+
+    inline CUDA_HOST_DEVICE constexpr double& z() {
+        return data.z;
+    }
+
+    inline CUDA_HOST_DEVICE constexpr double w() const {
+        return data.w;
+    }
+
+    inline CUDA_HOST_DEVICE constexpr double& w() {
+        return data.w;
+    }
+
+    CUDA_HOST_DEVICE double dot(const Tuple& other) const {
+        return x() * other.x() + y() * other.y() + z() * other.z() + w() * other.w();
+    }
+
+    CUDA_HOST_DEVICE Tuple cross(const Tuple& other) const {
+        return Tuple(other.z() * y() - z() * other.y(),
+                     other.x() * z() - x() * other.z(),
+                     other.y() * x() - y() * other.x(), 0.0);
+    }
+
+    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+        return data.elements[index];
+    }
+
+    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+        return data.elements[index];
     }
 
     Tuple& operator+=(const Tuple& other) {
-        x += other.x;
-        y += other.y;
-        z += other.z;
-        w += other.w;
+        data.x += other.x();
+        data.y += other.y();
+        data.z += other.z();
+        data.w += other.w();
 
         return *this;
     }
 
-    union {
+    union Data {
         struct {
             double x;
             double y;
@@ -81,7 +116,7 @@ public:
         };
 
         double elements[4];
-    };
+    } data;
 };
 
 class Vector2 {
@@ -197,10 +232,10 @@ inline bool operator==(const Vector3& a, const Vector3& b) {
 
 inline bool operator==(const Tuple& a, const Tuple& b) {
     constexpr double epsilon = 0.00001;// std::numeric_limits<double>::epsilon();
-    auto dx = std::abs(std::abs(a.x) - std::abs(b.x));
-    auto dy = std::abs(std::abs(a.y) - std::abs(b.y));
-    auto dz = std::abs(std::abs(a.z) - std::abs(b.z));
-    auto dw = std::abs(std::abs(a.w) - std::abs(b.w));
+    auto dx = std::abs(std::abs(a.x()) - std::abs(b.x()));
+    auto dy = std::abs(std::abs(a.y()) - std::abs(b.y()));
+    auto dz = std::abs(std::abs(a.z()) - std::abs(b.z()));
+    auto dw = std::abs(std::abs(a.w()) - std::abs(b.w()));
     if ((dx < epsilon)
      && (dy < epsilon)
      && (dz < epsilon)
@@ -216,33 +251,33 @@ inline bool operator!=(const Tuple& a, const Tuple& b) {
 }
 
 inline constexpr Tuple operator+(const Tuple& a, const Tuple& b) {
-    return Tuple(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+    return Tuple(a.x() + b.x(), a.y() + b.y(), a.z() + b.z(), a.w() + b.w());
 }
 
-inline Tuple operator-(const Tuple& a, const Tuple& b) {
-    return Tuple(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
+inline constexpr Tuple operator-(const Tuple& a, const Tuple& b) {
+    return Tuple(a.x() - b.x(), a.y() - b.y(), a.z() - b.z(), a.w() - b.w());
 }
 
-inline Tuple operator*(const Tuple& a, const Tuple& b) {
-    return Tuple(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
+inline constexpr Tuple operator*(const Tuple& a, const Tuple& b) {
+    return Tuple(a.x() * b.x(), a.y() * b.y(), a.z() * b.z(), a.w() * b.w());
 }
 
-inline Tuple operator+(const Tuple& v, double scalar) {
-    return Tuple(v.x + scalar, v.y + scalar, v.z + scalar, v.w);
+inline constexpr Tuple operator+(const Tuple& v, double scalar) {
+    return Tuple(v.x() + scalar, v.y() + scalar, v.z() + scalar, v.w());
 }
 
-inline Tuple operator*(const Tuple& v, double scalar) {
-    return Tuple(v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar);
+inline constexpr Tuple operator*(const Tuple& v, double scalar) {
+    return Tuple(v.x() * scalar, v.y() * scalar, v.z() * scalar, v.w() * scalar);
 }
 
-inline Tuple operator*(double scalar, const Tuple& v) {
+inline constexpr Tuple operator*(double scalar, const Tuple& v) {
     return v * scalar;
 }
 
-inline Tuple operator/(const Tuple& v, double scalar) {
-    return Tuple(v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar);
+inline constexpr Tuple operator/(const Tuple& v, double scalar) {
+    return Tuple(v.x() / scalar, v.y() / scalar, v.z() / scalar, v.w() / scalar);
 }
 
-inline Tuple reflect(const Tuple& v, const Tuple& n) {
+inline constexpr Tuple reflect(const Tuple& v, const Tuple& n) {
     return v - 2.0 * n.dot(v) * n;
 }

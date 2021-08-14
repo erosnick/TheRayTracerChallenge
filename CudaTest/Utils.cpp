@@ -28,9 +28,9 @@ void writeToPPM(const std::string& path, int32_t width, int32_t height, Tuple* p
         for (auto x = 0; x < width; x++) {
             auto index = y * width + x;
             const auto& pixelColor = pixelBuffer[index];
-            auto r = static_cast<uint32_t>(256 * std::clamp(pixelColor.red, 0.0, 0.999));
-            auto g = static_cast<uint32_t>(256 * std::clamp(pixelColor.green, 0.0, 0.999));
-            auto b = static_cast<uint32_t>(256 * std::clamp(pixelColor.blue, 0.0, 0.999));
+            auto r = static_cast<uint32_t>(256 * std::clamp(pixelColor.x(), 0.0, 0.999));
+            auto g = static_cast<uint32_t>(256 * std::clamp(pixelColor.y(), 0.0, 0.999));
+            auto b = static_cast<uint32_t>(256 * std::clamp(pixelColor.z(), 0.0, 0.999));
             ss << r << ' ' << g << ' ' << b << '\n';
         }
     }
