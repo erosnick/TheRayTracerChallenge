@@ -2,7 +2,6 @@
 
 #include "Intersection.h"
 #include "Shape.h"
-#include "Sphere.h"
 
 class Test {
     Tuple position;

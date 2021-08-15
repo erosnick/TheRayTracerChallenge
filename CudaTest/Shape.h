@@ -4,7 +4,8 @@
 
 #include <vector>
 #include <memory>
-#include "Matrix.h"
+#include "Tuple.h"
+//#include "Matrix.h"
 #include "Types.h"
 
 struct Intersection;
@@ -13,19 +14,21 @@ class Shape {
 public:
     CUDA_HOST_DEVICE Shape() {}
 
-    CUDA_HOST_DEVICE ~Shape() {}
+    virtual CUDA_HOST_DEVICE ~Shape() {}
 
-    virtual void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) {
+    //virtual void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) {
         //transformation = inTransformation;
-    }
+    //}
 
-    virtual CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) {
+    //virtual CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) {
         //transformation = inTransformation * transformation;
-    }
+    //}
 
-    virtual CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position = point(0.0)) const { return Tuple(); }
+    virtual CUDA_HOST_DEVICE void foo() {}
 
-    virtual CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection* intersections) {}
+    virtual inline CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position = point(0.0)) const { return Tuple(); }
+
+    virtual inline CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection* intersections) {}
 
     virtual void setMaterial(Material* inMaterial) {
         //material = inMaterial;

@@ -25,13 +25,17 @@ struct HitInfo {
 };
 
 struct Intersection {
-    CUDA_HOST_DEVICE Intersection()
-    : t(0.0), object(nullptr), subObject(nullptr) {}
+    CUDA_HOST_DEVICE Intersection() {
+        t = 100000000.0;
+        object = nullptr;
+        subObject = nullptr;
+    }
 
-    CUDA_HOST_DEVICE ~Intersection() {}
-     
-    CUDA_DEVICE Intersection(double inT, Shape* inSphere, const Ray& inRay = Ray())
-    : t(inT), object(inSphere), subObject(nullptr), ray(inRay) {
+    CUDA_HOST_DEVICE Intersection(double inT, Shape* inShape, const Ray& inRay = Ray()) {
+        t = inT;
+        object = inShape;
+        subObject = nullptr;
+        ray = inRay;
     }
 
     CUDA_DEVICE Intersection(bool bInHit, int32_t inCount, double inT, Shape* inSphere)
@@ -42,10 +46,12 @@ struct Intersection {
     : bHit(bInHit), bShading(bInShading), count(inCount), t(inT), object(inSphere), subObject(nullptr), position(inPosition), normal(inNormal), ray(inRay) {
     }
 
+    CUDA_HOST_DEVICE ~Intersection() {}
+
     bool bHit = false;
     bool bShading = true;
     int32_t count = 0;
-    double t = std::numeric_limits<double>::infinity();
+    double t;
     Shape* subObject;
     Shape* object;
     Tuple position;
@@ -85,15 +91,14 @@ inline Intersection nearestHit(const IntersectionSet& records) {
 }
 
 inline CUDA_HOST_DEVICE Intersection nearestHitCUDA(Intersection* intersections, int32_t count) {
-    auto result = Intersection();
-
+    Intersection intersection(10000.0, nullptr);
     for (auto i = 0; i < count; i++) {
-        if ((intersections[i].t > 0.0) && (intersections[i].t < result.t)) {
-            result = intersections[i];
+        if ((intersections[i].t > 0.0) && (intersections[i].t < intersection.t)) {
+            intersection = intersections[i];
         }
     }
 
-    return result;
+    return intersection;
 }
 
 HitInfo prepareComputations(const Intersection& hit, const Ray& ray,

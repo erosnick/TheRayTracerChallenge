@@ -20,7 +20,8 @@ namespace Math {
     constexpr Tuple xAxis = vector(1.0, 0.0, 0.0);
     constexpr Tuple yAxis = vector(0.0, 1.0, 0.0);
     constexpr Tuple zAxis = vector(0.0, 0.0, -1.0);
-    constexpr double infinityd = std::numeric_limits<double>::infinity();
+    //constexpr double infinityd = std::numeric_limits<double>::infinity();
+    constexpr double infinityd = 10000000.0;
     constexpr double infinityf = std::numeric_limits<float>::infinity();
     constexpr double infinityi = std::numeric_limits<int32_t>::infinity();
 
