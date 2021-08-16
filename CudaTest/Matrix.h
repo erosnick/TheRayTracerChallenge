@@ -239,7 +239,7 @@ public:
         auto result = Matrix4();
 
         if (!invertible()) {
-            std::cout << "Matrix is non-invertible.\n";
+            printf("Matrix is non-invertible.\n");
             return result;
         }
 

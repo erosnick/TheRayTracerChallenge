@@ -58,6 +58,8 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <AdditionalOptions>--std=c++17 --expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
+      <MaxRegCount>16</MaxRegCount>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -79,20 +81,39 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <AdditionalOptions>--std=c++17 --expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
+      <GenerateLineInfo>false</GenerateLineInfo>
+      <MaxRegCount>16</MaxRegCount>
+      <PtxAsOptionV>false</PtxAsOptionV>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="main.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Intersection.cpp" />
-    <ClCompile Include="Shape.cpp" />
-    <ClCompile Include="Utils.cpp" />
+    <CudaCompile Include="Intersection.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
+    <CudaCompile Include="Light.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
+    <CudaCompile Include="Shape.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
+    <CudaCompile Include="Utils.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
+    <CudaCompile Include="World.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="CUDA.h" />
     <ClInclude Include="Intersection.h" />
+    <ClInclude Include="KernelRandom.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Ray.h" />
@@ -102,6 +123,7 @@
     <ClInclude Include="Tuple.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

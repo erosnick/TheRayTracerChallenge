@@ -91,7 +91,7 @@ public:
         return data.elements[index];
     }
 
-    Tuple& operator+=(const Tuple& other) {
+    CUDA_HOST_DEVICE Tuple& operator+=(const Tuple& other) {
         data.x += other.x();
         data.y += other.y();
         data.z += other.z();
@@ -142,11 +142,11 @@ public:
 
 class Vector3 {
 public:
-    Vector3()
-        : x(0.0), y(0.0), z(0.0) {}
+    constexpr Vector3()
+    : x(0.0), y(0.0), z(0.0) {}
 
-    Vector3(double inX, double inY, double inZ)
-        : x(inX), y(inY), z(inZ) {}
+    constexpr Vector3(double inX, double inY, double inZ)
+    : x(inX), y(inY), z(inZ) {}
 
     double operator[](int32_t index) const {
         return elements[index];

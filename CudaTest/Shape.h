@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 #include "Tuple.h"
-//#include "Matrix.h"
+#include "Matrix.h"
 #include "Types.h"
 
 struct Intersection;
@@ -16,13 +16,13 @@ public:
 
     virtual CUDA_HOST_DEVICE ~Shape() {}
 
-    //virtual void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) {
-        //transformation = inTransformation;
-    //}
+    virtual void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) {
+        transformation = inTransformation;
+    }
 
-    //virtual CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) {
-        //transformation = inTransformation * transformation;
-    //}
+    virtual CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) {
+        transformation = inTransformation * transformation;
+    }
 
     virtual CUDA_HOST_DEVICE void foo() {}
 
@@ -34,8 +34,8 @@ public:
         //material = inMaterial;
     }
 
-    //Matrix4 transformation;
-    //Material* material;
+    Matrix4 transformation;
+    Material* material;
 
     bool bIsLight = false;
 };

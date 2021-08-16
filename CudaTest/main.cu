@@ -12,6 +12,10 @@
 #include "Utils.h"
 #include "Types.h"
 #include "Material.h"
+#include "Camera.h"
+#include "World.h"
+
+#include "KernelRandom.h"
 
 #include <math.h>
 
@@ -40,9 +44,11 @@ struct Viewport {
 
 struct Payload {
     Intersection* intersections;
-    Sphere* object;
+    World* world;
+    int32_t objectCount = 2;
     Viewport* viewport;
     Tuple* pixelBuffer;
+    Camera* camera;
 };
 
 class Sphere : public Shape {
@@ -95,20 +101,6 @@ public:
     double radius;
 };
 
-CUDA_DEVICE double magnitudeSquared(const Tuple& v) {
-    double lengthSquared = v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
-    return lengthSquared;
-}
-
-CUDA_DEVICE double magnitude(const Tuple& v) {
-    return std::sqrt(magnitudeSquared(v));
-}
-
-CUDA_DEVICE Tuple normalize(const Tuple& v) {
-    double length = magnitude(v);
-    return Tuple(v.x() / length, v.y() / length, v.z() / length);
-}
-
 #define gpuErrorCheck(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort = true)
 {
@@ -119,36 +111,11 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
     }
 }
 
-// 获取矩阵A的(row, column)元素
-CUDA_DEVICE double getElement(Matrix* A, int32_t row, int32_t column) {
-    return A->elements[row * A->width + column];
-}
-
-// 为矩阵A的(row, column)元素赋值
-CUDA_DEVICE void setElement(Matrix* A, int32_t row, int32_t column, double value) {
-    A->elements[row * A->width + column] = value;
-}
-
-// 矩阵相乘kernel，2D，每个线程计算一个元素
-CUDA_GLOBAL void matrixMulKernel(Matrix* A, Matrix* B, Matrix* C) {
-    double value = 0.0;
-    int32_t row = threadIdx.y + blockIdx.y * blockDim.y;
-    int32_t column = threadIdx.x + blockIdx.x * blockDim.x;
-
-    for (auto i = 0; i < A->width; i++) {
-        value += getElement(A, row, i) * getElement(B, i, column);
-    }
-
-    setElement(C, row, column, value);
-}
-
-void matrixMulCuda();
-
 CUDA_DEVICE void writePixel(Tuple* pixelBuffer, int32_t index, const Tuple& pixelColor) {
     pixelBuffer[index] = pixelColor;
 }
 
-CUDA_GLOBAL void createObject(Sphere** object, Tuple origin, double radius) {
+CUDA_GLOBAL void createObject(Shape** object, Tuple origin, double radius) {
     // It is necessary to create object representing a function
     // directly in global memory of the GPU device for virtual
     // functions to work correctly, i.e. virtual function table
@@ -160,11 +127,7 @@ CUDA_GLOBAL void createObject(Sphere** object, Tuple origin, double radius) {
     }
 }
 
-class Test {
-
-};
-
-CUDA_GLOBAL void deleteObject(Sphere** object) {
+CUDA_GLOBAL void deleteObject(Shape** object) {
     delete (*object);
 }
 
@@ -173,39 +136,49 @@ CUDA_GLOBAL void fillBufferKernel(int32_t width, int32_t height, Payload* payloa
     int32_t column = threadIdx.x + blockIdx.x * blockDim.x;
     int32_t index = row * width + column;
 
-    auto viewport = payload->viewport;
+    //auto viewport = payload->viewport;
 
-    auto x = (viewport->height * (column + 0.5) / width - 1) * viewport->imageAspectRatio * viewport->scale;
-    auto y = (1.0 - viewport->height * (row + 0.5) / height) * viewport->scale;
+    Tuple defaultColor = Color::skyBlue;
+    Tuple pixelColor = defaultColor;
 
-    auto direction = vector(x, y, -1.0);
+    const int32_t samplesPerPixel = 8;
 
-    auto ray = Ray(point(0.0), direction.normalize());
+    for (int i = 0; i < samplesPerPixel; i++) {
+        curandState state;
+        curand_init((unsigned long long)clock() + column, 0, 0, &state);
 
-    auto sphere = payload->object;
+        double rx = curand_uniform_double(&state);
+        double ry = curand_uniform_double(&state);
 
-    Intersection intersections[2];
+        //auto x = (viewport->height * (column + 0.5 + rx) / width - 1) * viewport->imageAspectRatio * viewport->scale;
+        //auto y = (1.0 - viewport->height * (row + 0.5 + ry) / height) * viewport->scale;
+        auto x = (static_cast<double>(column) + rx) / (width - 1);
+        auto y = (static_cast<double>(row) + ry) / (height - 1);
+        
+        auto ray = payload->camera->getRay(x, y);
 
-    //sphere->intersect(ray, intersections);
-    sphere->foo();
+        Intersection intersections[MAXELEMENTS];
 
-    //Sphere* sphere = new Sphere();
+        int32_t count = 0;
+    
+        //payload->world->intersect(ray, intersections, &count);
+        //payload->world->foo(ray, &count);
+        //payload->world->getObject(0)->intersect(ray, intersections);
+        Shape* object = new Sphere();
 
-    //delete sphere;
-    //Test* test = new Test();
+        object->intersect(ray, intersections);
 
-    //delete test;
+        //auto hit = nearestHit(intersections, count);
 
-    Tuple pixelColor = Color::skyBlue;
+        //if (hit.bHit) {
+        //    pixelColor += hit.normal;
+        //}
+        //else {
+        //    pixelColor += defaultColor;
+        //}
+    }
 
-    //auto hit = nearestHitCUDA(intersections, 2);
-
-    //if (hit.bHit) {
-    //    pixelColor = hit.normal;
-    //}
-
-
-    writePixel(payload->pixelBuffer, index, pixelColor);
+    writePixel(payload->pixelBuffer, index, pixelColor / samplesPerPixel);
 }
 
 void fillBufferCuda();
@@ -221,71 +194,16 @@ void queryDeviceProperties() {
     std::cout << "每个SM的最大线程块数：" << devicePro.maxBlocksPerMultiProcessor << std::endl;
     std::cout << "每个线程块的最大线程数：" << devicePro.maxThreadsPerBlock << std::endl;
     std::cout << "每个SM的最大线程数：" << devicePro.maxThreadsPerMultiProcessor << std::endl;
-    std::cout << "每个SM的最大线程束数：" << devicePro.maxThreadsPerMultiProcessor / 32 << std::endl;
+    std::cout << "每个SM的最大线程束数：" << devicePro.warpSize << std::endl;
 }
 
 int main()
 {
     queryDeviceProperties();
 
-    //matrixMulCuda();
     fillBufferCuda();
 
     return 0;
-}
-
-void matrixMulCuda() {
-    // Choose which GPU to run on, change this on a multi-GPU system.
-    gpuErrorCheck(cudaSetDevice(0));
-
-    int32_t width = 1 << 10;
-    int32_t height = 1 << 10;
-    Matrix* A;
-    Matrix* B;
-    Matrix* C;
-
-    // 申请托管内存
-    gpuErrorCheck(cudaMallocManaged((void**)&A, sizeof(Matrix)));
-    gpuErrorCheck(cudaMallocManaged((void**)&B, sizeof(Matrix)));
-    gpuErrorCheck(cudaMallocManaged((void**)&C, sizeof(Matrix)));
-
-    int32_t bytes = width * height * sizeof(double);
-    gpuErrorCheck(cudaMallocManaged((void**)&A->elements, bytes));
-    gpuErrorCheck(cudaMallocManaged((void**)&B->elements, bytes));
-    gpuErrorCheck(cudaMallocManaged((void**)&C->elements, bytes));
-
-    // 初始化数据
-    A->width = width;
-    A->height = height;
-    B->width = width;
-    B->width = width;
-    C->height = height;
-    C->height = height;
-
-    for (auto i = 0; i < width * height; i++) {
-        A->elements[i] = 1.0;
-        B->elements[i] = 2.0;
-    }
-
-    // 定义kernel的执行配置
-    dim3 blockSize(32, 32);
-    dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
-                  (height + blockSize.y - 1) / blockSize.y);
-
-    // 执行kernel
-    matrixMulKernel << <gridSize, blockSize >> > (A, B, C);
-
-    // 同步device，保证结果能正确访问
-    gpuErrorCheck(cudaDeviceSynchronize());
-
-    // 检查执行结果
-
-    cudaFree(A->elements);
-    cudaFree(A);
-    cudaFree(B->elements);
-    cudaFree(B);
-    cudaFree(C->elements);
-    cudaFree(C);
 }
 
 void fillBufferCuda() {
@@ -295,15 +213,12 @@ void fillBufferCuda() {
     constexpr auto width = 640;
     constexpr auto height = 480;
 
+#if 1
     Payload* payload = nullptr;
 
     gpuErrorCheck(cudaMallocManaged((void**)&payload, sizeof(Payload)));
 
     gpuErrorCheck(cudaMallocManaged((void**)&payload->pixelBuffer, width * height * sizeof(Tuple)));
-
-    dim3 blockSize(32, 32);
-    dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
-                  (height + blockSize.y - 1) / blockSize.y);
 
     gpuErrorCheck(cudaMallocManaged((void**)&payload->viewport, sizeof(Viewport)));
 
@@ -315,15 +230,27 @@ void fillBufferCuda() {
     payload->viewport->height = 2.0 * payload->viewport->scale;
     payload->viewport->width = payload->viewport->height * payload->viewport->imageAspectRatio;
 
-    Sphere** object = nullptr;
+    gpuErrorCheck(cudaMallocManaged((void**)&payload->camera, sizeof(Camera)));
 
-    gpuErrorCheck(cudaMallocManaged((void**)&object, sizeof(Sphere**)));
+    payload->camera->init(width, height);
+    payload->camera->computeParameters();
 
-    createObject<<<1, 1>>>(object, point(0.0, 0.0, -3.0), 1.0);
+    Shape** objects[2];
+
+    gpuErrorCheck(cudaMallocManaged((void**)&objects[0], sizeof(Shape**)));
+    gpuErrorCheck(cudaMallocManaged((void**)&objects[1], sizeof(Shape**)));
+
+    createObject<<<1, 1>>>(objects[0], point(-2.0, 0.0, -3.0), 1.0);
+    createObject<<<1, 1>>>(objects[1], point(2.0, 0.0, -3.0), 1.0);
     
     gpuErrorCheck(cudaDeviceSynchronize());
     
-    payload->object = *object;
+    gpuErrorCheck(cudaMallocManaged((void**)&payload->world, sizeof(World)));
+
+    payload->world->addObject(*objects[0]);
+    payload->world->addObject(*objects[1]);
+
+    payload->objectCount = 2;
 
     //gpuErrorCheck(cudaMallocManaged((void**)&payload->object->material, sizeof(Material)));
 
@@ -331,20 +258,24 @@ void fillBufferCuda() {
   
     Timer timer;
 
+    dim3 blockSize(32, 32);
+    dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
+                  (height + blockSize.y - 1) / blockSize.y);
+
     fillBufferKernel<<<gridSize, blockSize>>>(width, height, payload);
 
     gpuErrorCheck(cudaDeviceSynchronize());
 
     timer.stop();
 
-    Intersection i;
-
     writeToPPM("render.ppm", width, height, payload->pixelBuffer);
 
     gpuErrorCheck(cudaFree(payload->intersections));
-    deleteObject << <1, 1 >> > (object);
+    deleteObject<<<1, 1>>>(objects[0]);
+    deleteObject<<<1, 1>>>(objects[1]);
     gpuErrorCheck(cudaDeviceSynchronize());
     //gpuErrorCheck(cudaFree(payload->object));
     gpuErrorCheck(cudaFree(payload->viewport));
     gpuErrorCheck(cudaFree(payload->pixelBuffer));
+#endif
 }

@@ -2,6 +2,8 @@
 
 #include "Tuple.h"
 
+constexpr int32_t MAXELEMENTS = 128;
+
 namespace Math {
     constexpr double pi = 3.1415926535897932;
     constexpr double pi_3 = 1.0471975511965976;
