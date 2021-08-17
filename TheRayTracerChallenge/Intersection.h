@@ -1,28 +1,32 @@
 #pragma once
 
-#include "types.h"
-#include "constants.h"
+#include "Types.h"
+#include "Constants.h"
 #include "Ray.h"
 #include <initializer_list>
 #include <vector>
 #include <memory>
+#include <tuple>
 
 struct HitInfo {
     double t;
-    ShapePtr object;
+    ShapePtr object = nullptr;
     Tuple position;
     Tuple viewDirection;
     Tuple normal;
     Tuple overPosition;
+    Tuple underPosition;
     Tuple reflectVector;
-    bool inside = false;
+    double n1 = 1.0;
+    double n2 = 1.0;
+    bool bInside = false;
 };
 
 struct Intersection {
     Intersection() {}
 
-    Intersection(double inT, const ShapePtr& inSphere)
-        : t(inT), object(inSphere) {
+    Intersection(double inT, const ShapePtr& inSphere, const Ray& inRay = Ray())
+        : t(inT), object(inSphere), ray(inRay) {
     }
 
     Intersection(bool bInHit, int32_t inCount, double inT, const ShapePtr& inSphere)
@@ -37,6 +41,7 @@ struct Intersection {
     bool bShading = true;
     int32_t count = 0;
     double t = std::numeric_limits<double>::infinity();
+    ShapePtr subObject;
     ShapePtr object;
     Tuple position;
     Tuple normal;
@@ -54,15 +59,15 @@ inline bool operator<(const Intersection& a, const Intersection& b) {
     return (a.t < b.t);
 }
 
-inline std::vector<Intersection> intersections(const std::initializer_list<Intersection>& args) {
-    auto records = std::vector<Intersection>();
+inline InsersectionSet intersections(const std::initializer_list<Intersection>& args) {
+    auto records = InsersectionSet();
     for (const auto& element : args) {
         records.push_back(element);
     }
     return records;
 }
 
-inline Intersection hit(const std::vector<Intersection>& records) {
+inline Intersection nearestHit(const InsersectionSet& records) {
     auto result = Intersection();
 
     for (const auto& record : records) {
@@ -74,4 +79,5 @@ inline Intersection hit(const std::vector<Intersection>& records) {
     return result;
 }
 
-HitInfo prepareComputations(const Intersection& intersection, const Ray& ray);
+HitInfo prepareComputations(const Intersection& hit, const Ray& ray,
+                            const InsersectionSet& intersections = InsersectionSet());

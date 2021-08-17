@@ -2,8 +2,8 @@
 
 #include "Tuple.h"
 #include "Matrix.h"
-#include "constants.h"
-#include "types.h"
+#include "Constants.h"
+#include "Types.h"
 
 #include <cmath>
 
@@ -12,11 +12,11 @@ public:
     virtual Tuple patternAt(const Tuple& position) const { return Tuple(); };
     virtual Tuple patternAtShape(const ShapePtr& shape, const Tuple& position) const;
 
-    virtual inline void transform(const Matrix4& inTransformation) {
+    virtual void transform(const Matrix4& inTransformation) {
         transformation = inTransformation * transformation;
     }
 
-    virtual inline void setTransformation(const Matrix4& inTransformation) {
+    virtual void setTransformation(const Matrix4& inTransformation) {
         transformation = inTransformation;
     }
 
@@ -53,13 +53,32 @@ public:
 class CheckerPattern : public Pattern {
 public:
     CheckerPattern() {}
-    CheckerPattern(const Tuple& inColor1, const Tuple& inColor2) {
+    CheckerPattern(const Tuple& inColor1, const Tuple& inColor2, 
+                   const PlaneOrientation& inPlaneOrientation = PlaneOrientation::XZ, double inScale = 1.0) {
         color1 = inColor1;
         color2 = inColor2;
+        planeOrientation = inPlaneOrientation;
+        scale = 1.0 / inScale;
     }
 
     inline Tuple patternAt(const Tuple& position) const override {
-        auto sum = std::floor(position.x) + std::floor(position.y) + std::floor(position.z);
+        double sum = 0.0;
+        switch (planeOrientation)
+        {
+        case PlaneOrientation::XY:
+            sum = std::floor(position.x * scale) + std::floor(position.y * scale);
+            break;
+        case PlaneOrientation::YZ:
+            sum = std::floor(position.y * scale) + std::floor(position.z * scale);
+            break;
+        case PlaneOrientation::XZ:
+            sum = std::floor(position.x * scale) + std::floor(position.z * scale);
+            break;
+        default:
+            break;
+        }
+        //auto sum = std::floor(position.x) + std::floor(position.y) + std::floor(position.z);
+        
         if (std::fmod(sum, 2.0) == 0.0) {
             return color1;
         }
@@ -67,6 +86,10 @@ public:
             return color2;
         }
     }
+
+    double scale = 1.0;
+    Tuple transformedPosition;
+    PlaneOrientation planeOrientation = PlaneOrientation::XZ;
 };
 
 class GradientPattern : public Pattern {

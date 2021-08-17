@@ -3,6 +3,9 @@
 #include "Material.h"
 #include "Shading.h"
 #include "Camera.h"
+#include "Sphere.h"
+#include "Light.h"
+#include "Intersection.h"
 
 SCENARIO("Creating a world", "[World]") {
     GIVEN("w = World()") {
@@ -24,20 +27,20 @@ SCENARIO("The default world", "[World]") {
             "| material.specular | 0.9             |") {
             auto s1 = std::make_shared<Sphere>();
             s1->setTransformation(translate(-1.0, 0.0, -3.0));
-            auto material = Material();
-            material.color = color(1.0, 0.0, 0.0);
-            material.diffuse = 1.0;
-            material.specular = 0.9;
-            material.shininess = 128.0;
+            auto material = std::make_shared<Material>();
+            material->color = color(1.0, 0.0, 0.0);
+            material->diffuse = 1.0;
+            material->specular = 0.9;
+            material->shininess = 128.0;
             s1->material = material;
             AND_GIVEN("s2 = std::make_shared<Sphere>()") {
                 auto s2 = std::make_shared<Sphere>();
                 s2->setTransformation(translate(1.0, 0.0, -3.0));
-                material = Material();
-                material.color = color(1.0, 0.2, 1.0);
-                material.diffuse = 1.0;
-                material.specular = 0.9;
-                material.shininess = 128.0;
+                material = std::make_shared<Material>();
+                material->color = color(1.0, 0.2, 1.0);
+                material->diffuse = 1.0;
+                material->specular = 0.9;
+                material->shininess = 128.0;
                 s2->material = material;
                 WHEN("w = defaultWorld()") {
                     auto w = defaultWorld();
@@ -112,7 +115,7 @@ SCENARIO("The hit, when an intersection occurs on the outside", "[World]") {
                 WHEN("comps = prepareComputatons(i, r)") {
                     auto comps = prepareComputations(i, r);
                     THEN("comps.inside == false") {
-                        REQUIRE(comps.inside == false);
+                        REQUIRE(comps.bInside == false);
                     }
                 }
             }
@@ -134,7 +137,7 @@ SCENARIO("The hit, when an intersection occurs on the inside", "[World]") {
                         AND_THEN("comps.viewDirection == vector(0.0, 0.0, -1.0)")
                             REQUIRE(comps.viewDirection == vector(0.0, 0.0, -1.0));
                         AND_THEN("comps.inside == true")
-                            REQUIRE(comps.inside == true);
+                            REQUIRE(comps.bInside == true);
                     }
                 }
             }

@@ -1,9 +1,10 @@
 #include "catch.hpp"
-#include "constants.h"
+#include "Constants.h"
 #include "Pattern.h"
 #include "Material.h"
 #include "Light.h"
 #include "Shading.h"
+#include "Sphere.h"
 
 auto black = Color::black;
 auto white = Color::white;
@@ -66,17 +67,17 @@ SCENARIO("A stripe pattern alternates in x", "[Pattern]") {
 
 SCENARIO("Lighting with a pattern applied", "[Plane]") {
     GIVEN("m.pattern = StripePattern(color(1.0, 1.0, 1.0), color(0.0, 0.0, 0.0))") {
-        auto m = Material();
-        m.pattern = std::make_shared<StripePattern>(color(1.0, 1.0, 1.0), color(0.0, 0.0, 0.0));
+        auto m = std::make_shared<Material>();
+        m->pattern = std::make_shared<StripePattern>(color(1.0, 1.0, 1.0), color(0.0, 0.0, 0.0));
         AND_GIVEN("m.ambient = 1.0"
                   "m.diffuse = 0.0"
                   "m.specular = 0.0"
                   "viewDirection = vector(0.0, 0.0, -1.0)"
                   "normal = vector(0.0, 0.0, -1.0)"
                   "light = Light(point(0.0, 0.0, -10.0), vector(1.0, 1.0, 1.0))") {
-            m.ambient = 1.0;
-            m.diffuse = 0.0;
-            m.specular = 0.0;
+            m->ambient = 1.0;
+            m->diffuse = 0.0;
+            m->specular = 0.0;
             auto viewDirection = vector(0.0, 0.0, -1.0);
             auto normal = vector(0.0, 0.0, -1.0);
             auto light = Light(point(0.0, 0.0, -10.0), vector(1.0, 1.0, 1.0));

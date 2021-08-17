@@ -4,8 +4,9 @@
 
 class Ray {
 public:
-    Ray() {}
-    Ray(const Tuple& inOrigin, const Tuple& inDirection) 
+    constexpr Ray()
+    : origin({ 0.0, 0.0, 0.0, 1.0 }), direction({ 0.0, 0.0, 0.0, 0.0 }) {}
+    constexpr Ray(const Tuple& inOrigin, const Tuple& inDirection) 
     : origin(inOrigin), direction(inDirection) {}
 
     inline Tuple position(double t) const {

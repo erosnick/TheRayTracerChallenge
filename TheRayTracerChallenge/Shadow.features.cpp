@@ -1,6 +1,9 @@
 #include "catch.hpp"
 #include "World.h"
 #include "Shading.h"
+#include "Light.h"
+#include "Sphere.h"
+#include "Intersection.h"
 
 SCENARIO("There is no shadow when nothing is collinear with point and light", "[Shadow]") {
     GIVEN("w = defaultWorld2()") {

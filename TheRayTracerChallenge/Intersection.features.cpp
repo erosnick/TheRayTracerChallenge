@@ -289,7 +289,7 @@ SCENARIO("The hit, when all intersections have positive t", "[Intersection]") {
             auto i2 = Intersection(2.0, s);
             auto xs = intersections({ i2, i1 });
             WHEN("i = hit(xs)") {
-                auto i = hit(xs);
+                auto i = nearestHit(xs);
                 THEN("i == i1") {
                     REQUIRE(i == i1);
                 }
@@ -308,7 +308,7 @@ SCENARIO("The hit, when some intersections have negative t", "[Intersection]") {
             auto i2 = Intersection(1.0, s);
             auto xs = intersections({ i2, i1 });
             WHEN("i = hit(xs)") {
-                auto i = hit(xs);
+                auto i = nearestHit(xs);
                 THEN("i == i2") {
                     REQUIRE(i == i2);
                 }
@@ -327,7 +327,7 @@ SCENARIO("The hit, when all intersections have negative t", "[Intersection]") {
             auto i2 = Intersection(-1.0, s);
             auto xs = intersections({ i2, i1 });
             WHEN("i = hit(xs)") {
-                auto i = hit(xs);
+                auto i = nearestHit(xs);
                 THEN("i == i2") {
                     REQUIRE(i.bHit == false);
                 }
@@ -350,7 +350,7 @@ SCENARIO("The hit is always the lowest nonnegative intersection", "[Intersection
             auto i4 = Intersection(2.0, s);
             auto xs = intersections({ i1, i2, i3, i4 });
             WHEN("i = hit(xs)") {
-                auto i = hit(xs);
+                auto i = nearestHit(xs);
                 THEN("i == i4") {
                     REQUIRE(i == i4);
                 }

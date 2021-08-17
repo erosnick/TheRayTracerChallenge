@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.h"
+
 #include <limits>
 #include <cstdint>
 #include <cmath>
@@ -18,11 +19,13 @@ public:
     }
 
     double magnitude() const {
-        double squaredLength = x * x + y * y + z * z;
+        return std::sqrt(magnitudeSqured());
+    }
 
-        double length = std::sqrt(squaredLength);
+    double magnitudeSqured() const {
+        double lengthSquared = x * x + y * y + z * z;
 
-        return length;
+        return lengthSquared;
     }
 
     Tuple normalize() {
@@ -39,13 +42,13 @@ public:
         return x * other.x + y * other.y + z * other.z + w * other.w;
     }
 
-    Tuple cross(const Tuple& other) {
+    Tuple cross(const Tuple& other) const {
         return Tuple(other.z * y - z * other.y,
                      other.x * z - x * other.z,
                      other.y * x - y * other.x, 0.0);
     }
 
-    const double operator[](int32_t index) const {
+    double operator[](int32_t index) const {
         return elements[index];
     }
 
@@ -128,24 +131,42 @@ public:
     };
 };
 
-inline Tuple point(double x, double y, double z) {
+inline constexpr Tuple point(double x, double y, double z) {
     return Tuple(x, y, z, 1.0);
 }
 
-inline Tuple point() {
+inline constexpr Tuple point() {
     return Tuple(0.0, 0.0, 0.0, 1.0);
 }
 
-inline Tuple vector(double x, double y, double z) {
+inline constexpr Tuple point(double value) {
+    return point(value, value, value);
+}
+
+inline constexpr Tuple vector(double x, double y, double z) {
     return Tuple(x, y, z);
 }
 
-inline Tuple vector() {
+inline constexpr Tuple vector(double value) {
+    return vector(value, value, value);
+}
+
+inline constexpr Tuple vector() {
     return Tuple();
 }
 
 inline constexpr Tuple color(double inRed, double inGreen, double inBlue) {
     return Tuple(inRed, inGreen, inBlue);
+}
+
+inline constexpr Tuple color(int32_t inRed, int32_t inGreen, int32_t inBlue) {
+    return Tuple(1.0 / 255 * inRed,
+                 1.0 / 255 * inGreen,
+                 1.0 / 255 * inBlue);
+}
+
+inline constexpr Tuple color(double value) {
+    return color(value, value, value);
 }
 
 inline bool operator==(const Vector2& a, const Vector2& b) {
@@ -190,7 +211,11 @@ inline bool operator==(const Tuple& a, const Tuple& b) {
     return false;
 }
 
-inline Tuple operator+(const Tuple& a, const Tuple& b) {
+inline bool operator!=(const Tuple& a, const Tuple& b) {
+    return !operator==(a, b);
+}
+
+inline constexpr Tuple operator+(const Tuple& a, const Tuple& b) {
     return Tuple(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 }
 

@@ -156,7 +156,7 @@ SCENARIO("A sphere has a default material", "[Shading]") {
         WHEN("m = sphere.material") {
             auto m = s.material;
             THEN("m == Material()") {
-                REQUIRE(m == Material());
+                REQUIRE((*m.get()) == Material());
             }
         }
     }
@@ -166,9 +166,9 @@ SCENARIO("A sphere may be assigned a material", "[Shading]") {
     GIVEN("s = Sphere()") {
         auto s = Sphere();
         AND_GIVEN("m = Matreial()") {
-            auto m = Material();
+            auto m = std::make_shared<Material>();
             AND_GIVEN("m.ambient = 1.0") {
-                m.ambient = 1.0;
+                m->ambient = 1.0;
                 WHEN("sphere.material = m") {
                     s.material = m;
                     THEN("s.material == m") {
@@ -180,7 +180,7 @@ SCENARIO("A sphere may be assigned a material", "[Shading]") {
     }
 }
 
-auto m = Material();
+auto m = std::make_shared<Material>();
 auto position = point(0.0, 0.0, 0.0);
 
 SCENARIO("Lighting with the eye between the light and the surface", "[Shading]") {

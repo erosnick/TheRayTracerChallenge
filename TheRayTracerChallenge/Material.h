@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tuple.h"
-#include "types.h"
+#include "Types.h"
 #include <optional>
 
 struct Material {
@@ -21,6 +21,7 @@ struct Material {
     double reflective = 0.0;
     double transparency = 0.0;
     double refractiveIndex = 1.0;
+    bool bCastShadow = true;
     std::optional<PatternPtr> pattern;
 };
 

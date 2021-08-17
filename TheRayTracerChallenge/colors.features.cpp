@@ -1,5 +1,5 @@
 #include "catch.hpp"
-#include "tuple.h"
+#include "Tuple.h"
 
 SCENARIO("Colors are (red, green, blue) tuples", "[color]") {
     GIVEN("c ¡û color(-0.5f, 0.4f, 1.7f)") {
