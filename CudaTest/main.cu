@@ -43,9 +43,7 @@ struct Viewport {
 };
 
 struct Payload {
-    Intersection* intersections;
     World* world;
-    int32_t objectCount = 2;
     Viewport* viewport;
     Tuple* pixelBuffer;
     Camera* camera;
@@ -139,9 +137,9 @@ CUDA_GLOBAL void fillBufferKernel(int32_t width, int32_t height, Payload* payloa
     //auto viewport = payload->viewport;
 
     Tuple defaultColor = Color::skyBlue;
-    Tuple pixelColor = defaultColor;
+    Tuple pixelColor = Color::black;
 
-    const int32_t samplesPerPixel = 8;
+    const int32_t samplesPerPixel = 1;
 
     for (int i = 0; i < samplesPerPixel; i++) {
         curandState state;
@@ -161,21 +159,16 @@ CUDA_GLOBAL void fillBufferKernel(int32_t width, int32_t height, Payload* payloa
 
         int32_t count = 0;
     
-        //payload->world->intersect(ray, intersections, &count);
-        //payload->world->foo(ray, &count);
-        //payload->world->getObject(0)->intersect(ray, intersections);
-        Shape* object = new Sphere();
+        payload->world->intersect(ray, intersections, &count);
 
-        object->intersect(ray, intersections);
+        auto hit = nearestHit(intersections, count);
 
-        //auto hit = nearestHit(intersections, count);
-
-        //if (hit.bHit) {
-        //    pixelColor += hit.normal;
-        //}
-        //else {
-        //    pixelColor += defaultColor;
-        //}
+        if (hit.bHit) {
+            pixelColor += hit.normal;
+        }
+        else {
+            pixelColor += defaultColor;
+        }
     }
 
     writePixel(payload->pixelBuffer, index, pixelColor / samplesPerPixel);
@@ -235,26 +228,28 @@ void fillBufferCuda() {
     payload->camera->init(width, height);
     payload->camera->computeParameters();
 
-    Shape** objects[2];
+    constexpr int32_t objectCount = 4;
 
-    gpuErrorCheck(cudaMallocManaged((void**)&objects[0], sizeof(Shape**)));
-    gpuErrorCheck(cudaMallocManaged((void**)&objects[1], sizeof(Shape**)));
+    Shape** objects[objectCount];
 
-    createObject<<<1, 1>>>(objects[0], point(-2.0, 0.0, -3.0), 1.0);
-    createObject<<<1, 1>>>(objects[1], point(2.0, 0.0, -3.0), 1.0);
+    for (auto i = 0; i < objectCount; i++) {
+        gpuErrorCheck(cudaMallocManaged((void**)&objects[i], sizeof(Shape**)));
+    }
+
+    createObject<<<1, 1>>>(objects[0], point(-1.0, 0.0, -3.0), 1.0);
+    createObject<<<1, 1>>>(objects[1], point(1.0, 0.0, -3.0), 1.0);
+    createObject<<<1, 1>>>(objects[2], point(-3.0, 0.0, -3.0), 1.0);
+    createObject<<<1, 1>>>(objects[3], point(3.0, 0.0, -3.0), 1.0);
     
     gpuErrorCheck(cudaDeviceSynchronize());
     
     gpuErrorCheck(cudaMallocManaged((void**)&payload->world, sizeof(World)));
 
-    payload->world->addObject(*objects[0]);
-    payload->world->addObject(*objects[1]);
-
-    payload->objectCount = 2;
+    for (auto i = 0; i < objectCount; i++) {
+        payload->world->addObject(*objects[i]);
+    }
 
     //gpuErrorCheck(cudaMallocManaged((void**)&payload->object->material, sizeof(Material)));
-
-    gpuErrorCheck(cudaMallocManaged((void**)&payload->intersections, sizeof(Intersection) * 2));
   
     Timer timer;
 
@@ -270,12 +265,20 @@ void fillBufferCuda() {
 
     writeToPPM("render.ppm", width, height, payload->pixelBuffer);
 
-    gpuErrorCheck(cudaFree(payload->intersections));
-    deleteObject<<<1, 1>>>(objects[0]);
-    deleteObject<<<1, 1>>>(objects[1]);
+    gpuErrorCheck(cudaFree(payload->world));
+
+    for (auto i = 0; i < objectCount; i++) {
+        deleteObject<<<1, 1>>>(objects[i]);
+    }
+    
     gpuErrorCheck(cudaDeviceSynchronize());
-    //gpuErrorCheck(cudaFree(payload->object));
+
+    for (auto i = 0; i < objectCount; i++) {
+        gpuErrorCheck(cudaFree(objects[i]));
+    }
+
     gpuErrorCheck(cudaFree(payload->viewport));
     gpuErrorCheck(cudaFree(payload->pixelBuffer));
+
 #endif
 }

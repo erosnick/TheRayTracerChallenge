@@ -23,7 +23,7 @@ public:
 	}
 
 	~Timer() {
-		stop();
+		//stop();
 	}
 
 private:

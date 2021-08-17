@@ -79,7 +79,7 @@ inline IntersectionSet intersections(const std::initializer_list<Intersection>& 
 }
 
 inline CUDA_HOST_DEVICE Intersection nearestHit(Intersection* intersections, int32_t count) {
-    Intersection intersection(10000.0, nullptr);
+    Intersection intersection;
     for (auto i = 0; i < count; i++) {
         if ((intersections[i].t > 0.0) && (intersections[i].t < intersection.t)) {
             intersection = intersections[i];
@@ -89,5 +89,4 @@ inline CUDA_HOST_DEVICE Intersection nearestHit(Intersection* intersections, int
     return intersection;
 }
 
-HitInfo prepareComputations(const Intersection& hit, const Ray& ray,
-                            const IntersectionSet& intersections = IntersectionSet());
+HitInfo prepareComputations(const Intersection& hit, const Ray& ray, Intersection* intersections);

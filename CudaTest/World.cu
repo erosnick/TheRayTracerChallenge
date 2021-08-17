@@ -20,20 +20,14 @@ CUDA_HOST_DEVICE void sort(Intersection* intersections, int32_t count) {
     }
 }
 
-void World::foo(const Ray& ray, int32_t* count) {
-}
-
-//void World::foo(const Ray& ray, Intersection* totalIntersections, int32_t* count) {
-//}
-
 void World::intersect(const Ray& ray, Intersection* totalIntersections, int32_t* count) {
-    //for (auto i = 0; i < objectCount(); i++) {
-    //    Intersection intersections[2];
-    //    objects[i]->intersect(ray, intersections);
-    //    totalIntersections[(*count)++] = intersections[0];
-    //    totalIntersections[(*count)++] = intersections[1];
-    //    (*count) += 2;
-    //}
+    for (auto i = 0; i < objectCount(); i++) {
+        Intersection intersections[2];
+        objects[i]->intersect(ray, intersections);
+        totalIntersections[(*count)++] = intersections[0];
+        totalIntersections[(*count)++] = intersections[1];
+        (*count) += 2;
+    }
 
-    //sort(totalIntersections, (*count) + 1);
+    sort(totalIntersections, (*count));
 }

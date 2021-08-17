@@ -15,56 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Ray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Shape.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tuple.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Intersection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CUDA.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="KernelRandom.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="World.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <CudaCompile Include="main.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
@@ -82,6 +32,54 @@
     </CudaCompile>
     <CudaCompile Include="Shape.cu">
       <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Intersection.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="KernelRandom.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Light.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Material.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Matrix.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Ray.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Shape.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Sphere.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Tuple.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Types.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="World.h">
+      <Filter>Header Files</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

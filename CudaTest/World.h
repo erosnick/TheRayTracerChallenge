@@ -9,18 +9,20 @@
 
 class World {
 public:
-    CUDA_HOST_DEVICE void foo(const Ray& ray, int32_t* count);
+    CUDA_HOST_DEVICE void foo(const Ray& ray, int32_t* count) {}
     CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection* totalIntersections, int32_t* count);
 
-    void addLight(Light* light) {
+    CUDA_HOST void addLight(Light* light) {
         if (lightIndex < MAXELEMENTS - 1) {
-            lights[lightIndex + 1] = light;
+            lights[lightIndex] = light;
+            lightIndex++;
         }
     }
 
-    void addObject(Shape* object) {
+    CUDA_HOST void addObject(Shape* object) {
         if (objectIndex < MAXELEMENTS - 1) {
-            objects[objectIndex + 1] = object;
+            objects[objectIndex] = object;
+            objectIndex++;
         }
     }
 
@@ -41,12 +43,12 @@ public:
         return lights[index];
     }
 
-    int32_t ligthCount() const {
-        return lightIndex + 1;
+    CUDA_HOST_DEVICE int32_t ligthCount() const {
+        return lightIndex;
     }
 
-    int32_t objectCount() const {
-        return objectIndex + 1;
+    CUDA_HOST_DEVICE int32_t objectCount() const {
+        return objectIndex;
     }
 
 private:

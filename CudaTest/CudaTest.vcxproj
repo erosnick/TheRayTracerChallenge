@@ -108,22 +108,22 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Constants.h" />
-    <ClInclude Include="CUDA.h" />
-    <ClInclude Include="Intersection.h" />
-    <ClInclude Include="KernelRandom.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="Material.h" />
-    <ClInclude Include="Matrix.h" />
-    <ClInclude Include="Ray.h" />
-    <ClInclude Include="Shape.h" />
-    <ClInclude Include="Sphere.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="Tuple.h" />
-    <ClInclude Include="Types.h" />
-    <ClInclude Include="Utils.h" />
-    <ClInclude Include="World.h" />
+    <CudaCompile Include="Camera.h" />
+    <CudaCompile Include="Constants.h" />
+    <CudaCompile Include="CUDA.h" />
+    <CudaCompile Include="Intersection.h" />
+    <CudaCompile Include="KernelRandom.h" />
+    <CudaCompile Include="Light.h" />
+    <CudaCompile Include="Material.h" />
+    <CudaCompile Include="Matrix.h" />
+    <CudaCompile Include="Ray.h" />
+    <CudaCompile Include="Shape.h" />
+    <CudaCompile Include="Sphere.h" />
+    <CudaCompile Include="Timer.h" />
+    <CudaCompile Include="Tuple.h" />
+    <CudaCompile Include="Types.h" />
+    <CudaCompile Include="Utils.h" />
+    <CudaCompile Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
