@@ -49,17 +49,21 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>./;I:\Backup\OpenSource\imgui\imgui\examples\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cudart_static.lib;glfw3.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>I:\Backup\OpenSource\imgui\imgui_build\examples\libs\glfw\lib-vc2010-64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <AdditionalOptions>--std=c++17 --expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
       <MaxRegCount>16</MaxRegCount>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
+      <Include>
+      </Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -70,13 +74,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;WIN64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>./;I:\Backup\OpenSource\imgui\imgui\examples\libs\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cudart_static.lib;glfw3.lib;legacy_stdio_definitions.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>I:\Backup\OpenSource\imgui\imgui_build\examples\libs\glfw\lib-vc2010-64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
@@ -85,10 +91,12 @@
       <MaxRegCount>16</MaxRegCount>
       <PtxAsOptionV>false</PtxAsOptionV>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
+      <Include>
+      </Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="main.cu" />
+    <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="Intersection.cu">
@@ -124,6 +132,34 @@
     <CudaCompile Include="Types.h" />
     <CudaCompile Include="Utils.h" />
     <CudaCompile Include="World.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Filesystem.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\ImFileDialog.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="imgui\stb_image.h" />
+    <ClInclude Include="kernel.h" />
+    <ClInclude Include="root_directory.h" />
+    <ClInclude Include="Shader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="glad.c" />
+    <ClCompile Include="imgui\ImFileDialog.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="imgui\imgui_tables.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="OpenGLFrontend.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

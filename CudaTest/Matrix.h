@@ -46,7 +46,7 @@ public:
         return row[rowIndex];
     }
 
-    double determinant() const {
+    CUDA_HOST_DEVICE double determinant() const {
         return m[0][0] * m[1][1] - m[0][1] * m[1][0];
     }
 };
@@ -54,60 +54,60 @@ public:
 class Matrix3 {
 public:
     CUDA_HOST_DEVICE Matrix3() {
-        row[0] = { 1.0, 0.0, 0.0 };
-        row[1] = { 0.0, 1.0, 0.0 };
-        row[2] = { 0.0, 0.0, 1.0 };
+        data.row[0] = { 1.0, 0.0, 0.0 };
+        data.row[1] = { 0.0, 1.0, 0.0 };
+        data.row[2] = { 0.0, 0.0, 1.0 };
     }
 
     Matrix3(const Vector3& row0, const Vector3& row1, const Vector3& row2) {
-        row[0] = row0;
-        row[1] = row1;
-        row[2] = row2;
+        data.row[0] = row0;
+        data.row[1] = row1;
+        data.row[2] = row2;
     }
 
-    const Vector3 operator[](int32_t rowIndex) const {
-        return row[rowIndex];
+    CUDA_HOST_DEVICE const Vector3 operator[](int32_t rowIndex) const {
+        return data.row[rowIndex];
     }
 
-    Vector3& operator[](int32_t rowIndex) {
-        return row[rowIndex];
+    CUDA_HOST_DEVICE Vector3& operator[](int32_t rowIndex) {
+        return data.row[rowIndex];
     }
 
     Matrix2 submatrix(int32_t row, int32_t column) const {
         auto result = Matrix2();
 
-        std::vector<int32_t> rowIndex = { 0, 1, 2 };
-        std::vector<int32_t> columnIndex = { 0, 1, 2 };
+        int32_t rowIndex[] = { 0, 1, 2 };
+        int32_t columnIndex[] = { 0, 1, 2 };
 
-        for (auto iterator = rowIndex.begin(); iterator != rowIndex.end(); iterator++) {
-            if (*iterator == row) {
-                rowIndex.erase(iterator);
+        for (auto i = 0; i < 3; i++) {
+            if (rowIndex[i] == row) {
+                rowIndex[i] = -1;
                 break;
             }
         }
 
-        for (auto iterator = columnIndex.begin(); iterator != columnIndex.end(); iterator++) {
-            if (*iterator == column) {
-                columnIndex.erase(iterator);
+        for (auto i = 0; i < 3; i++) {
+            if (columnIndex[i] == column) {
+                columnIndex[i] = -1;
                 break;
             }
         }
 
-        result[0][0] = m[rowIndex[0]][columnIndex[0]];
-        result[0][1] = m[rowIndex[0]][columnIndex[1]];
-        result[1][0] = m[rowIndex[1]][columnIndex[0]];
-        result[1][1] = m[rowIndex[1]][columnIndex[1]];
+        result[0][0] = data.m[rowIndex[0]][columnIndex[0]];
+        result[0][1] = data.m[rowIndex[0]][columnIndex[1]];
+        result[1][0] = data.m[rowIndex[1]][columnIndex[0]];
+        result[1][1] = data.m[rowIndex[1]][columnIndex[1]];
 
         return result;
     }
 
-    double minor(int32_t row, int32_t column) const {
+    CUDA_HOST_DEVICE double minor(int32_t row, int32_t column) const {
         return submatrix(row, column).determinant();
     }
 
     // if row + column is an odd number, then you negate the minor.Otherwise,
     // you just return the minor as is.
-    double cofactor(int32_t row, int32_t column) const {
+    CUDA_HOST_DEVICE double cofactor(int32_t row, int32_t column) const {
         if ((row + column) % 2 == 0) {
             return minor(row, column);
         }
@@ -116,106 +116,106 @@ public:
         }
     }
 
-    double determinant() const {
+    CUDA_HOST_DEVICE double determinant() const {
         double result = 0.0;
 
         // Pick any row(or column), multiply each element by its cofactor,
         // and add the results.
         for (auto column = 0; column < 3; column++) {
-            result = result + m[0][column] * cofactor(0, column);
+            result = result + data.m[0][column] * cofactor(0, column);
         }
 
         return result;
     }
 
-    union {
+    union Data {
         struct {
             Vector3 row[3];
         };
 
         double m[3][3];
-    };
+    } data;
 };
 
 class Matrix4 {
 public:
     CUDA_HOST_DEVICE Matrix4() {
-        row[0] = { 1.0, 0.0, 0.0, 0.0 };
-        row[1] = { 0.0, 1.0, 0.0, 0.0 };
-        row[2] = { 0.0, 0.0, 1.0, 0.0 };
-        row[3] = { 0.0, 0.0, 0.0, 1.0 };
+        rows[0] = { 1.0, 0.0, 0.0, 0.0 };
+        rows[1] = { 0.0, 1.0, 0.0, 0.0 };
+        rows[2] = { 0.0, 0.0, 1.0, 0.0 };
+        rows[3] = { 0.0, 0.0, 0.0, 1.0 };
     }
 
     CUDA_HOST_DEVICE Matrix4(const Tuple& row0, const Tuple& row1, const Tuple& row2, const Tuple& row3) {
-        row[0] = row0;
-        row[1] = row1;
-        row[2] = row2;
-        row[3] = row3;
+        rows[0] = { row0.x(), row0.y(), row0.z(), row0.w() };
+        rows[1] = { row1.x(), row1.y(), row1.z(), row1.w() };;
+        rows[2] = { row2.x(), row2.y(), row2.z(), row2.w() };;
+        rows[3] = { row3.x(), row3.y(), row3.z(), row3.w() };;
     }
 
     CUDA_HOST_DEVICE Matrix4 transpose() {
         auto result = Matrix4();
 
-        result[0][0] = m[0][0];
-        result[1][0] = m[0][1];
-        result[2][0] = m[0][2];
-        result[3][0] = m[0][3];
+        result[0][0] = rows[0][0];
+        result[1][0] = rows[0][1];
+        result[2][0] = rows[0][2];
+        result[3][0] = rows[0][3];
 
-        result[0][1] = m[1][0];
-        result[1][1] = m[1][1];
-        result[2][1] = m[1][2];
-        result[3][1] = m[1][3];
+        result[0][1] = rows[1][0];
+        result[1][1] = rows[1][1];
+        result[2][1] = rows[1][2];
+        result[3][1] = rows[1][3];
 
-        result[0][2] = m[2][0];
-        result[1][2] = m[2][1];
-        result[2][2] = m[2][2];
-        result[3][2] = m[2][3];
+        result[0][2] = rows[2][0];
+        result[1][2] = rows[2][1];
+        result[2][2] = rows[2][2];
+        result[3][2] = rows[2][3];
 
-        result[0][3] = m[3][0];
-        result[1][3] = m[3][1];
-        result[2][3] = m[3][2];
-        result[3][3] = m[3][3];
+        result[0][3] = rows[3][0];
+        result[1][3] = rows[3][1];
+        result[2][3] = rows[3][2];
+        result[3][3] = rows[3][3];
 
         return result;
     }
 
     CUDA_HOST_DEVICE const Tuple operator[](int32_t rowIndex) const {
-        return row[rowIndex];
+        return rows[rowIndex];
     }
 
     CUDA_HOST_DEVICE Tuple& operator[](int32_t rowIndex) {
-        return row[rowIndex];
+        return rows[rowIndex];
     }
 
     CUDA_HOST_DEVICE Matrix3 submatrix(int32_t row, int32_t column) const {
         auto result = Matrix3();
 
-        std::vector<int32_t> rowIndex = { 0, 1, 2, 3 };
-        std::vector<int32_t> columnIndex = { 0, 1, 2, 3 };
+        int32_t rowIndex[] = { 0, 1, 2, 3 };
+        int32_t columnIndex[] = { 0, 1, 2, 3 };
 
-        for (auto iterator = rowIndex.begin(); iterator != rowIndex.end(); iterator++) {
-            if (*iterator == row) {
-                rowIndex.erase(iterator);
+        for (auto i = 0; i < 4; i++) {
+            if (rowIndex[i] == row) {
+                rowIndex[i] = -1;
                 break;
             }
         }
 
-        for (auto iterator = columnIndex.begin(); iterator != columnIndex.end(); iterator++) {
-            if (*iterator == column) {
-                columnIndex.erase(iterator);
+        for (auto i = 0; i < 4; i++) {
+            if (columnIndex[i] == column) {
+                columnIndex[i] = -1;
                 break;
             }
         }
 
-        result[0][0] = m[rowIndex[0]][columnIndex[0]];
-        result[0][1] = m[rowIndex[0]][columnIndex[1]];
-        result[0][2] = m[rowIndex[0]][columnIndex[2]];
-        result[1][0] = m[rowIndex[1]][columnIndex[0]];
-        result[1][1] = m[rowIndex[1]][columnIndex[1]];
-        result[1][2] = m[rowIndex[1]][columnIndex[2]];
-        result[2][0] = m[rowIndex[2]][columnIndex[0]];
-        result[2][1] = m[rowIndex[2]][columnIndex[1]];
-        result[2][2] = m[rowIndex[2]][columnIndex[2]];
+        result[0][0] = rows[rowIndex[0]][columnIndex[0]];
+        result[0][1] = rows[rowIndex[0]][columnIndex[1]];
+        result[0][2] = rows[rowIndex[0]][columnIndex[2]];
+        result[1][0] = rows[rowIndex[1]][columnIndex[0]];
+        result[1][1] = rows[rowIndex[1]][columnIndex[1]];
+        result[1][2] = rows[rowIndex[1]][columnIndex[2]];
+        result[2][0] = rows[rowIndex[2]][columnIndex[0]];
+        result[2][1] = rows[rowIndex[2]][columnIndex[1]];
+        result[2][2] = rows[rowIndex[2]][columnIndex[2]];
 
         return result;
     }
@@ -264,7 +264,7 @@ public:
         // Pick any row(or column), multiply each element by its cofactor,
         // and add the results.
         for (auto column = 0; column < 4; column++) {
-            result = result + m[0][column] * cofactor(0, column);
+            result = result + rows[0][column] * cofactor(0, column);
         }
 
         return result;
@@ -281,7 +281,7 @@ public:
     }
 
     Matrix4& scaling(const Vector3& v) {
-        return scaling(v.x, v.y, v.z);
+        return scaling(v.x(), v.y(), v.z());
     }
 
     Matrix4& translate(double x, double y, double z) {
@@ -291,7 +291,7 @@ public:
     }
 
     Matrix4& translate(const Vector3& v) {
-        return translate(v.x, v.y, v.z);
+        return translate(v.x(), v.y(), v.z());
     }
 
     Matrix4& rotateX(double radian) {
@@ -318,13 +318,14 @@ public:
         return (*this);
     }
 
-    union {
-        struct {
-            Tuple row[4];
-        };
+    //union Data {
+    //    struct {
+    //        Vector4 row[4];
+    //    };
 
-        double m[4][4];
-    };
+    //    double m[4][4];
+    //} data;
+    Tuple rows[4];
 };
 
 inline bool operator==(const Matrix2& a, const Matrix2& b) {
@@ -419,7 +420,7 @@ inline Matrix4 translate(double x, double y, double z) {
 }
 
 inline Matrix4 translate(const Vector3& v) {
-    return translate(v.x, v.y, v.z);
+    return translate(v.x(), v.y(), v.z());
 }
 
 inline Matrix4 scaling(double x, double y, double z) {
@@ -433,7 +434,7 @@ inline Matrix4 scaling(double x, double y, double z) {
 }
 
 inline Matrix4 scaling(const Vector3& v) {
-    return scaling(v.x, v.y, v.z);
+    return scaling(v.x(), v.y(), v.z());
 }
 
 inline Matrix4 rotateX(double radian) {

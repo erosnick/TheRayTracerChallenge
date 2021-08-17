@@ -31,7 +31,7 @@ public:
     virtual inline CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection* intersections) {}
 
     virtual void setMaterial(Material* inMaterial) {
-        //material = inMaterial;
+        material = inMaterial;
     }
 
     Matrix4 transformation;
@@ -43,9 +43,8 @@ public:
 class TestShape : public Shape
 {
 public:
-    virtual CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position = point(0.0)) const override;
-    //CUDA_HOST_DEVICE IntersectionSet intersect(const Ray& ray, bool bTransformRay = false) override;
-    //CUDA_HOST_DEVICE Intersection* intersectCUDA(const Ray& ray, bool bTransformRay = false) override { return nullptr; };
+    CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position = point(0.0)) const override;
+    CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection* intersections) override {}
 };
 
 inline TestShape testShape() {

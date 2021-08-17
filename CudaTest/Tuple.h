@@ -142,28 +142,119 @@ public:
 
 class Vector3 {
 public:
-    constexpr Vector3()
-    : x(0.0), y(0.0), z(0.0) {}
+    //constexpr Vector3()
+    //: x(0.0), y(0.0), z(0.0) {}
 
-    constexpr Vector3(double inX, double inY, double inZ)
-    : x(inX), y(inY), z(inZ) {}
+    //constexpr Vector3(double inX, double inY, double inZ)
+    //: x(inX), y(inY), z(inZ) {}
 
-    double operator[](int32_t index) const {
-        return elements[index];
+    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+        return data.elements[index];
     }
 
-    double& operator[](int32_t index) {
-        return elements[index];
+    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+        return data.elements[index];
     }
 
-    union {
+    CUDA_HOST_DEVICE double x() const {
+        return data.x;
+    }
+
+    CUDA_HOST_DEVICE double& x() {
+        return data.x;
+    }
+
+    CUDA_HOST_DEVICE double y() const {
+        return data.y;
+    }
+
+    CUDA_HOST_DEVICE double& y() {
+        return data.y;
+    }
+
+    CUDA_HOST_DEVICE double z() const {
+        return data.z;
+    }
+
+    CUDA_HOST_DEVICE double& z() {
+        return data.z;
+    }
+
+    union Data {
         struct {
             double x;
             double y;
             double z;
         };
         double elements[3];
-    };
+    } data;
+};
+
+class Vector4 {
+public:
+    constexpr Vector4()
+    : data({ 0.0, 0.0, 0.0, 0.0 }) {}
+
+    constexpr Vector4(double inX, double inY, double inZ, double inW)
+    : data({ inX, inY, inZ, inW }) {}
+
+    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+        return data.elements[index];
+    }
+
+    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+        return data.elements[index];
+    }
+
+    CUDA_HOST_DEVICE operator Tuple () const {
+        return Tuple(data.x, data.y, data.z, data.w);
+    }
+
+    //CUDA_HOST_DEVICE operator Tuple&() const {
+    //    return (*this);
+    //}
+
+    CUDA_HOST_DEVICE double x() const {
+        return data.x;
+    }
+
+    CUDA_HOST_DEVICE double& x() {
+        return data.x;
+    }
+
+    CUDA_HOST_DEVICE double y() const {
+        return data.y;
+    }
+
+    CUDA_HOST_DEVICE double& y() {
+        return data.y;
+    }
+
+    CUDA_HOST_DEVICE double z() const {
+        return data.z;
+    }
+
+    CUDA_HOST_DEVICE double& z() {
+        return data.z;
+    }
+
+    CUDA_HOST_DEVICE double w() const {
+        return data.w;
+    }
+
+    CUDA_HOST_DEVICE double& w() {
+        return data.w;
+    }
+
+    union Data {
+        struct {
+            double x;
+            double y;
+            double z;
+            double w;
+        };
+        double elements[4];
+    } data;
 };
 
 inline constexpr Tuple point(double x, double y, double z) {
@@ -218,9 +309,9 @@ inline bool operator==(const Vector2& a, const Vector2& b) {
 
 inline bool operator==(const Vector3& a, const Vector3& b) {
     constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
-    auto dx = std::abs(std::abs(a.x) - std::abs(b.x));
-    auto dy = std::abs(std::abs(a.y) - std::abs(b.y));
-    auto dz = std::abs(std::abs(a.z) - std::abs(b.z));
+    auto dx = std::abs(std::abs(a.x()) - std::abs(b.x()));
+    auto dy = std::abs(std::abs(a.y()) - std::abs(b.y()));
+    auto dz = std::abs(std::abs(a.z()) - std::abs(b.z()));
     if ((dx < epsilon)
      && (dy < epsilon)
      && (dz < epsilon)) {
