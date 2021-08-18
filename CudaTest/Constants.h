@@ -27,11 +27,11 @@ namespace Math {
     constexpr double infinityf = std::numeric_limits<float>::infinity();
     constexpr double infinityi = std::numeric_limits<int32_t>::infinity();
 
-    inline double radians(double degree) {
+    inline CUDA_HOST_DEVICE double radians(double degree) {
         return pi / 180.0 * degree;
     }
 
-    inline double degrees(double radian) {
+    inline CUDA_HOST_DEVICE double degrees(double radian) {
         return radian * 180.0 / pi;
     }
 }
@@ -49,7 +49,6 @@ namespace Color {
     constexpr Tuple purple = color(1.0, 0.0, 1.0);
     constexpr Tuple blue = color(0.0, 0.0, 1.0);
     constexpr Tuple pink = color(1.0, 0.55, 0.55);
-    constexpr Tuple pinkBlue = pink + blue;
     constexpr Tuple skyBlue = color(134, 203, 237);
     constexpr Tuple moonstone = color(60, 162, 200);
     constexpr Tuple turquoise = color(64, 224, 208);

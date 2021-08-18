@@ -45,7 +45,7 @@ public:
 
     void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) override;
 
-    CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection* intersections) override;
+    CUDA_HOST_DEVICE bool intersect(const Ray& ray, Intersection* intersections) override;
 
     Tuple origin = { 0.0, 0.0, 0.0, 1.0 };
     double radius = 1.0;

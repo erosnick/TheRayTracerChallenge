@@ -19,7 +19,7 @@ SCENARIO("Pre-computing the reflection vector", "[Reflection]") {
     GIVEN("shape = Plane()") {
         auto shape = std::make_shared<Plane>();
         AND_GIVEN("shape->material.reflective = 0.5") {
-            shape->material.reflective = 0.5;
+            shape->material->reflective = 0.5;
             AND_GIVEN("r = Ray(point(0.0, 1.0, -1.0), vector(0.0, -¡Ì2/2, ¡Ì2/2))") {
                 auto r = Ray(point(0.0, 1.0, -1.0), vector(0.0, -Math::cos45d, Math::cos45d));
                 AND_GIVEN("i = Intersection(¡Ì2, shape)") {

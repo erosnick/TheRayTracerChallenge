@@ -39,3 +39,28 @@ void writeToPPM(const std::string& path, int32_t width, int32_t height, Tuple* p
 
     ppm.close();
 }
+
+void writeToPPM(const std::string& path, int32_t width, int32_t height, uint8_t* pixelBuffer) {
+    auto ppm = std::ofstream(path);
+
+    if (!ppm.is_open()) {
+        std::cout << "Open file image.ppm failed.\n";
+    }
+
+    std::stringstream ss;
+    ss << toPPM(width, height);
+
+    for (auto y = 0; y < height; y++) {
+        for (auto x = 0; x < width; x++) {
+            auto index = y * width + x;
+            auto r = static_cast<uint32_t>(pixelBuffer[index * 3]);
+            auto g = static_cast<uint32_t>(pixelBuffer[index * 3 + 1]);
+            auto b = static_cast<uint32_t>(pixelBuffer[index * 3 + 2]);
+            ss << r << ' ' << g << ' ' << b << '\n';
+        }
+    }
+
+    ppm.write(ss.str().c_str(), ss.str().size());
+
+    ppm.close();
+}

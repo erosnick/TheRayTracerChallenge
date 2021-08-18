@@ -4,7 +4,7 @@
 #include "Shape.h"
 #include "Sphere.h"
 
-HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const InsersectionSet& intersections) {
+ HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const InsersectionSet& intersections) {
     // Instantiate a data structure for storing some precomputed values
     HitInfo hitInfo;
 

@@ -39,53 +39,14 @@
     <CudaCompile Include="Shape.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Constants.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="CUDA.h">
       <Filter>Header Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="Intersection.h">
-      <Filter>Header Files</Filter>
+    <CudaCompile Include="Shading.cu">
+      <Filter>Source Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="KernelRandom.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Light.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Material.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Matrix.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Ray.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Shape.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Sphere.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Timer.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Tuple.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Types.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Utils.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="World.h">
-      <Filter>Header Files</Filter>
+    <CudaCompile Include="Pattern.cu">
+      <Filter>Source Files</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
@@ -122,13 +83,61 @@
     <ClInclude Include="Filesystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="root_directory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="root_directory.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Intersection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="kernel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tuple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header.cuh">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -162,6 +171,12 @@
     </ClCompile>
     <ClCompile Include="OpenGLFrontend.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KernelRandom.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.h">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

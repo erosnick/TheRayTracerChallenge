@@ -21,33 +21,33 @@ inline CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, const Matrix4& b);
 
 class Matrix2 {
 public:
-    Matrix2() {
-        row[0] = { 1.0, 0.0 };
-        row[1] = { 0.0, 1.0 };
+    CUDA_HOST_DEVICE Matrix2() {
+        data.row[0] = { 1.0, 0.0 };
+        data.row[1] = { 0.0, 1.0 };
     }
 
-    Matrix2(const Vector2& row0, const Vector2& row1) {
-        row[0] = row0;
-        row[1] = row1;
+    CUDA_HOST_DEVICE Matrix2(const Vector2& row0, const Vector2& row1) {
+        data.row[0] = row0;
+        data.row[1] = row1;
     }
 
-    union {
+    union Data {
         struct {
             Vector2 row[2];
         };
         double m[2][2];
-    };
+    } data;
 
-    const Vector2 operator[](int32_t rowIndex) const {
-        return row[rowIndex];
+    CUDA_HOST_DEVICE const Vector2 operator[](int32_t rowIndex) const {
+        return data.row[rowIndex];
     }
 
-    Vector2& operator[](int32_t rowIndex) {
-        return row[rowIndex];
+    CUDA_HOST_DEVICE Vector2& operator[](int32_t rowIndex) {
+        return data.row[rowIndex];
     }
 
     CUDA_HOST_DEVICE double determinant() const {
-        return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+        return data.m[0][0] * data.m[1][1] - data.m[0][1] * data.m[1][0];
     }
 };
 
@@ -73,7 +73,7 @@ public:
         return data.row[rowIndex];
     }
 
-    Matrix2 submatrix(int32_t row, int32_t column) const {
+    CUDA_HOST_DEVICE Matrix2 submatrix(int32_t row, int32_t column) const {
         auto result = Matrix2();
 
         int32_t rowIndex[] = { 0, 1, 2 };

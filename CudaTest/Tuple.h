@@ -11,13 +11,13 @@
 
 class Tuple {
 public:
-    constexpr Tuple()
+    CUDA_HOST_DEVICE constexpr Tuple()
     : data({ 0.0, 0.0, 0.0, 0.0 }) {}
-    constexpr Tuple(double inX, double inY, double inZ, double inW = 0.0)
+    CUDA_HOST_DEVICE constexpr Tuple(double inX, double inY, double inZ, double inW = 0.0)
     : data({ inX, inY, inZ, inW }) {
     }
 
-    inline constexpr Tuple operator-() const {
+    inline CUDA_HOST_DEVICE constexpr Tuple operator-() const {
         return Tuple(-x(), -y(), -z(), -w());
     }
 
@@ -121,13 +121,13 @@ public:
 
 class Vector2 {
 public:
-    Vector2()
-    : x(0.0), y(0.0) {}
+    //CUDA_HOST_DEVICE Vector2()
+    //: x(0.0), y(0.0) {}
 
-    Vector2(double inX, double inY)
-    : x(inX), y(inY) {}
+    //Vector2(double inX, double inY)
+    //: x(inX), y(inY) {}
 
-    double& operator[](int32_t index) {
+    CUDA_HOST_DEVICE double& operator[](int32_t index) {
         return elements[index];
     }
 
@@ -341,7 +341,7 @@ inline bool operator!=(const Tuple& a, const Tuple& b) {
     return !operator==(a, b);
 }
 
-inline constexpr Tuple operator+(const Tuple& a, const Tuple& b) {
+inline CUDA_HOST_DEVICE Tuple operator+(const Tuple& a, const Tuple& b) {
     return Tuple(a.x() + b.x(), a.y() + b.y(), a.z() + b.z(), a.w() + b.w());
 }
 

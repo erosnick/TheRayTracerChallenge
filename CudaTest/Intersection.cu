@@ -4,11 +4,7 @@
 #include "Shape.h"
 #include "Material.h"
 
-class Test {
-    Tuple position;
-};
-
-HitInfo prepareComputations(const Intersection& hit, const Ray& ray, Intersection* intersections) {
+CUDA_DEVICE HitInfo prepareComputations(const Intersection& hit, const Ray& ray, Intersection* intersections) {
     // Instantiate a data structure for storing some precomputed values
     HitInfo hitInfo;
 

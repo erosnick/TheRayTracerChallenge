@@ -5,11 +5,21 @@
 
 class Light {
 public:
-    Light() {
+    CUDA_HOST_DEVICE Light() {
+        constant = 1.0;
+        linear = 0.045;
+        quadratic = 0.0075;
+
+        bAttenuation = true;;
     }
 
-    Light(const Tuple& inPosition, const Tuple& inIntensity) 
+    CUDA_HOST_DEVICE Light(const Tuple& inPosition, const Tuple& inIntensity)
     : position(inPosition), intensity(inIntensity) {
+        constant = 1.0;
+        linear = 0.045;
+        quadratic = 0.0075;
+
+        bAttenuation = true;;
     }
 
     void transform(const Matrix4& matrix) {

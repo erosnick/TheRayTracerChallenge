@@ -341,7 +341,7 @@ int main() {
 
         update();
 
-        updateTexture();
+        //updateTexture();
 
         render(result, ourShader, VAO);
 

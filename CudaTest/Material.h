@@ -2,14 +2,12 @@
 
 #include "Tuple.h"
 #include "Types.h"
-#include <optional>
 
 struct Material {
-    Material() {
+    CUDA_HOST_DEVICE Material()
+    : pattern(nullptr) {}
 
-    }
-
-    Material(const Tuple& inColor, double inAmbient, double inDiffse, double inSpecular, double inShininess)
+    CUDA_HOST_DEVICE Material(const Tuple& inColor, double inAmbient, double inDiffse, double inSpecular, double inShininess)
     : color(inColor), ambient(inAmbient), diffuse(inDiffse), specular(inSpecular), shininess(inShininess) {
     }
 
@@ -22,7 +20,7 @@ struct Material {
     double transparency = 0.0;
     double refractiveIndex = 1.0;
     bool bCastShadow = true;
-    //std::optional<PatternPtr> pattern;
+    Pattern* pattern = nullptr;
 };
 
 inline bool operator==(const Material& a, const Material& b) {

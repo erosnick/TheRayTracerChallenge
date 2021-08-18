@@ -62,8 +62,7 @@
       <AdditionalOptions>--std=c++17 --expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
       <MaxRegCount>16</MaxRegCount>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
-      <Include>
-      </Include>
+      <Include>./</Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -91,8 +90,7 @@
       <MaxRegCount>16</MaxRegCount>
       <PtxAsOptionV>false</PtxAsOptionV>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
-      <Include>
-      </Include>
+      <Include>./</Include>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -116,22 +114,23 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Camera.h" />
-    <CudaCompile Include="Constants.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Constants.h" />
     <CudaCompile Include="CUDA.h" />
-    <CudaCompile Include="Intersection.h" />
-    <CudaCompile Include="KernelRandom.h" />
-    <CudaCompile Include="Light.h" />
-    <CudaCompile Include="Material.h" />
-    <CudaCompile Include="Matrix.h" />
-    <CudaCompile Include="Ray.h" />
-    <CudaCompile Include="Shape.h" />
-    <CudaCompile Include="Sphere.h" />
-    <CudaCompile Include="Timer.h" />
-    <CudaCompile Include="Tuple.h" />
-    <CudaCompile Include="Types.h" />
-    <CudaCompile Include="Utils.h" />
-    <CudaCompile Include="World.h" />
+    <ClInclude Include="Header.cuh" />
+    <ClInclude Include="Intersection.h" />
+    <ClCompile Include="KernelRandom.h" />
+    <ClCompile Include="Light.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Matrix.h" />
+    <ClInclude Include="Ray.h" />
+    <ClInclude Include="Shape.h" />
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="Tuple.h" />
+    <ClInclude Include="Types.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Filesystem.h" />
@@ -146,8 +145,10 @@
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="imgui\stb_image.h" />
     <ClInclude Include="kernel.h" />
+    <ClInclude Include="Pattern.h" />
     <ClInclude Include="root_directory.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Shading.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c" />
@@ -159,7 +160,14 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="OpenGLFrontend.cpp" />
+    <ClCompile Include="OpenGLFrontend.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <CudaCompile Include="Pattern.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
+    <CudaCompile Include="Shading.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
