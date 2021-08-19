@@ -30,13 +30,6 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include <vector>
-
-struct Matrix {
-    int32_t width;
-    int32_t height;
-    double* elements;
-};
 
 struct Viewport {
     double scale;
@@ -54,8 +47,8 @@ Payload* payload = nullptr;
 
 Shape** objects[objectCount];
 Light** lights[lightCount];
-Material** materials[materialCount];
-Shape** quad = nullptr;
+//Material** materials[materialCount];
+//Shape** quad = nullptr;
 
 #define gpuErrorCheck(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort = true)
@@ -123,20 +116,18 @@ CUDA_GLOBAL void deleteObject(T** object) {
     delete (*object);
 }
 
-CUDA_GLOBAL void fillBufferKernel(int32_t width, int32_t height, Payload* payload) {
+CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payload) {
     int32_t row = threadIdx.y + blockIdx.y * blockDim.y;
     int32_t column = threadIdx.x + blockIdx.x * blockDim.x;
     int32_t index = row * width + column;
-    
-    //row = 159;
-    //column = 192;
 
     //auto viewport = payload->viewport;
 
     Tuple defaultColor = Color::skyBlue;
     Tuple pixelColor = defaultColor;
 
-    const int32_t samplesPerPixel = 1;
+    constexpr int32_t samplesPerPixel = 1;
+    constexpr int32_t depth = 5;
 
     for (int i = 0; i < samplesPerPixel; i++) {
         //curandState state;
@@ -159,7 +150,7 @@ CUDA_GLOBAL void fillBufferKernel(int32_t width, int32_t height, Payload* payloa
 
             auto scatter = Color::white;
 
-            for (auto i = 0; i < 5; i++) {
+            for (auto i = 0; i < depth; i++) {
                 scatter = scatter * computeReflectionAndRefraction(hitInfo, payload->world);
             }
 
@@ -182,33 +173,6 @@ void queryDeviceProperties() {
     std::cout << "每个线程块的最大线程数：" << devicePro.maxThreadsPerBlock << std::endl;
     std::cout << "每个SM的最大线程数：" << devicePro.maxThreadsPerMultiProcessor << std::endl;
     std::cout << "每个SM的最大线程束数：" << devicePro.warpSize << std::endl;
-}
-
-void cleanup() {
-    //deleteObject<<<1, 1>>>(quad);
-
-    gpuErrorCheck(cudaFree(payload->world));
-
-    for (auto i = 0; i < materialCount; i++) {
-        deleteObject<<<1, 1>>>(materials[i]);
-    }
-
-    for (auto i = 0; i < lightCount; i++) {
-        deleteObject<<<1, 1>>>(lights[i]);
-    }
-
-    for (auto i = 0; i < objectCount; i++) {
-        deleteObject<<<1, 1>>>(objects[i]);
-    }
-
-    gpuErrorCheck(cudaDeviceSynchronize());
-
-    for (auto i = 0; i < objectCount; i++) {
-        gpuErrorCheck(cudaFree(objects[i]));
-    }
-
-    gpuErrorCheck(cudaFree(payload->viewport));
-    gpuErrorCheck(cudaFree(payload->pixelBuffer));
 }
 
 int32_t size = 0;
@@ -237,12 +201,12 @@ void initialize(int32_t width, int32_t height) {
     payload->camera->init(width, height);
     payload->camera->computeParameters();
 
-    for (auto i = 0; i < materialCount; i++) {
-        gpuErrorCheck(cudaMallocManaged((void**)&materials[i], sizeof(Material**)));
-    }
+    //for (auto i = 0; i < materialCount; i++) {
+    //    gpuErrorCheck(cudaMallocManaged((void**)&materials[i], sizeof(Material**)));
+    //}
 
-    createMaterial<<<1, 1>>>(materials[0]);
-    createMaterial<<<1, 1>>>(materials[1]);
+    //createMaterial<<<1, 1>>>(materials[0]);
+    //createMaterial<<<1, 1>>>(materials[1]);
 
     for (auto i = 0; i < objectCount; i++) {
         gpuErrorCheck(cudaMallocManaged((void**)&objects[i], sizeof(Shape**)));
@@ -292,6 +256,34 @@ void initialize(int32_t width, int32_t height) {
     imageData->data = new uint8_t[size];
 }
 
+void cleanup() {
+    //deleteObject<<<1, 1>>>(quad);
+
+    gpuErrorCheck(cudaFree(payload->world));
+
+    //for (auto i = 0; i < materialCount; i++) {
+    //    deleteObject<<<1, 1>>>(materials[i]);
+    //}
+
+    for (auto i = 0; i < lightCount; i++) {
+        deleteObject << <1, 1 >> > (lights[i]);
+    }
+
+    for (auto i = 0; i < objectCount; i++) {
+        deleteObject << <1, 1 >> > (objects[i]);
+    }
+
+    gpuErrorCheck(cudaDeviceSynchronize());
+
+    for (auto i = 0; i < objectCount; i++) {
+        gpuErrorCheck(cudaFree(objects[i]));
+    }
+
+    gpuErrorCheck(cudaFree(payload->viewport));
+    gpuErrorCheck(cudaFree(payload->pixelBuffer));
+    gpuErrorCheck(cudaFree(payload));
+}
+
 //ImageData* launch(int32_t width, int32_t height) {
 //    //queryDeviceProperties();
 //
@@ -303,7 +295,7 @@ void initialize(int32_t width, int32_t height) {
 //    dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
 //        (height + blockSize.y - 1) / blockSize.y);
 //
-//    fillBufferKernel<<<gridSize, blockSize>>>(width, height, payload);
+//    rayTracingKernel<<<gridSize, blockSize>>>(width, height, payload);
 //
 //    gpuErrorCheck(cudaDeviceSynchronize());
 //
@@ -323,6 +315,8 @@ void initialize(int32_t width, int32_t height) {
 int main() {
     //queryDeviceProperties();
 
+    gpuErrorCheck(cudaDeviceSetLimit(cudaLimitStackSize, sizeof(Intersection) * MAXELEMENTS * 8));
+
     constexpr int32_t width = 480;
     constexpr int32_t height = 320;
 
@@ -334,13 +328,15 @@ int main() {
 
     Timer timer;
 
-    fillBufferKernel<<<gridSize, blockSize >>>(width, height, payload);
+    rayTracingKernel<<<gridSize, blockSize>>>(width, height, payload);
 
     gpuErrorCheck(cudaDeviceSynchronize());
 
     timer.stop();
 
     writeToPPM("render.ppm", width, height, payload->pixelBuffer);
+
+    cleanup();
 
     return 0;
 }
