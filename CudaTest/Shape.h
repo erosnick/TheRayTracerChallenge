@@ -16,7 +16,7 @@ public:
 
     virtual CUDA_HOST_DEVICE ~Shape() {}
 
-    virtual void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) {
+    virtual CUDA_HOST_DEVICE void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) {
         transformation = inTransformation;
     }
 
@@ -28,7 +28,7 @@ public:
 
     virtual inline CUDA_HOST_DEVICE bool intersect(const Ray& ray, Intersection* intersections) { return false; }
 
-    virtual void setMaterial(Material* inMaterial) {
+    virtual CUDA_HOST_DEVICE void setMaterial(Material* inMaterial) {
         material = inMaterial;
     }
 

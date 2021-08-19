@@ -321,7 +321,7 @@ inline bool operator==(const Vector3& a, const Vector3& b) {
     return false;
 }
 
-inline bool operator==(const Tuple& a, const Tuple& b) {
+inline CUDA_HOST_DEVICE bool operator==(const Tuple& a, const Tuple& b) {
     constexpr double epsilon = 0.00001;// std::numeric_limits<double>::epsilon();
     auto dx = std::abs(std::abs(a.x()) - std::abs(b.x()));
     auto dy = std::abs(std::abs(a.y()) - std::abs(b.y()));
@@ -337,7 +337,7 @@ inline bool operator==(const Tuple& a, const Tuple& b) {
     return false;
 }
 
-inline bool operator!=(const Tuple& a, const Tuple& b) {
+inline CUDA_HOST_DEVICE bool operator!=(const Tuple& a, const Tuple& b) {
     return !operator==(a, b);
 }
 

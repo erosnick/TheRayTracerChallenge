@@ -22,7 +22,7 @@ public:
         bAttenuation = true;;
     }
 
-    void transform(const Matrix4& matrix) {
+    CUDA_HOST_DEVICE void transform(const Matrix4& matrix) {
         position = matrix * position;
     }
 

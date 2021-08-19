@@ -50,7 +50,7 @@ void writeToPPM(const std::string& path, int32_t width, int32_t height, uint8_t*
     std::stringstream ss;
     ss << toPPM(width, height);
 
-    for (auto y = 0; y < height; y++) {
+    for (auto y = height - 1; y >= 0; y--) {
         for (auto x = 0; x < width; x++) {
             auto index = y * width + x;
             auto r = static_cast<uint32_t>(pixelBuffer[index * 3]);

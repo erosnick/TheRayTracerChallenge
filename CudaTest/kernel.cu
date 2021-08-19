@@ -8,6 +8,8 @@
 #include "Constants.h"
 #include "Ray.h"
 #include "Shape.h"
+#include "Sphere.h"
+//#include "Quad.h"
 #include "Utils.h"
 #include "Types.h"
 #include "Material.h"
@@ -53,62 +55,7 @@ Payload* payload = nullptr;
 Shape** objects[objectCount];
 Light** lights[lightCount];
 Material** materials[materialCount];
-
-class Sphere : public Shape {
-public:
-    CUDA_HOST_DEVICE Sphere()
-    : origin({ 0.0, 0.0, 0.0 }), radius(1.0) {}
-
-    CUDA_HOST_DEVICE Sphere(const Tuple& inOrigin, double inRadius = 1.0) 
-    : origin(inOrigin), radius(inRadius) {}
-
-    CUDA_HOST_DEVICE ~Sphere() {
-        if (material) {
-            delete material;
-        }
-    }
-
-    inline CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position) const override {
-        auto normal = (position - origin);
-        return  normal.normalize();
-    }
-
-    inline CUDA_HOST_DEVICE bool intersect(const Ray& ray, Intersection* intersections) override {
-        auto oc = (ray.origin - origin);
-        auto a = ray.direction.dot(ray.direction);
-        auto b = 2.0 * ray.direction.dot(oc);
-        auto c = oc.dot(oc) - radius * radius;
-
-        auto discriminant = b * b - 4 * a * c;
-
-        if (discriminant < 0.0) {
-            return false;
-        }
-
-        // 与巨大球体求交的时候，会出现判别式大于0，但是有两个负根的情况，
-        // 这种情况出现在射线方向的反向延长线能和球体相交的场合。
-        auto t1 = (-b - std::sqrt(discriminant)) / (2 * a);
-        auto t2 = (-b + std::sqrt(discriminant)) / (2 * a);
-
-        auto position1 = ray.position(t1);
-
-        auto normal1 = normalAt(position1);
-
-        auto position2 = ray.position(t2);
-
-        auto normal2 = normalAt(position2);
-
-        if ((t1 > 0.0) || (t2 > 0.0)) {
-            intersections[0] = { true, true, 1, t1, this, position1, normal1, ray };
-            intersections[1] = { true, true, 1, t2, this, position2, normal2, ray };
-        }
-
-        return true;
-    }
-
-    Tuple origin;
-    double radius;
-};
+Shape** quad = nullptr;
 
 #define gpuErrorCheck(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort = true)
@@ -126,39 +73,41 @@ CUDA_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, const Tuple& pi
     pixelBuffer[index + 2] = 256 * std::clamp(pixelColor.z(), 0.0, 0.999);
 }
 
-//void createObject(int32_t** objects[]) {
-//    auto ptr = objects[0];
-//    //auto ptr = (*objects[0]);
-//    //(*objects[1]) = new Sphere();
+CUDA_GLOBAL void createQuad(Shape** object, Matrix4 transform) {
+    //(*object) = new Quad();
+    ////(*object)->setTransformation(transform);
+    //(*object)->material = new Material();
+}
+
+CUDA_GLOBAL void createObject(Shape** object, Tuple origin, double radius) {
+    // It is necessary to create object representing a function
+    // directly in global memory of the GPU device for virtual
+    // functions to work correctly, i.e. virtual function table
+    // HAS to be on GPU as well.
+    //auto index = threadIdx.x;
+    (*object) = new Sphere(origin, radius);
+    //(*object)->setTransformation(transform);
+    (*object)->material = new Material();
+}
+
+//CUDA_GLOBAL void createObject(Shape** object, Tuple origin, double radius, Material** material, Matrix4 transform) {
+//    // It is necessary to create object representing a function
+//    // directly in global memory of the GPU device for virtual
+//    // functions to work correctly, i.e. virtual function table
+//    // HAS to be on GPU as well.
+//    //auto index = threadIdx.x;
+//    (*object) = new Sphere(origin, radius);
+//    //(*object)->setTransformation(transform);
+//    (*object)->material = new Material();
 //}
 
-CUDA_GLOBAL void createObject(int32_t*** objects) {
-    auto ptr = objects[0];
-    //auto ptr = (*objects[0]);
-    //(*objects[1]) = new Sphere();
-}
-
-CUDA_GLOBAL void createObject(Shape** object, Tuple* origins, double* radius = nullptr, Material** material[] = nullptr) {
+CUDA_GLOBAL void createLight(Light** light, Tuple inPosition, Tuple inIntensity, Matrix4 transform) {
     // It is necessary to create object representing a function
     // directly in global memory of the GPU device for virtual
     // functions to work correctly, i.e. virtual function table
     // HAS to be on GPU as well.
-    auto index = threadIdx.x;
-    //(*object[index]) = new Sphere(origins[index], radius[index]);
-    //(*object[index]) = new Sphere();
-    (*object) = new Sphere();
-    printf("%d\n", index);
-    //(*object)->material = material;
-}
-
-CUDA_GLOBAL void createLight(Light** light, Tuple inPosition, Tuple inIntensity) {
-    // It is necessary to create object representing a function
-    // directly in global memory of the GPU device for virtual
-    // functions to work correctly, i.e. virtual function table
-    // HAS to be on GPU as well.
-    if (threadIdx.x == 0 && blockIdx.x == 0) {
-        (*light) = new Light(inPosition, inIntensity);
-    }
+    (*light) = new Light(inPosition, inIntensity);
+    //(*light)->transform(transform);
 }
 
 CUDA_GLOBAL void createMaterial(Material** material) {
@@ -166,9 +115,7 @@ CUDA_GLOBAL void createMaterial(Material** material) {
     // directly in global memory of the GPU device for virtual
     // functions to work correctly, i.e. virtual function table
     // HAS to be on GPU as well.
-    if (threadIdx.x == 0 && blockIdx.x == 0) {
-        (*material) = new Material();
-    }
+    (*material) = new Material();
 }
 
 template<typename T>
@@ -187,7 +134,7 @@ CUDA_GLOBAL void fillBufferKernel(int32_t width, int32_t height, Payload* payloa
     //auto viewport = payload->viewport;
 
     Tuple defaultColor = Color::skyBlue;
-    Tuple pixelColor = Color::black;
+    Tuple pixelColor = defaultColor;
 
     const int32_t samplesPerPixel = 1;
 
@@ -205,23 +152,22 @@ CUDA_GLOBAL void fillBufferKernel(int32_t width, int32_t height, Payload* payloa
         
         auto ray = payload->camera->getRay(x, y);
 
-        //pixelColor = colorAt(payload->world, ray, 1);
-        Intersection intersections[MAXELEMENTS];
-        auto count = 0;
+        auto hitInfo = colorAt(payload->world, ray);
 
-        payload->world->intersect(ray, intersections, &count);
+        if (hitInfo.bHit) {
+            pixelColor = hitInfo.surface;
 
-        auto hit = nearestHit(intersections, count);
+            auto scatter = Color::white;
 
-        if (hit.bHit) {
-            pixelColor = hit.normal;
-        }
-        else {
-            pixelColor += defaultColor;
+            for (auto i = 0; i < 5; i++) {
+                scatter = scatter * computeReflectionAndRefraction(hitInfo, payload->world);
+            }
+
+            pixelColor += scatter;
         }
     }
 
-    writePixel(payload->pixelBuffer, index * 3, pixelColor / samplesPerPixel);
+    writePixel(payload->pixelBuffer, index * 3, (pixelColor ) / samplesPerPixel);
 }
 
 void queryDeviceProperties() {
@@ -239,6 +185,8 @@ void queryDeviceProperties() {
 }
 
 void cleanup() {
+    //deleteObject<<<1, 1>>>(quad);
+
     gpuErrorCheck(cudaFree(payload->world));
 
     for (auto i = 0; i < materialCount; i++) {
@@ -289,14 +237,12 @@ void initialize(int32_t width, int32_t height) {
     payload->camera->init(width, height);
     payload->camera->computeParameters();
 
-    //for (auto i = 0; i < materialCount; i++) {
-    //    gpuErrorCheck(cudaMallocManaged((void**)&materials[i], sizeof(Material**)));
-    //}
+    for (auto i = 0; i < materialCount; i++) {
+        gpuErrorCheck(cudaMallocManaged((void**)&materials[i], sizeof(Material**)));
+    }
 
-    //createMaterial<<<1, 1>>>(materials[0]);
-    //createMaterial<<<1, 1>>>(materials[1]);
-
-    //gpuErrorCheck(cudaDeviceSynchronize());
+    createMaterial<<<1, 1>>>(materials[0]);
+    createMaterial<<<1, 1>>>(materials[1]);
 
     for (auto i = 0; i < objectCount; i++) {
         gpuErrorCheck(cudaMallocManaged((void**)&objects[i], sizeof(Shape**)));
@@ -304,32 +250,30 @@ void initialize(int32_t width, int32_t height) {
 
     Tuple origins[objectCount];
 
-    origins[0] = point(-1.5, 0.0, -3.0);
-    origins[1] = point(1.5, 0.0, -3.0);
+    origins[0] = point(-1.5, 0.0, -2.0);
+    origins[1] = point(1.5, 0.0, -2.0);
 
     double radiuses[objectCount] = { 1.0, 1.0 };
 
-    createObject<<<1, 1>>>(objects[0], origins, radiuses, materials);
-    createObject<<<1, 1>>>(objects[1], origins, radiuses, materials);
+    createObject<<<1, 1>>>(objects[0], origins[0], radiuses[0]);
+    createObject<<<1, 1>>>(objects[1], origins[1], radiuses[1]);
+    //createObject<<<1, 1>>>(objects[0], origins[0], radiuses[0], materials[0], Matrix4());
+    //createObject<<<1, 1>>>(objects[1], origins[1], radiuses[1], materials[1], Matrix4());
     //createObject<<<1, 1>>>(objects[0], point( 1.5, 0.0, -3.0), 1.0, *materials[0]);
     //createObject<<<1, 1>>> (objects[2], point(-4.0, 0.0, -3.0), 1.0);
     //createObject<<<1, 1>>> (objects[3], point( 3.0, 0.0, -3.0), 1.0);
 
-    //for (auto i = 0; i < lightCount; i++) {
-    //    gpuErrorCheck(cudaMallocManaged((void**)&lights[i], sizeof(Light**)));
-    //}
+    for (auto i = 0; i < lightCount; i++) {
+        gpuErrorCheck(cudaMallocManaged((void**)&lights[i], sizeof(Light**)));
+    }
 
-    //createLight<<<1, 1>>>(lights[0], point(0.0, 1.0, 0.0), Tuple(1.0, 1.0, 1.0));
+    createLight<<<1, 1>>>(lights[0], point(0.0, 1.0, 0.0), Tuple(1.0, 1.0, 1.0), Matrix4());
+
+    //gpuErrorCheck(cudaMallocManaged((void**)&quad, sizeof(Quad**)));
+
+    //createQuad<<<1, 1>>>(quad, translate(0.0, -2.0, -6.0) * scaling(5.0, 1.0, 5.0));
 
     gpuErrorCheck(cudaDeviceSynchronize());
-
-    //(*objects[0])->material->ambient = 0.1;
-    //(*objects[0])->material->ambient = 0.9;
-    //(*objects[0])->material->ambient = 0.2;
-    //(*objects[0])->material->shininess = 128.0;
-    //(*objects[0])->material->reflective = 0.0;
-    //(*objects[0])->material->transparency = 0.0;
-    //(*objects[0])->material->refractiveIndex = 1.0;
 
     gpuErrorCheck(cudaMallocManaged((void**)&payload->world, sizeof(World)));
 
@@ -337,9 +281,11 @@ void initialize(int32_t width, int32_t height) {
         payload->world->addObject(*objects[i]);
     }
 
-    //for (auto i = 0; i < lightCount; i++) {
-    //    payload->world->addLight(*lights[i]);
-    //}
+    //payload->world->addObject(*quad);
+
+    for (auto i = 0; i < lightCount; i++) {
+        payload->world->addLight(*lights[i]);
+    }
 
     size = width * height * 3;
     imageData = std::make_shared<ImageData>();

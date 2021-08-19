@@ -9,6 +9,7 @@ CUDA_DEVICE HitInfo prepareComputations(const Intersection& hit, const Ray& ray,
     HitInfo hitInfo;
 
     // Copy the intersection's properties for convenience
+    hitInfo.bHit = hit.bHit;
     hitInfo.t = hit.t;
     hitInfo.object = hit.object;
 

@@ -114,6 +114,12 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="Sphere.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
+    <CudaCompile Include="Triangle.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Constants.h" />
     <CudaCompile Include="CUDA.h" />
@@ -127,6 +133,7 @@
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Triangle.h" />
     <ClInclude Include="Tuple.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Utils.h" />

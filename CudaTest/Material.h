@@ -5,7 +5,18 @@
 
 struct Material {
     CUDA_HOST_DEVICE Material()
-    : pattern(nullptr) {}
+    : pattern(nullptr) {
+        color = { 1.0, 0.0, 0.0, 0.0 };
+        ambient = 0.1;
+        diffuse = 0.9;
+        specular = 0.9;
+        shininess = 128.0;
+        reflective = 0.0;
+        transparency = 0.0;
+        refractiveIndex = 1.0;
+        bCastShadow = true;
+        pattern = nullptr;
+    }
 
     CUDA_HOST_DEVICE Material(const Tuple& inColor, double inAmbient, double inDiffse, double inSpecular, double inShininess)
     : color(inColor), ambient(inAmbient), diffuse(inDiffse), specular(inSpecular), shininess(inShininess) {

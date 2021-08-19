@@ -11,6 +11,7 @@
 #include <tuple>
 
 struct HitInfo {
+    bool bHit = false;
     double t;
     Shape* object = nullptr;
     Tuple position;
@@ -19,6 +20,7 @@ struct HitInfo {
     Tuple overPosition;
     Tuple underPosition;
     Tuple reflectVector;
+    Tuple surface;
     double n1 = 1.0;
     double n2 = 1.0;
     bool bInside = false;

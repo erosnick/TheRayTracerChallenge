@@ -18,7 +18,7 @@ public:
 
         aspectRatio = static_cast<double>(imageWidth) / imageHeight;
 
-        origin = point(0.0, 0.0, 5.0);
+        origin = point(0.0, 0.0, 1.0);
     }
 
     inline CUDA_HOST_DEVICE void setPosition(const Tuple& inPosition) {
