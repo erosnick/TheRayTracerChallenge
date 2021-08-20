@@ -40,7 +40,7 @@ public:
         normal = v0v1.cross(v0v2).normalize();
     }
 
-    inline CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position) const override {
+    inline CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position = point(0.0)) const override {
         return normal;
     };
 

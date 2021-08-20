@@ -100,6 +100,10 @@ public:
         return *this;
     }
 
+    CUDA_HOST_DEVICE void print() const {
+        printf("(%f, %f, %f)\n", x(), y(), z());
+    }
+
     union Data {
         struct {
             double x;

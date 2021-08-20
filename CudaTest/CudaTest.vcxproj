@@ -19,14 +19,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -63,6 +63,7 @@
       <MaxRegCount>16</MaxRegCount>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <Include>./</Include>
+      <PtxAsOptionV>false</PtxAsOptionV>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -103,12 +104,14 @@
     <CudaCompile Include="Light.cu">
       <FileType>Document</FileType>
     </CudaCompile>
+    <CudaCompile Include="Matrix.cu" />
+    <CudaCompile Include="Quad.cu" />
     <CudaCompile Include="Shape.cu">
       <FileType>Document</FileType>
     </CudaCompile>
-    <CudaCompile Include="Utils.cu">
+    <ClCompile Include="Utils.cpp">
       <FileType>Document</FileType>
-    </CudaCompile>
+    </ClCompile>
     <CudaCompile Include="World.cu">
       <FileType>Document</FileType>
     </CudaCompile>
@@ -120,15 +123,20 @@
     <CudaCompile Include="Triangle.cu">
       <FileType>Document</FileType>
     </CudaCompile>
+    <ClInclude Include="Array.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Constants.h" />
     <CudaCompile Include="CUDA.h" />
+    <ClInclude Include="FileUtils.h" />
     <ClInclude Include="Header.cuh" />
     <ClInclude Include="Intersection.h" />
     <ClCompile Include="KernelRandom.h" />
     <ClCompile Include="Light.h" />
+    <ClInclude Include="lodepng.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="Memory.h" />
+    <ClInclude Include="Quad.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Sphere.h" />
@@ -167,6 +175,7 @@
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="lodepng.cpp" />
     <ClCompile Include="OpenGLFrontend.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

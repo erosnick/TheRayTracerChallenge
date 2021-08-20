@@ -27,9 +27,6 @@
     <CudaCompile Include="World.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="Utils.cu">
-      <Filter>Source Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="Intersection.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
@@ -52,6 +49,12 @@
       <Filter>Source Files</Filter>
     </CudaCompile>
     <CudaCompile Include="Sphere.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Quad.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Matrix.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
   </ItemGroup>
@@ -149,6 +152,21 @@
     <ClInclude Include="Triangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Quad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lodepng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui_widgets.cpp">
@@ -186,6 +204,12 @@
     </ClCompile>
     <ClCompile Include="Light.h">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lodepng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

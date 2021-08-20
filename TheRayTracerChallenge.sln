@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TheRayTracerChallenge", "Th
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLFrontend", "OpenGLFrontend\OpenGLFrontend.vcxproj", "{0BEB3DBF-34CD-460C-B02B-CEB12A016655}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Playground", "Playground\Playground.vcxproj", "{E9FE8284-4A52-4B98-878A-8185A219446E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -51,6 +53,14 @@ Global
 		{0BEB3DBF-34CD-460C-B02B-CEB12A016655}.Release|x64.Build.0 = Release|x64
 		{0BEB3DBF-34CD-460C-B02B-CEB12A016655}.Release|x86.ActiveCfg = Release|Win32
 		{0BEB3DBF-34CD-460C-B02B-CEB12A016655}.Release|x86.Build.0 = Release|Win32
+		{E9FE8284-4A52-4B98-878A-8185A219446E}.Debug|Win32.ActiveCfg = Debug|x64
+		{E9FE8284-4A52-4B98-878A-8185A219446E}.Debug|x64.ActiveCfg = Debug|x64
+		{E9FE8284-4A52-4B98-878A-8185A219446E}.Debug|x64.Build.0 = Debug|x64
+		{E9FE8284-4A52-4B98-878A-8185A219446E}.Debug|x86.ActiveCfg = Debug|x64
+		{E9FE8284-4A52-4B98-878A-8185A219446E}.Release|Win32.ActiveCfg = Release|x64
+		{E9FE8284-4A52-4B98-878A-8185A219446E}.Release|x64.ActiveCfg = Release|x64
+		{E9FE8284-4A52-4B98-878A-8185A219446E}.Release|x64.Build.0 = Release|x64
+		{E9FE8284-4A52-4B98-878A-8185A219446E}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

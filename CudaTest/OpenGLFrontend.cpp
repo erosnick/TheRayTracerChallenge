@@ -17,6 +17,9 @@
 
 #include "kernel.h"
 
+#include "Array.h"
+#include "Camera.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
@@ -320,7 +323,7 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // load image, create texture and generate mipmaps
-    initialize(SCR_WIDTH, SCR_HEIGHT);
+    //initialize(SCR_WIDTH, SCR_HEIGHT);
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------

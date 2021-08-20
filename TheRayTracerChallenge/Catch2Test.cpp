@@ -638,8 +638,35 @@ World cubeScene(const Matrix4& viewMatrix) {
 
 #define RESOLUTION 1
 
+#include "Array.h"
+
 int main(int argc, char* argv[]) {
-#if 1
+    Camera camera(640, 360);
+
+    auto viewMatrix = camera.lookAt(90.0, point(0.0, 0.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
+
+    auto transformation = viewMatrix * translate(0.0, -1.0, 0.0) * rotateY(Math::pi_2) * scaling(3.0, 1.0, 3.0);
+
+    auto position = point(1.0, 0.0, 1.0);
+
+    position = transformation * position;
+
+    position = transformation.inverse() * position;
+
+    Array<int> integers;
+
+    integers.add(0);
+    integers.add(1);
+    integers.add(2);
+    integers.add(3);
+
+    integers.remove(3);
+
+    for (auto i : integers) {
+        printf("%d\n", i);
+    }
+
+#if 0
 
 #if RESOLUTION == 1
     auto canvas = createCanvas(640, 360);
@@ -664,7 +691,7 @@ int main(int argc, char* argv[]) {
 
     // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查(已解决，CheckerPattern算法的问题)
     //auto viewMatrix = camera.lookAt(60.0, point(5.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
-    auto viewMatrix = camera.lookAt(60.0, point(0.0, 1.0, 3.0), point(0.0, 0.0, -3.0), vector(0.0, 1.0, 0.0));
+    //auto viewMatrix = camera.lookAt(60.0, point(0.0, 1.0, 3.0), point(0.0, 0.0, -3.0), vector(0.0, 1.0, 0.0));
 
     auto world = cubeScene(viewMatrix);
     

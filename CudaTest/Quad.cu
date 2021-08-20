@@ -2,13 +2,18 @@
 #include "Triangle.h"
 #include "Intersection.h"
 
-CUDA_HOST_DEVICE Quad::Quad(char* inName)
+CUDA_HOST_DEVICE Quad::Quad(const char* inName)
 : name(inName) {
-    auto triangle = new Triangle(point(-1.0, 0.0, -1.0), point(-1.0, 0.0, 1.0), point(1.0, 0.0, 1.0));
-    triangles[0] = triangle;
+    triangles[0] = new Triangle(point(-1.0, 0.0, -1.0), point(-1.0, 0.0, 1.0), point(1.0, 0.0, 1.0));
+    triangles[1] = new Triangle(point(-1.0, 0.0, -1.0), point(1.0, 0.0, 1.0), point(1.0, 0.0, -1.0));
+}
 
-    triangle = new Triangle(point(-1.0, 0.0, -1.0), point(1.0, 0.0, 1.0), point(1.0, 0.0, -1.0));
-    triangles[1] = triangle;
+CUDA_HOST_DEVICE Quad::~Quad() {
+    for (auto i = 0; i < 2; i++) {
+        if (triangles[i]) {
+            delete triangles[i];
+        }
+    }
 }
 
 CUDA_HOST_DEVICE void Quad::setTransformation(const Matrix4& inTransformation, bool bTransformPosition) {
@@ -34,7 +39,7 @@ CUDA_HOST_DEVICE void Quad::transformNormal(const Matrix4& worldMatrix) {
 }
 
 CUDA_HOST_DEVICE Tuple Quad::normalAt(const Tuple& position) const {
-    return triangles[0]->normalAt(position);
+    return triangles[0]->normalAt();
 }
 
 CUDA_HOST_DEVICE bool Quad::intersect(const Ray& ray, Intersection* intersections) {
@@ -43,7 +48,7 @@ CUDA_HOST_DEVICE bool Quad::intersect(const Ray& ray, Intersection* intersection
     triangles[0]->intersect(ray, &intersections1);
     Intersection intersections2;
     
-    if (intersections1.bHit) {
+    if (!intersections1.bHit) {
         triangles[1]->intersect(ray, &intersections2);
     }
 
@@ -71,7 +76,7 @@ CUDA_HOST_DEVICE bool Quad::intersect(const Ray& ray, Intersection* intersection
     return count > 0;
 }
 
-bool Quad::onQuad(const Tuple& inPosition, Tuple& normal) {
+CUDA_HOST_DEVICE bool Quad::onQuad(const Tuple& inPosition, Tuple& normal) {
     auto p0p1 = (inPosition - triangles[0]->v0).normalize();
     auto p0p2 = (inPosition - triangles[1]->v2).normalize();
 
@@ -89,7 +94,7 @@ bool Quad::onQuad(const Tuple& inPosition, Tuple& normal) {
     return (normal != vector(0.0));
 }
 
-void Quad::setMaterial(Material* inMaterial) {
+CUDA_HOST_DEVICE void Quad::setMaterial(Material* inMaterial) {
     material = inMaterial;
     for (auto& triangle : triangles) {
         triangle->setMaterial(inMaterial);

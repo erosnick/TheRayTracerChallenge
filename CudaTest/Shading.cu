@@ -21,7 +21,7 @@ CUDA_DEVICE Tuple lighting(Material* material, Shape* object, Light* light, cons
     auto ambientColor = materialColor * material->ambient;
     
     if (bInShadow) {
-        return Tuple();
+        return ambientColor;
     }
 
     auto surfaceColor = light->intensity * materialColor;

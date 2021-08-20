@@ -2,19 +2,23 @@
 
 #include "CUDA.h"
 
-#include <vector>
-#include <memory>
 #include "Tuple.h"
 #include "Matrix.h"
 #include "Types.h"
+#include "Material.h"
 
 struct Intersection;
 
 class Shape {
 public:
-    CUDA_HOST_DEVICE Shape() {}
+    CUDA_HOST_DEVICE Shape() {
+    }
 
-    virtual CUDA_HOST_DEVICE ~Shape() {}
+    virtual CUDA_HOST_DEVICE ~Shape() {
+        if (material) {
+            delete material;
+        }
+    }
 
     virtual CUDA_HOST_DEVICE void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) {
         transformation = inTransformation;
@@ -33,7 +37,7 @@ public:
     }
 
     Matrix4 transformation;
-    Material* material;
+    Material* material = nullptr;
 
     bool bIsLight = false;
 };
