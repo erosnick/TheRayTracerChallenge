@@ -100,6 +100,15 @@ public:
         return *this;
     }
 
+    CUDA_HOST_DEVICE Tuple& operator*=(const Tuple& other) {
+        data.x *= other.x();
+        data.y *= other.y();
+        data.z *= other.z();
+        data.w *= other.w();
+
+        return *this;
+    }
+
     CUDA_HOST_DEVICE void print() const {
         printf("(%f, %f, %f)\n", x(), y(), z());
     }

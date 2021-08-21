@@ -1,7 +1,7 @@
 #include "Triangle.h"
 #include "Intersection.h"
 
-CUDA_HOST_DEVICE bool Triangle::intersect(const Ray& ray, Intersection* intersections) {
+CUDA_HOST_DEVICE bool Triangle::intersect(const Ray& ray, Array<Intersection>& intersections) {
     // TODO: Implement this function that tests whether the triangle
     // that's specified by v0, v1 and v2 intersects with the ray (whose
     // origin is *orig* and direction is *dir*)
@@ -37,9 +37,7 @@ CUDA_HOST_DEVICE bool Triangle::intersect(const Ray& ray, Intersection* intersec
         intersection.bHit = true;
         intersection.t = t;
         intersection.object = this;
-        intersection.ray = ray;
-        intersection.position = ray.position(t);
-        *intersections = intersection;
+        intersections.add(intersection);
         return true;
     }
 

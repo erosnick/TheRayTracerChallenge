@@ -6,9 +6,7 @@
 #include "Constants.h"
 #include "Ray.h"
 #include <initializer_list>
-#include <vector>
-#include <memory>
-#include <tuple>
+#include "Array.h"
 
 struct HitInfo {
     bool bHit = false;
@@ -30,43 +28,38 @@ struct Intersection {
     CUDA_HOST_DEVICE Intersection() {
     }
 
-    CUDA_HOST_DEVICE Intersection(double inT, Shape* inShape, const Ray& inRay = Ray())
-    : t(inT), object(inShape), subObject(nullptr), ray(inRay) {
+    CUDA_HOST_DEVICE Intersection(double inT, Shape* inShape)
+    : t(inT), object(inShape), subObject(nullptr) {
     }
 
-    CUDA_DEVICE Intersection(bool bInHit, int32_t inCount, double inT, Shape* inSphere)
-    : bHit(bInHit), count(inCount), t(inT), object(inSphere), subObject(nullptr) {
+    CUDA_HOST_DEVICE Intersection(bool bInHit, double inT, Shape* inSphere)
+    : bHit(bInHit), t(inT), object(inSphere), subObject(nullptr) {
     }
 
-    CUDA_DEVICE Intersection(bool bInHit, bool bInShading, int32_t inCount, double inT, Shape* inSphere, const Tuple& inPosition, const Tuple& inNormal, const Ray& inRay)
-    : bHit(bInHit), bShading(bInShading), count(inCount), t(inT), object(inSphere), subObject(nullptr), position(inPosition), normal(inNormal), ray(inRay) {
+    CUDA_HOST_DEVICE Intersection(bool bInHit, bool bInShading, double inT, Shape* inSphere)
+    : bHit(bInHit), bShading(bInShading), t(inT), object(inSphere), subObject(nullptr) {
     }
 
     CUDA_HOST_DEVICE ~Intersection() {}
 
     bool bHit = false;
     bool bShading = true;
-    int32_t count = 0;
     double t = 100000000.0;
     Shape* subObject = nullptr;
     Shape* object = nullptr;
-    Tuple position;
-    Tuple normal;
-    Ray ray;
 };
 
-inline bool operator==(const Intersection& a, const Intersection& b) {
+inline CUDA_HOST_DEVICE bool operator==(const Intersection& a, const Intersection& b) {
     return ((a.bHit == b.bHit)
-         && (a.count == b.count)
          && (a.t == b.t)
          && (a.object == b.object));
 }
 
-inline bool operator<(const Intersection& a, const Intersection& b) {
+inline CUDA_HOST_DEVICE bool operator<(const Intersection& a, const Intersection& b) {
     return (a.t < b.t);
 }
 
-inline IntersectionSet intersections(const std::initializer_list<Intersection>& args) {
+inline CUDA_HOST IntersectionSet intersections(const std::initializer_list<Intersection>& args) {
     auto records = IntersectionSet();
     for (const auto& element : args) {
         records.push_back(element);
@@ -74,9 +67,9 @@ inline IntersectionSet intersections(const std::initializer_list<Intersection>& 
     return records;
 }
 
-inline CUDA_DEVICE Intersection nearestHit(Intersection* intersections, int32_t count) {
+inline CUDA_HOST_DEVICE Intersection nearestHit(const Array<Intersection>& intersections) {
     Intersection intersection;
-    for (auto i = 0; i < count; i++) {
+    for (auto i = 0; i < intersections.size(); i++) {
         if ((intersections[i].t > 0.0) && (intersections[i].t < intersection.t)) {
             intersection = intersections[i];
         }
@@ -85,4 +78,4 @@ inline CUDA_DEVICE Intersection nearestHit(Intersection* intersections, int32_t 
     return intersection;
 }
 
-CUDA_DEVICE HitInfo prepareComputations(const Intersection& hit, const Ray& ray, Intersection* intersections);
+CUDA_HOST_DEVICE HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const Array<Intersection>& intersections);

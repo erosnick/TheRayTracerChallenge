@@ -5,52 +5,47 @@
 #include "Memory.h"
 #include "Array.h"
 
-//template<typename T>
-//struct CompareLess {
-//    bool operator(const T& a, const T& b) const {
-//        return a < b;
-//    }
-//};
-//
-//template<typename T, typename Compare>
-//CUDA_HOST_DEVICE void sort(const Array<T>& array, Compare compare) {
-//    for (auto i = 1; i < array.size(); i++) {
-//        auto j = i;
-//
-//        while (j > 0 && compare(array[j], array[j - 1])) {
-//            Memory::swap(array[j], array[j - 1]);
-//            j--;
-//        }
-//    }
-//}
-
-CUDA_HOST_DEVICE void swap(Intersection* intersections, int32_t a, int32_t b) {
-    auto temp = intersections[b];
-    intersections[b] = intersections[a];
-    intersections[a] = temp;
+template<typename T>
+CUDA_HOST_DEVICE bool compareLess(const T& a, const T& b) {
+    return a < b;
 }
 
-CUDA_HOST_DEVICE void sort(Intersection* intersections, int32_t count) {
-    for (auto i = 1; i < count; i++) {
+template<typename T>
+using compareFunctor = bool (*)(const T& a, const T& b);
+
+template<typename T>
+CUDA_HOST_DEVICE void sort(const Array<T>& array, const compareFunctor<T>& compare) {
+    for (auto i = 1; i < array.size(); i++) {
         auto j = i;
 
-        while (j > 0 && intersections[j].t < intersections[j - 1].t) {
-            swap(intersections, j, j - 1);
+        while (j > 0 && compare(array[j], array[j - 1])) {
+            Memory::swap(array[j], array[j - 1]);
             j--;
         }
     }
 }
 
-void World::intersect(const Ray& ray, Intersection* totalIntersections, int32_t* count) {
+CUDA_HOST_DEVICE World::~World() {
+    for (auto i = 0; i < objects.size(); i++) {
+        delete objects[i];
+    }
+
+    for (auto i = 0; i < lights.size(); i++) {
+        delete lights[i];
+    }
+}
+
+CUDA_HOST_DEVICE void World::intersect(const Ray& ray, Array<Intersection>& totalIntersections) {
     for (auto i = 0; i < objectCount(); i++) {
-        Intersection intersections[2];
+        Array<Intersection> intersections;
         if (objects[i]->intersect(ray, intersections)) {
-            totalIntersections[(*count)++] = intersections[0];
-            totalIntersections[(*count)++] = intersections[1];
+            for (auto j = 0; j < intersections.size(); j++) {
+                totalIntersections.add(intersections[j]);
+            }
         }
     }
 
-    if ((*count) > 0) {
-        sort(totalIntersections, (*count));
+    if (totalIntersections.size() > 0) {
+        sort(totalIntersections, compareLess);
     }
 }

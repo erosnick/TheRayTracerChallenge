@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-CUDA_DEVICE Tuple lighting(Material* material, Shape* object, Light* light, const Tuple& position,
+CUDA_HOST_DEVICE Tuple lighting(Material* material, Shape* object, Light* light, const Tuple& position,
                const Tuple& viewDirection, const Tuple& normal, bool bInShadow, 
                bool bHalfLambert, bool bBlinnPhong) {
     auto materialColor = material->color;
@@ -64,25 +64,23 @@ CUDA_DEVICE Tuple lighting(Material* material, Shape* object, Light* light, cons
     return finalColor;
 }
 
-CUDA_DEVICE Tuple lighting(Material* material, Shape* object, Light* light,
+CUDA_HOST_DEVICE Tuple lighting(Material* material, Shape* object, Light* light,
                            const HitInfo& hitInfo, bool bInShadow, 
                            bool bHalfLambert, bool bBlinnPhong) {
     return lighting(material, object, light, hitInfo.overPosition, hitInfo.viewDirection, hitInfo.normal, bInShadow, bHalfLambert, bBlinnPhong);
 }
 
-CUDA_DEVICE bool isShadow(World* world, Light* light, const Tuple& position) {
+CUDA_HOST_DEVICE bool isShadow(World* world, Light* light, const Tuple& position) {
     auto toLight = light->position - position;
     const auto distance = toLight.magnitude();
 
     auto ray = Ray(position, toLight.normalize());
 
-    Intersection intersections[MAXELEMENTS];
+    Array<Intersection> intersections;
+    world->intersect(ray, intersections);
 
-    auto count = 0;
-    world->intersect(ray, intersections, &count);
-
-    if (count > 0) {
-        const auto& intersection = nearestHit(intersections, count);
+    if (intersections.size() > 0) {
+        const auto& intersection = nearestHit(intersections);
 
         if (intersection.bHit 
         && !intersection.object->bIsLight
@@ -95,19 +93,29 @@ CUDA_DEVICE bool isShadow(World* world, Light* light, const Tuple& position) {
     return false;
 }
 
-CUDA_DEVICE Tuple computeReflectionAndRefraction(const HitInfo& hitInfo, World* world) {
+CUDA_HOST_DEVICE Tuple computeReflectionAndRefraction(const HitInfo& hitInfo, World* world, int32_t depth) {
     auto material = hitInfo.object->material;
 
-    auto reflected = color(0.0f);
+    auto reflected = Color::black;
 
     if (material->reflective > Math::epsilon) {
-        //reflected = reflectedColor(world, hitInfo);
+        reflected = Color::white;
+        auto reflectedHitInfo = hitInfo;
+        for (auto i = 0; i < depth; i++) {
+            if (!reflectedHitInfo.bHit) break;
+            reflected *= reflectedColor(world, reflectedHitInfo);
+        }
     }
 
-    auto refracted = color(0.0f);
+    auto refracted = Color::black;
 
     if (material->transparency > Math::epsilon) {
-        //refracted = refractedColor(world, hitInfo);
+        refracted = Color::white;
+        auto refractedHitInfo = hitInfo;
+        for (auto i = 0; i < depth; i++) {
+            if (!refractedHitInfo.bHit) break;
+            refracted *= refractedColor(world, refractedHitInfo);
+        }
     }
 
     if (material->reflective > Math::epsilon && material->transparency > Math::epsilon) {
@@ -119,7 +127,7 @@ CUDA_DEVICE Tuple computeReflectionAndRefraction(const HitInfo& hitInfo, World* 
     }
 }
 
-CUDA_DEVICE Tuple shadeHit(World* world, const HitInfo& hitInfo, bool bHalfLambert, bool bBlinnPhong) {
+CUDA_HOST_DEVICE Tuple shadeHit(World* world, const HitInfo& hitInfo, bool bHalfLambert, bool bBlinnPhong) {
     auto surface = Color::black;
 
     for (auto i = 0; i < world->ligthCount(); i++) {
@@ -135,17 +143,15 @@ CUDA_DEVICE Tuple shadeHit(World* world, const HitInfo& hitInfo, bool bHalfLambe
 //  - world.intersect()
 //  - prepareComputations()
 //  - shadeHit() -> lighting()
-CUDA_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
+CUDA_HOST_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
     auto surface = Color::black;
 
     HitInfo hitInfo;
 
-    Intersection intersections[MAXELEMENTS];
+    Array<Intersection> intersections;
+    world->intersect(ray, intersections);
 
-    auto count = 0;
-    world->intersect(ray, intersections, &count);
-
-    if (count == 0) {
+    if (intersections.size() == 0) {
         auto t = 0.5 * (ray.direction.y() + 1.0);
         auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
         missColor = Color::background;
@@ -154,7 +160,7 @@ CUDA_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
     }
 
     // Nearest intersection
-    const auto& hit = nearestHit(intersections, count);
+    const auto& hit = nearestHit(intersections);
 
     if (!hit.bShading) {
         surface = Color::white;
@@ -162,33 +168,37 @@ CUDA_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
         return hitInfo;
     }
 
-    hitInfo = prepareComputations(hit, hit.ray, intersections);
+    hitInfo = prepareComputations(hit, ray, intersections);
 
     hitInfo.surface = shadeHit(world, hitInfo, false, true);
 
     return hitInfo;
 }
 
-CUDA_DEVICE Tuple reflectedColor(World* world, const HitInfo& inHitInfo) {
-    if (inHitInfo.object->material->reflective) {
+CUDA_HOST_DEVICE Tuple reflectedColor(World* world, HitInfo& inHitInfo) {
+    if (inHitInfo.object->material->reflective < Math::epsilon) {
         return Color::black;
     }
 
     auto reflectedRay = Ray(inHitInfo.overPosition, inHitInfo.reflectVector);
     auto hitInfo = colorAt(world, reflectedRay);
+    
+    auto color = hitInfo.surface * inHitInfo.object->material->reflective;
 
-    return hitInfo.surface * inHitInfo.object->material->reflective;
+    inHitInfo = hitInfo;
+
+    return color;
 }
 
-CUDA_DEVICE Tuple refract(const Tuple& uv, const Tuple& n, double etaiOverEtat) {
+CUDA_HOST_DEVICE Tuple refract(const Tuple& uv, const Tuple& n, double etaiOverEtat) {
     auto costheta = std::fmin(-uv.dot(n), 1.0);
     Tuple rOutPerp = etaiOverEtat * (uv + costheta * n);
     Tuple rOutParallel = -std::sqrt(std::fabs(1.0 - rOutPerp.magnitudeSqured())) * n;
     return rOutPerp + rOutParallel;
 }
 
-CUDA_DEVICE Tuple refractedColor(World* world, const HitInfo& inHitInfo) {
-    if (inHitInfo.object->material->transparency == 0.0) {
+CUDA_HOST_DEVICE Tuple refractedColor(World* world, HitInfo& inHitInfo) {
+    if (inHitInfo.object->material->transparency < Math::epsilon) {
         return  Color::black;
     }
 
@@ -230,10 +240,6 @@ CUDA_DEVICE Tuple refractedColor(World* world, const HitInfo& inHitInfo) {
 
     direction = refract(-inHitInfo.viewDirection, inHitInfo.normal, ratio);
 
-    //if (refractionRemaining < 2) {
-    //    direction = -hitInfo.viewDirection;
-    //}
-
     // Create the refracted ray
     auto refractedRay = Ray(inHitInfo.underPosition, direction);
 
@@ -241,10 +247,14 @@ CUDA_DEVICE Tuple refractedColor(World* world, const HitInfo& inHitInfo) {
     // by the transparency value to account for any opacity
     auto hitInfo = colorAt(world, refractedRay);
 
-    return hitInfo.surface * inHitInfo.object->material->transparency;;
+    auto color = hitInfo.surface * inHitInfo.object->material->transparency;
+
+    inHitInfo = hitInfo;
+
+    return color;
 }
 
-CUDA_DEVICE double schlick(const HitInfo& hitInfo) {
+CUDA_HOST_DEVICE double schlick(const HitInfo& hitInfo) {
     // Find the cosine of the angle between the eye and normal vectors
     auto cos¦È = hitInfo.viewDirection.dot(hitInfo.normal);
 

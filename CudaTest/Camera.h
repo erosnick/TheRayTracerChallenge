@@ -7,7 +7,7 @@
 
 class Camera {
 public:
-    CUDA_HOST_DEVICE Camera(int32_t inImageWidth, int32_t inImageHeight, double inFov = 90.0) {
+    Camera(int32_t inImageWidth, int32_t inImageHeight, double inFov = 90.0) {
         init(inImageWidth, inImageHeight, inFov);
     }
 
@@ -21,7 +21,7 @@ public:
         origin = point(0.0, 0.0, 0.0);
     }
 
-    inline CUDA_HOST_DEVICE void setPosition(const Tuple& inPosition) {
+    inline void setPosition(const Tuple& inPosition) {
         position = inPosition;
     }
 

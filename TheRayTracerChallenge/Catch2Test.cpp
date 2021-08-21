@@ -605,7 +605,7 @@ World cubeScene(const Matrix4& viewMatrix) {
     //cube->material->bCastShadow = false;
     cube->setMaterial(material);
 
-    world.addObject(cube);
+    //world.addObject(cube);
 
     cube = std::make_shared<Cube>();
     cube->setTransformation(viewMatrix * translate(0.0, -1.9, -5.0) * scaling(3.0, 0.1, 0.1));
@@ -621,7 +621,7 @@ World cubeScene(const Matrix4& viewMatrix) {
     sphere->material->refractiveIndex = 1.55;
     sphere->setTransformation(viewMatrix);
 
-    //world.addObject(sphere);
+    world.addObject(sphere);
 
     auto light = Light(point(0.0, 2.0, -6.0), { 0.4, 0.4, 0.4 });
     light.transform(viewMatrix);
@@ -636,37 +636,48 @@ World cubeScene(const Matrix4& viewMatrix) {
     return world;
 }
 
+World testScene(const Matrix4& viewMatrix) {
+    auto world = World();
+
+    auto sphere = std::make_shared<Sphere>(point(-1.5, 0.0, 0.0));
+    sphere->setTransformation(viewMatrix);
+    world.addObject(sphere);
+
+    sphere = std::make_shared<Sphere>(point(1.5, 0.0, 0.0));
+    sphere->setTransformation(viewMatrix);
+    sphere->setMaterial(std::make_shared<Material>(Color::red, 0.1, 0.9, 0.9, 128.0, 0.0, 0.0, 1.0));
+    world.addObject(sphere);
+
+    sphere = std::make_shared<Sphere>(point(0.0, -0.2, 1.8), 0.8);
+    sphere->setTransformation(viewMatrix);
+    sphere->setMaterial(std::make_shared<Material>(Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5));
+    world.addObject(sphere);
+
+    auto quad = std::make_shared<Quad>();
+    auto transformation = viewMatrix * translate(0.0, -1.0, 0.0) * rotateY(Math::pi_2) * scaling(3.0, 1.0, 3.0);
+    quad->setTransformation(transformation);
+    quad->material = std::make_shared<Material>(color(0.0), 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
+    quad->material->pattern = std::make_shared<CheckerPattern>();
+    quad->material->pattern.value()->transform(scaling(0.25, 1.0, 0.25));
+    world.addObject(quad);
+
+    auto light = Light(point(0.0, 1.0, -2.0), Color::white);
+    light.transform(viewMatrix);
+    world.addLight(light);
+
+    light = Light(point(0.0, 1.0, 3.0), Color::white);
+    light.transform(viewMatrix);
+    world.addLight(light);
+
+    return world;
+}
+
 #define RESOLUTION 1
 
 #include "Array.h"
 
 int main(int argc, char* argv[]) {
-    Camera camera(640, 360);
-
-    auto viewMatrix = camera.lookAt(90.0, point(0.0, 0.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
-
-    auto transformation = viewMatrix * translate(0.0, -1.0, 0.0) * rotateY(Math::pi_2) * scaling(3.0, 1.0, 3.0);
-
-    auto position = point(1.0, 0.0, 1.0);
-
-    position = transformation * position;
-
-    position = transformation.inverse() * position;
-
-    Array<int> integers;
-
-    integers.add(0);
-    integers.add(1);
-    integers.add(2);
-    integers.add(3);
-
-    integers.remove(3);
-
-    for (auto i : integers) {
-        printf("%d\n", i);
-    }
-
-#if 0
+#if 1
 
 #if RESOLUTION == 1
     auto canvas = createCanvas(640, 360);
@@ -692,16 +703,18 @@ int main(int argc, char* argv[]) {
     // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查(已解决，CheckerPattern算法的问题)
     //auto viewMatrix = camera.lookAt(60.0, point(5.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
     //auto viewMatrix = camera.lookAt(60.0, point(0.0, 1.0, 3.0), point(0.0, 0.0, -3.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
 
-    auto world = cubeScene(viewMatrix);
+    auto world = testScene(viewMatrix);
+     //world = cubeScene(viewMatrix);
     
      //world = houseScene(viewMatrix);
         
-    //world = pondScene(viewMatrix);
+     //world = pondScene(viewMatrix);
 
-    //world = mainScene(viewMatrix);
+     //world = mainScene(viewMatrix);
 
-    //world = defaultWorld();
+     //world = defaultWorld();
 
     Timer timer;
     double percentage = 0.0;

@@ -57,7 +57,7 @@ namespace Memory {
     }
 
     template<typename T>
-    void sawp(T& a, T& b) {
+    CUDA_HOST_DEVICE void swap(T& a, T& b) {
         auto temp = b;
         b = a;
         a = temp;

@@ -9,14 +9,14 @@
 
 class Pattern {
 public:
-    virtual CUDA_DEVICE Tuple patternAt(const Tuple& position) const { return Tuple(); };
-    virtual CUDA_DEVICE Tuple patternAtShape(Shape* shape, const Tuple& position) const;
+    virtual CUDA_HOST_DEVICE Tuple patternAt(const Tuple& position) const { return Tuple(); };
+    virtual CUDA_HOST_DEVICE Tuple patternAtShape(Shape* shape, const Tuple& position) const;
 
-    virtual CUDA_DEVICE void transform(const Matrix4& inTransformation) {
+    virtual CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) {
         transformation = inTransformation * transformation;
     }
 
-    virtual CUDA_DEVICE void setTransformation(const Matrix4& inTransformation) {
+    virtual CUDA_HOST_DEVICE void setTransformation(const Matrix4& inTransformation) {
         transformation = inTransformation;
     }
 
@@ -27,20 +27,20 @@ public:
 
 class TestPattern : public Pattern {
 public:
-    CUDA_DEVICE Tuple patternAt(const Tuple& position) const override {
+    CUDA_HOST_DEVICE Tuple patternAt(const Tuple& position) const override {
         return color(position.x(), position.y(), position.z());
     }
 };
 
 class StripePattern : public Pattern {
 public:
-    CUDA_DEVICE StripePattern() {}
-    CUDA_DEVICE StripePattern(const Tuple& inColor1, const Tuple& inColor2) {
+    CUDA_HOST_DEVICE StripePattern() {}
+    CUDA_HOST_DEVICE StripePattern(const Tuple& inColor1, const Tuple& inColor2) {
         color1 = inColor1;
         color2 = inColor2;
     }
 
-    inline CUDA_DEVICE Tuple patternAt(const Tuple& position) const override {
+    inline CUDA_HOST_DEVICE Tuple patternAt(const Tuple& position) const override {
         if ((std::fmod(std::floor(position.x()), 2.0) == 0.0)) {
             return color1;
         }
@@ -52,8 +52,8 @@ public:
 
 class CheckerPattern : public Pattern {
 public:
-    CUDA_DEVICE CheckerPattern() {}
-    CUDA_DEVICE CheckerPattern(const Tuple& inColor1, const Tuple& inColor2,
+    CUDA_HOST_DEVICE CheckerPattern() {}
+    CUDA_HOST_DEVICE CheckerPattern(const Tuple& inColor1, const Tuple& inColor2,
                    const PlaneOrientation& inPlaneOrientation = PlaneOrientation::XZ, double inScale = 1.0) {
         color1 = inColor1;
         color2 = inColor2;
@@ -61,7 +61,7 @@ public:
         scale = 1.0 / inScale;
     }
 
-    inline CUDA_DEVICE Tuple patternAt(const Tuple& position) const override {
+    inline CUDA_HOST_DEVICE Tuple patternAt(const Tuple& position) const override {
         double sum = 0.0;
         switch (planeOrientation)
         {
@@ -93,14 +93,14 @@ public:
 
 class GradientPattern : public Pattern {
 public:
-    CUDA_DEVICE GradientPattern() {}
-    CUDA_DEVICE GradientPattern(const Tuple& inColor1, const Tuple& inColor2) {
+    CUDA_HOST_DEVICE GradientPattern() {}
+    CUDA_HOST_DEVICE GradientPattern(const Tuple& inColor1, const Tuple& inColor2) {
         color1 = inColor1;
         color2 = inColor2;
     }
 
     // color(p, ca, cb) = ca + (cb - ca) * (px - floor(px))
-    inline CUDA_DEVICE Tuple patternAt(const Tuple& position) const override {
+    inline CUDA_HOST_DEVICE Tuple patternAt(const Tuple& position) const override {
         auto distance = color2 - color1;
         auto fraction = (position.x() - std::floor(position.x()));
         //auto fraction = position.x + 0.5;
@@ -111,13 +111,13 @@ public:
 
 class RingPattern : public Pattern {
 public:
-    CUDA_DEVICE RingPattern() {}
-    CUDA_DEVICE RingPattern(const Tuple& inColor1, const Tuple& inColor2) {
+    CUDA_HOST_DEVICE RingPattern() {}
+    CUDA_HOST_DEVICE RingPattern(const Tuple& inColor1, const Tuple& inColor2) {
         color1 = inColor1;
         color2 = inColor2;
     }
 
-    inline Tuple CUDA_DEVICE patternAt(const Tuple& position) const override {
+    inline Tuple CUDA_HOST_DEVICE patternAt(const Tuple& position) const override {
         auto distance = std::sqrt(position.x() * position.x() + position.z() * position.z());
     
         if (std::fmod(std::floor(distance), 2.0) == 0.0) {

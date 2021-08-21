@@ -3,27 +3,25 @@
 #include "Constants.h"
 #include "CUDA.h"
 #include "Types.h"
+#include "Light.h"
+#include "Array.h"
+
 #include <vector>
 #include <algorithm>
-#include "Light.h"
 
 class World {
 public:
-    CUDA_HOST_DEVICE void foo(const Ray& ray, int32_t* count) {}
-    CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection* totalIntersections, int32_t* count);
+    CUDA_HOST_DEVICE World() {}
+    CUDA_HOST_DEVICE ~World();
 
-    CUDA_HOST void addLight(Light* light) {
-        if (lightIndex < MAXELEMENTS - 1) {
-            lights[lightIndex] = light;
-            lightIndex++;
-        }
+    CUDA_HOST_DEVICE void intersect(const Ray& ray, Array<Intersection>& totalIntersections);
+
+    CUDA_HOST_DEVICE void addLight(Light* light) {
+        lights.add(light);
     }
 
-    CUDA_HOST void addObject(Shape* object) {
-        if (objectIndex < MAXELEMENTS - 1) {
-            objects[objectIndex] = object;
-            objectIndex++;
-        }
+    CUDA_HOST_DEVICE void addObject(Shape* object) {
+        objects.add(object);
     }
 
     bool contains(Shape* object) const {
@@ -44,16 +42,14 @@ public:
     }
 
     CUDA_HOST_DEVICE int32_t ligthCount() const {
-        return lightIndex;
+        return lights.size();
     }
 
     CUDA_HOST_DEVICE int32_t objectCount() const {
-        return objectIndex;
+        return objects.size();
     }
 
 private:
-    int32_t objectIndex;
-    int32_t lightIndex;
-    Shape* objects[MAXELEMENTS];
-    Light* lights[MAXELEMENTS];
+    Array<Shape*> objects;
+    Array<Light*> lights;
 };

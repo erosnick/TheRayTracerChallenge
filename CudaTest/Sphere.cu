@@ -1,7 +1,7 @@
 #include "Sphere.h"
 #include "Intersection.h"
 
-CUDA_HOST_DEVICE bool Sphere::intersect(const Ray& ray, Intersection* intersections) {
+CUDA_HOST_DEVICE bool Sphere::intersect(const Ray& ray, Array<Intersection>& intersections) {
     auto oc = (ray.origin - origin);
     auto a = ray.direction.dot(ray.direction);
     auto b = 2.0 * ray.direction.dot(oc);
@@ -18,18 +18,11 @@ CUDA_HOST_DEVICE bool Sphere::intersect(const Ray& ray, Intersection* intersecti
     auto t1 = (-b - std::sqrt(discriminant)) / (2 * a);
     auto t2 = (-b + std::sqrt(discriminant)) / (2 * a);
 
-    auto position1 = ray.position(t1);
-
-    auto normal1 = normalAt(position1);
-
-    auto position2 = ray.position(t2);
-
-    auto normal2 = normalAt(position2);
-
     if ((t1 > 0.0) || (t2 > 0.0)) {
-        intersections[0] = { true, true, 1, t1, this, position1, normal1, ray };
-        intersections[1] = { true, true, 1, t2, this, position2, normal2, ray };
+        intersections.add({ true, true, t1, this });
+        intersections.add({ true, true, t2, this });
+        return true;
     }
 
-    return true;
+    return false;
 }

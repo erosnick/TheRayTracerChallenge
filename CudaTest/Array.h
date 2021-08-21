@@ -12,16 +12,19 @@ template<typename T>
 class Array
 {
 public:
-	CUDA_HOST_DEVICE Array()
-	: internalSize(0),
-	  internalCapacity(capacityIncrement) {
-	  internalArray = new T[internalCapacity]();
+	CUDA_HOST_DEVICE Array() {
+		internalCapacity = capacityIncrement;
+		internalArray = new T[internalCapacity]();
 	}
 
 	CUDA_HOST_DEVICE Array(int32_t inSize) {
 		internalSize = inSize;
 
 		resize(internalSize);
+	}
+
+	CUDA_HOST_DEVICE ~Array() {
+		delete[] internalArray;
 	}
 
 	CUDA_HOST_DEVICE void add(T value) {
@@ -139,6 +142,16 @@ public:
 		printf("size:%d, capacity:%d\n", internalSize, internalCapacity);
 	}
 
+    CUDA_HOST_DEVICE T operator[](int32_t index) const {
+        if (index >= internalSize)
+        {
+            printf("Index out of range.\n");
+            assert(index < internalSize);
+        }
+
+        return internalArray[index];
+    }
+
 	CUDA_HOST_DEVICE T& operator[](int32_t index) {
 		if (index >= internalSize)
 		{
@@ -154,20 +167,8 @@ public:
 	}
 
 private:
-	int32_t internalSize;
-	const int32_t capacityIncrement = 10;
-	int32_t internalCapacity;
+	int32_t internalSize = 0;
+	const int32_t capacityIncrement = 5;
+	int32_t internalCapacity = 0;
 	T* internalArray = nullptr;
 };
-
-//template<typename T>
-//CUDA_HOST_DEVICE void sort(const Array<T>& data) {
-    ////for (auto i = 1; i < data.size(); i++) {
-    ////    auto j = i;
-
-    ////    while (j > 0 && intersections[j].t < intersections[j - 1].t) {
-    ////        std::swap(intersections[j], intersections[j - 1]);
-    ////        j--;
-    ////    }
-    ////}
-////}

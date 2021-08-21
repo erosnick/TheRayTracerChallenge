@@ -20,6 +20,7 @@ inline CUDA_HOST_DEVICE Matrix4 rotateZ(double radian);
 inline CUDA_HOST_DEVICE Matrix4 shearing(double xy, double xz, double yx, double yz, double zx, double zy);
 CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, const Matrix4& b);
 CUDA_HOST_DEVICE Tuple operator*(const Matrix4& a, const Tuple& b);
+CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, double b);
 
 class Matrix2 {
 public:
