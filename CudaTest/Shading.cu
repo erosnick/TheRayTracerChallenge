@@ -148,10 +148,10 @@ CUDA_HOST_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
 
     HitInfo hitInfo;
 
-    Array<Intersection> intersections;
-    world->intersect(ray, intersections);
+    Array<Intersection> totalIntersections;
+    world->intersect(ray, totalIntersections);
 
-    if (intersections.size() == 0) {
+    if (totalIntersections.size() == 0) {
         auto t = 0.5 * (ray.direction.y() + 1.0);
         auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
         missColor = Color::background;
@@ -160,7 +160,7 @@ CUDA_HOST_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
     }
 
     // Nearest intersection
-    const auto& hit = nearestHit(intersections);
+    const auto& hit = nearestHit(totalIntersections);
 
     if (!hit.bShading) {
         surface = Color::white;
@@ -168,7 +168,7 @@ CUDA_HOST_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
         return hitInfo;
     }
 
-    hitInfo = prepareComputations(hit, ray, intersections);
+    hitInfo = prepareComputations(hit, ray, totalIntersections);
 
     hitInfo.surface = shadeHit(world, hitInfo, false, true);
 
@@ -226,10 +226,6 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, HitInfo& inHitInfo) {
         sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
     }
 
-    //if (sin¦Èt2 > 1.0) {
-    //    return Color::black;
-    //}
-
     // Find cos(¦Èt) via trigonometric identity
     auto cos¦Èt = std::sqrt(1.0 - sin¦Èt2);
 
@@ -250,6 +246,143 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, HitInfo& inHitInfo) {
     auto color = hitInfo.surface * inHitInfo.object->material->transparency;
 
     inHitInfo = hitInfo;
+
+    return color;
+}
+
+CUDA_HOST_DEVICE Tuple shadeHit(World* world, const HitInfo& hitInfo,
+    int32_t remaining, bool bHalfLambert, bool bBlinnPhong) {
+    auto surface = Color::black;
+
+    for (auto i = 0; i < world->ligthCount(); i++) {
+        auto light = world->getLight(i);
+        auto inShadow = isShadow(world, light, hitInfo.overPosition);
+        surface += lighting(hitInfo.object->material, hitInfo.object, light, hitInfo, inShadow, bHalfLambert, bBlinnPhong);
+    }
+
+    auto material = hitInfo.object->material;
+
+    auto reflected = Color::black;
+
+    if (material->reflective > 0.0) {
+        reflected = reflectedColor(world, hitInfo, remaining);
+    }
+
+    auto refracted = Color::black;
+
+    if (material->transparency > 0.0) {
+        refracted = refractedColor(world, hitInfo, remaining);
+    }
+
+    if (material->reflective > 0.0 && material->transparency > 0.0) {
+        auto reflectance = schlick(hitInfo);
+        return surface + reflected * reflectance + refracted * (1.0 - reflectance);
+    }
+    else {
+        return surface + reflected + refracted;
+    }
+}
+
+// colorat() 
+//  - world.intersect()
+//  - prepareComputations()
+//  - shadeHit() -> lighting()
+CUDA_HOST_DEVICE Tuple colorAt(World* world, const Ray& ray, int32_t remaining) {
+    auto surface = Color::black;
+
+    Array<Intersection> intersections;
+    world->intersect(ray, intersections);
+
+    if (intersections.size() == 0) {
+        auto t = 0.5 * (ray.direction.y() + 1.0);
+        auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+        missColor = Color::background;
+        return missColor;
+    }
+
+    // Nearest intersection
+    const auto& hit = nearestHit(intersections);
+
+    if (!hit.bShading) {
+        surface = Color::white;
+        return surface;
+    }
+
+    auto hitInfo = prepareComputations(hit, ray, intersections);
+
+    surface = shadeHit(world, hitInfo, remaining, false, true);
+
+    return surface;
+}
+
+CUDA_HOST_DEVICE Tuple reflectedColor(World* world, const HitInfo& hitInfo, int32_t reflectionRemaining) {
+    if (hitInfo.object->material->reflective == 0.0 || reflectionRemaining == 0) {
+        return Color::black;
+    }
+
+    auto reflectedRay = Ray(hitInfo.overPosition, hitInfo.reflectVector);
+    auto color = colorAt(world, reflectedRay, reflectionRemaining - 1);
+
+    return color * hitInfo.object->material->reflective;
+}
+
+CUDA_HOST_DEVICE Tuple refractedColor(World* world, const HitInfo& hitInfo, int32_t refractionRemaining) {
+    if (hitInfo.object->material->transparency == 0.0 || refractionRemaining == 0) {
+        return  Color::black;
+    }
+
+    // Find the ratio of first index of refraction to the second.
+    // (Yup, this is inverted from the definition of Snell's Law.)
+    auto ratio = hitInfo.n1 / hitInfo.n2;
+
+    if (ratio > 1.0) {
+        int a = 0;
+    }
+
+    // cos(¦Èi) is the same as the dot product of the two vectors
+    auto cos¦Èi = hitInfo.viewDirection.dot(hitInfo.normal);
+
+    auto sin¦Èi = std::sqrt(1.0 - cos¦Èi * cos¦Èi);
+
+    // Find sin(¦¨t)^2 via trigonometric identity
+    auto sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
+
+    if (ratio * sin¦Èi > 1.0) {
+        auto angle = Math::degrees(std::asin(sin¦Èi));
+
+        if (angle > 41.5) {
+            //std::cout << angle << std::endl;
+        }
+
+        return Color::red;
+        ratio = 1.0;
+        sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
+    }
+
+    //if (sin¦Èt2 > 1.0) {
+    //    return Color::black;
+    //}
+
+    // Find cos(¦Èt) via trigonometric identity
+    auto cos¦Èt = std::sqrt(1.0 - sin¦Èt2);
+
+    // Compute the direction of the refracted ray
+    // For the first recursion, viewDirection is the "real" view direction
+    // after this viewDirect == -ray.direction(ray is incident ray)
+    auto direction = hitInfo.normal * (ratio * cos¦Èi - cos¦Èt) - hitInfo.viewDirection * ratio;
+
+    direction = refract(-hitInfo.viewDirection, hitInfo.normal, ratio);
+
+    //if (refractionRemaining < 2) {
+    //    direction = -hitInfo.viewDirection;
+    //}
+
+    // Create the refracted ray
+    auto refractedRay = Ray(hitInfo.underPosition, direction);
+
+    // Find the color of the refracted ray, making sure to multiply
+    // by the transparency value to account for any opacity
+    auto color = colorAt(world, refractedRay, refractionRemaining - 1) * hitInfo.object->material->transparency;
 
     return color;
 }

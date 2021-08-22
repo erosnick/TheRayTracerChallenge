@@ -78,6 +78,9 @@ CUDA_HOST_DEVICE Matrix4 Matrix4::inverse() const {
     //        result[column][row] = c / d;
     //    }
     //}
+
+    //return result;
+
     // Taken form glm::mat4::inverse()
     auto Coef00 = rows[2][2] * rows[3][3] - rows[3][2] * rows[2][3];
     auto Coef02 = rows[1][2] * rows[3][3] - rows[3][2] * rows[1][3];

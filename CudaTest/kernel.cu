@@ -43,9 +43,9 @@ struct Viewport {
 
 Payload* payload = nullptr;
 
-Array<Shape**> objects(3);
+Array<Shape**> objects(4);
 Array<Light**> lights(1);
-Array<Material**> materials(3);
+Array<Material**> materials(4);
 World** world = nullptr;
 
 #define gpuErrorCheck(ans) { gpuAssert((ans), __FILE__, __LINE__); }
@@ -71,6 +71,21 @@ CUDA_GLOBAL void createQuad(Shape** object, Material** material, Matrix4 transfo
     (*object)->material = *material;
     (*object)->material->pattern = new CheckerPattern();
     (*object)->material->pattern->transform(scaling(0.25, 1.0, 0.25));
+}
+
+template<typename T>
+CUDA_GLOBAL void updateObject(T* object, Matrix4 transformation) {
+    (*object)->setTransformation(transformation);
+}
+
+void updateObjects(World* world, Matrix4 transformation) {
+    for (auto i = 0; i < world->objectCount(); i++) {
+        world->getObject(i)->setTransformation(transformation);
+    }
+
+    for (auto i = 0; i < world->ligthCount(); i++) {
+        world->getLight(i)->transform(transformation);
+    }
 }
 
 template<typename T>
@@ -100,25 +115,25 @@ CUDA_GLOBAL void addLights(World** world, Light** lights[], int32_t count) {
     }
 }
 
-CUDA_GLOBAL void createSphere(Shape** object, Tuple origin, double radius, Material** material, Matrix4 transform) {
+CUDA_GLOBAL void createSphere(Shape** object, Tuple origin, double radius, Material** material, Matrix4 transformation) {
     // It is necessary to create object representing a function
     // directly in global memory of the GPU device for virtual
     // functions to work correctly, i.e. virtual function table
     // HAS to be on GPU as well.
     //auto index = threadIdx.x;
     (*object) = new Sphere(origin, radius);
-    (*object)->setTransformation(transform);
+    (*object)->setTransformation(transformation);
     (*object)->material = *material;
     //(*object)->material = new Material(color(1.0, 0.0, 0.0), 0.1, 0.9, 0.9, 128.0, 0.25);
 }
 
-CUDA_GLOBAL void createLight(Light** light, Tuple inPosition, Tuple inIntensity, Matrix4 transform) {
+CUDA_GLOBAL void createLight(Light** light, Tuple inPosition, Tuple inIntensity, Matrix4 transformation) {
     // It is necessary to create object representing a function
     // directly in global memory of the GPU device for virtual
     // functions to work correctly, i.e. virtual function table
     // HAS to be on GPU as well.
     (*light) = new Light(inPosition, inIntensity);
-    (*light)->transform(transform);
+    (*light)->transform(transformation);
 }
 
 CUDA_GLOBAL void createMaterial(Material** material, Tuple color = Color::red, double ambient = 0.1, double diffuse = 0.9, double specular = 0.9, 
@@ -135,58 +150,6 @@ CUDA_GLOBAL void deleteObject(T** object) {
     delete (*object);
 }
 
-//struct StackLimitTest {
-//    double dummy1;
-//    double dummy2;
-//    double dummy3;
-//    double dummy4;
-//    double dummy5;
-//    double dummy6;
-//    double dummy7;
-//    double dummy8;
-//    double dummy9;
-//    double dummy10;
-//    double dummy11;
-//    double dummy12;
-//    double dummy13;
-//    double dummy14;
-//    double dummy15;
-//    double dummy16;
-//    double dummy17;
-//    double dummy18;
-//    double dummy19;
-//    double dummy20;
-//};
-
-struct StackLimitTest {
-    //CUDA_HOST_DEVICE StackLimitTest() {
-    //}
-
-    //CUDA_HOST_DEVICE StackLimitTest(double inT, Shape* inShape, const Ray& inRay = Ray())
-    //    : t(inT), object(inShape), subObject(nullptr), ray(inRay) {
-    //}
-
-    //CUDA_HOST_DEVICE StackLimitTest(bool bInHit, int32_t inCount, double inT, Shape* inSphere)
-    //    : bHit(bInHit), count(inCount), t(inT), object(inSphere), subObject(nullptr) {
-    //}
-
-    //CUDA_HOST_DEVICE StackLimitTest(bool bInHit, bool bInShading, int32_t inCount, double inT, Shape* inSphere, const Tuple& inPosition, const Tuple& inNormal, const Ray& inRay)
-    //    : bHit(bInHit), bShading(bInShading), count(inCount), t(inT), object(inSphere), subObject(nullptr), position(inPosition), normal(inNormal), ray(inRay) {
-    //}
-
-    //CUDA_HOST_DEVICE ~StackLimitTest() {}
-
-    bool bHit = false;
-    bool bShading = true;
-    int32_t count = 0;
-    double t = 100000000.0;
-    Shape* subObject = nullptr;
-    Shape* object = nullptr;
-    Tuple position;
-    //Tuple normal;
-    //Ray ray;
-};
-
 CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payload) {
     int32_t row = threadIdx.y + blockIdx.y * blockDim.y;
     int32_t column = threadIdx.x + blockIdx.x * blockDim.x;
@@ -194,13 +157,11 @@ CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payloa
 
     //auto viewport = payload->viewport;
 
-    //printf("%d, %d\n", row, column);
-
-    Tuple defaultColor = Color::skyBlue;
-    Tuple pixelColor = defaultColor;
+    //printf("%d, %d\n", threadIdx.x, threadIdx.y);
+    Tuple pixelColor = Color::black;
 
     constexpr int32_t samplesPerPixel = 1;
-    constexpr int32_t depth = 5;
+    constexpr int32_t depth = 3;
 
     for (int i = 0; i < samplesPerPixel; i++) {
         //curandState state;
@@ -217,13 +178,15 @@ CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payloa
         auto ray = payload->camera->getRay(x, y);
 
         // 在kernel里动态分配内存对性能影响很大！！！
-        Array<StackLimitTest> intersections(1);
-        //Array<Intersection> intersections(1);
         //auto hitInfo = colorAt(payload->world, ray);
 
         //if (hitInfo.bHit) {
-            //pixelColor = hitInfo.surface + computeReflectionAndRefraction(hitInfo, payload->world, depth);
+        //    pixelColor = hitInfo.surface + computeReflectionAndRefraction(hitInfo, payload->world, depth);
         //}
+
+        pixelColor += colorAt(payload->world, ray, depth);
+
+        //Array<Intersection> intersections;
     }
 
     writePixel(payload->pixelBuffer, index * 3, (pixelColor ) / samplesPerPixel);
@@ -255,6 +218,9 @@ void initialize(int32_t width, int32_t height) {
     // Choose which GPU to run on, change this on a multi-GPU system.
     gpuErrorCheck(cudaSetDevice(0));
 
+    // Intersection = 32bits, MAXELEMENTS = 8, 32 * 8 * 16 = 4096
+    gpuErrorCheck(cudaDeviceSetLimit(cudaLimitStackSize, sizeof(Intersection) * MAXELEMENTS * 1024));
+
     gpuErrorCheck(cudaMallocManaged((void**)&payload, sizeof(Payload)));
 
     gpuErrorCheck(cudaMallocManaged((void**)&payload->pixelBuffer, width * height * 3 * sizeof(uint8_t)));
@@ -280,11 +246,6 @@ void initialize(int32_t width, int32_t height) {
         gpuErrorCheck(cudaMallocManaged((void**)&materials[i], sizeof(Material**)));
     }
 
-    createMaterial<<<1, 1>>>(materials[0]);
-    createMaterial<<<1, 1>>>(materials[1]);
-    createMaterial<<<1, 1>>>(materials[2], Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5);
-    //createMaterial<<<1, 1>>>(materials[3], Color::red, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
-
     for (auto i = 0; i < objects.size(); i++) {
         gpuErrorCheck(cudaMallocManaged((void**)&objects[i], sizeof(Shape**)));
     }
@@ -294,6 +255,11 @@ void initialize(int32_t width, int32_t height) {
     }
 
     gpuErrorCheck(cudaMallocManaged((void**)&world, sizeof(World**)));
+
+    createMaterial<<<1, 1>>>(materials[0], Color::black, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
+    createMaterial<<<1, 1>>>(materials[1]);
+    createMaterial<<<1, 1>>>(materials[2], Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5);
+    createMaterial<<<1, 1>>>(materials[3], Color::red, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
 
     Array<Tuple> origins(3);
 
@@ -307,8 +273,8 @@ void initialize(int32_t width, int32_t height) {
     createSphere<<<1, 1>>>(objects[1], origins[1], radiuses[1], materials[1], viewMatrix);
     createSphere<<<1, 1>>>(objects[2], origins[2], radiuses[2], materials[2], viewMatrix);
 
-    //auto transformation = viewMatrix * translate(0.0, -1.0, 0.0) * rotateY(Math::pi_2) * scaling(3.0, 1.0, 3.0);
-    //createQuad<<<1, 1>>>(objects[3], materials[3], transformation);
+    auto transformation = viewMatrix * translate(0.0, -1.0, 0.0) * rotateY(Math::pi_2) * scaling(3.0, 1.0, 3.0);
+    createQuad<<<1, 1>>>(objects[3], materials[3], transformation);
 
     createObject<<<1, 1>>>(world);
 
@@ -351,52 +317,86 @@ void cleanup() {
     gpuErrorCheck(cudaFree(payload));
 }
 
-//ImageData* launch(int32_t width, int32_t height) {
-//    //queryDeviceProperties();
-//
-//    //Timer timer;
-//
-//    //initialize(width, height);
-//
-//    dim3 blockSize(32, 32);
-//    dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
-//        (height + blockSize.y - 1) / blockSize.y);
-//
-//    //rayTracingKernel<<<gridSize, blockSize>>>(width, height, payload);
-//
-//    //gpuErrorCheck(cudaDeviceSynchronize());
-//
-//    //timer.stop();
-//
-//    //writeToPPM("render.ppm", width, height, payload->pixelBuffer);
-//
-//    imageData->width = width;
-//    imageData->height = height;
-//    imageData->data = payload->pixelBuffer;
-//    imageData->channels = 3;
-//    imageData->size = size;
-//
-//    return imageData.get();
-//}
+#if 1
+ImageData* launch(int32_t width, int32_t height) {
+    //queryDeviceProperties();
+
+    //Timer timer;
+
+    dim3 blockSize(32, 32);
+    dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
+                  (height + blockSize.y - 1) / blockSize.y);
+
+    rayTracingKernel<<<gridSize, blockSize>>>(width, height, payload);
+
+    gpuErrorCheck(cudaDeviceSynchronize());
+
+    //timer.stop();
+
+    //writeToPPM("render.ppm", width, height, payload->pixelBuffer);
+
+    imageData->width = width;
+    imageData->height = height;
+    imageData->data = payload->pixelBuffer;
+    imageData->channels = 3;
+    imageData->size = size;
+
+    return imageData.get();
+}
+
+#else
 
 int main() {
     //queryDeviceProperties();
-    gpuErrorCheck(cudaDeviceSetLimit(cudaLimitStackSize, sizeof(Intersection) * MAXELEMENTS * 8));
 
     constexpr int32_t width = 480;
     constexpr int32_t height = 320;
 
-    auto size = sizeof(Intersection);
+    auto size = width * height;
 
+#if 0
     initialize(width, height);
 
-#if 1
+    //int32_t minGridSize = 0;
+    //int32_t blockSize = 0;
+    //int32_t gridSize = 0;
+
+    //float time = 0.0f;
+    //cudaEvent_t start;
+    //cudaEvent_t stop;
+    //cudaEventCreate(&start);
+    //cudaEventCreate(&stop);
+    //cudaEventRecord(start, 0);
+
+    //cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, rayTracingKernel, 0, size);
+
+    //// Round up according to array size
+    //gridSize = (size + blockSize - 1) / blockSize;
+
+    //cudaEventRecord(stop, 0);
+    //cudaEventSynchronize(stop);
+    //cudaEventElapsedTime(&time, start, stop);
+    //printf("Occupancy calculator elapsed time: %3.3f ms \n", time);
+
     dim3 blockSize(32, 32);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
-        (height + blockSize.y - 1) / blockSize.y);
+                  (height + blockSize.y - 1) / blockSize.y);
 
     Timer timer;
-#if 1
+
+    rayTracingKernel<<<gridSize, blockSize>>>(width, height, payload);
+
+    gpuErrorCheck(cudaDeviceSynchronize());
+
+    timer.stop();
+
+    //writeToPPM("render.ppm", width, height, payload->pixelBuffer);
+    Utils::writeToPNG("./render.png", width, height, payload->pixelBuffer);
+    Utils::openImage(L"./render.png");
+
+    cleanup();
+
+#else
     Camera camera(width, height);
 
     auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
@@ -434,41 +434,38 @@ int main() {
     light->transform(viewMatrix);
     world->addLight(light);
 
+    auto depth = 2;
+
+    auto pixelBuffer = new uint8_t[width * height * 3];
+    Timer timer;
     for (auto y = 0; y < height; y++) {
         for (auto x = 0; x < width; x++) {
             auto index = y * width + x;
-            auto finalColor = color(0.0, 0.0, 0.0);
             auto dx = (static_cast<double>(x)) / (width - 1);
             auto dy = (static_cast<double>(y)) / (height - 1);
 
             auto ray = camera.getRay(dx, dy);
 
-            Tuple defaultColor = Color::skyBlue;
+            Tuple defaultColor = Color::black;
             Tuple pixelColor = defaultColor;
 
-            auto hitInfo = colorAt(world, ray);
+            //auto hitInfo = colorAt(world, ray);
 
-            if (hitInfo.bHit) {
-                pixelColor = hitInfo.surface + computeReflectionAndRefraction(hitInfo, world, 5);
-            }
+            //if (hitInfo.bHit) {
+            //    pixelColor = hitInfo.surface + computeReflectionAndRefraction(hitInfo, world, depth);
+            //}
+            pixelColor += colorAt(world, ray, depth);
 
-            writePixel(payload->pixelBuffer, index * 3, pixelColor);
+            writePixel(pixelBuffer, index * 3, pixelColor);
         }
     }
-#endif
-
-    //rayTracingKernel<<<gridSize, blockSize>>>(width, height, payload);
-
-    //gpuErrorCheck(cudaDeviceSynchronize());
-
     timer.stop();
-
-    //writeToPPM("render.ppm", width, height, payload->pixelBuffer);
-    Utils::writeToPNG("./render.png", width, height, payload->pixelBuffer);
+    Utils::writeToPNG("./render.png", width, height, pixelBuffer);
     Utils::openImage(L"./render.png");
-
-    cleanup();
+    delete[] pixelBuffer;
 #endif
 
     return 0;
 }
+
+#endif

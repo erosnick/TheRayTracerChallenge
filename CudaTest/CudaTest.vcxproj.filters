@@ -57,6 +57,9 @@
     <CudaCompile Include="Matrix.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
+    <CudaCompile Include="Array.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">

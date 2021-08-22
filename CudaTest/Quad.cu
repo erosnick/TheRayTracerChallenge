@@ -43,31 +43,24 @@ CUDA_HOST_DEVICE Tuple Quad::normalAt(const Tuple& position) const {
 }
 
 CUDA_HOST_DEVICE bool Quad::intersect(const Ray& ray, Array<Intersection>& intersections) {
-    Array<Intersection> intersections1;
+    auto size = intersections.size();
     
-    triangles[0]->intersect(ray, intersections1);
-    Array<Intersection> intersections2;
-    
-    if (intersections1.size() == 0) {
-        triangles[1]->intersect(ray, intersections2);
-    }
-
     // 如果和四边形其中一个三角形相交，则认为相交，因为两个三角形共面
-    if (intersections1.size() > 0) {
-        intersections.add(intersections1[0]);
-    }
-    else if (intersections2.size() > 0) {
-        intersections.add(intersections2[0]);
+    triangles[0]->intersect(ray, intersections);
+    
+    if (intersections.size() == size) {
+        triangles[1]->intersect(ray, intersections);
     }
 
-    auto bHit = intersections.size() > 0;
+    auto bHit = intersections.size() > size;
 
     // 过滤掉Quad单独使用(不是Cube的部分)时t < 0的情况
     if (bHit) {
-        intersections[0].object = this;
+        intersections[intersections.size() - 1].object = this;
 
-        if (!bCube && intersections[0].t < Math::epsilon) {
-            intersections.clear();
+        auto intersection = intersections[intersections.size() - 1];
+        if (!bCube && intersection.t < Math::epsilon) {
+            intersections.remove(intersection);
         }
     }
 

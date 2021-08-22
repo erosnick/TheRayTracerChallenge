@@ -102,7 +102,7 @@ public:
 
     double viewportWidth = 0.0;
     double viewportHeight = 0.0;
-    double focalLength = 2.0;
+    double focalLength = 1.0;
 
     double aspect;
     double fov = 90;

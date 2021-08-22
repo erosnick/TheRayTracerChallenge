@@ -104,13 +104,13 @@ Tuple shadeHit(const World& world, const HitInfo& hitInfo,
 
     auto material = hitInfo.object->material;
 
-    auto reflected = color(0.0f);
+    auto reflected = Color::black;
     
     if (material->reflective > 0.0) {
         reflected = reflectedColor(world, hitInfo, remaining);
     }
 
-    auto refracted = color(0.0f);
+    auto refracted = Color::black;
     
     if (material->transparency > 0.0) {
         refracted = refractedColor(world, hitInfo, remaining);
@@ -149,11 +149,7 @@ Tuple colorAt(const World& world, Ray& ray, int32_t remaining) {
         return surface;
     }
 
-    if (intersections.size() > 1 && remaining < 5) {
-        int a = 0;
-    }
-
-    auto hitInfo = prepareComputations(hit, hit.ray, intersections);
+    auto hitInfo = prepareComputations(hit, ray, intersections);
 
     surface = shadeHit(world, hitInfo, remaining, false, true);
 

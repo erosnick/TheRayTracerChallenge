@@ -8,6 +8,10 @@ CUDA_HOST_DEVICE Tuple shadeHit(World* world, const HitInfo& hitInfo, bool bHalf
 CUDA_HOST_DEVICE HitInfo colorAt(World* world, const Ray& ray);
 CUDA_HOST_DEVICE Tuple reflectedColor(World* world, HitInfo& inHitInfo);
 CUDA_HOST_DEVICE Tuple refractedColor(World* world, HitInfo& inHitInfo);
+CUDA_HOST_DEVICE Tuple shadeHit(World* world, const HitInfo& hitInfo, int32_t remaining, bool bHalfLambert = false, bool bBlinnPhong = false);
+CUDA_HOST_DEVICE Tuple colorAt(World* world, const Ray& ray, int32_t remaining);
+CUDA_HOST_DEVICE Tuple reflectedColor(World* world, const HitInfo& inHitInfo, int32_t remaining);
+CUDA_HOST_DEVICE Tuple refractedColor(World* world, const HitInfo& inHitInfo, int32_t remaining);
 CUDA_HOST_DEVICE double schlick(const HitInfo& hitInfo);
 
 CUDA_HOST_DEVICE Tuple lighting(Material* material, Shape* object, Light* light,

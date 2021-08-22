@@ -645,18 +645,20 @@ World testScene(const Matrix4& viewMatrix) {
 
     sphere = std::make_shared<Sphere>(point(1.5, 0.0, 0.0));
     sphere->setTransformation(viewMatrix);
-    sphere->setMaterial(std::make_shared<Material>(Color::red, 0.1, 0.9, 0.9, 128.0, 0.0, 0.0, 1.0));
     world.addObject(sphere);
 
     sphere = std::make_shared<Sphere>(point(0.0, -0.2, 1.8), 0.8);
     sphere->setTransformation(viewMatrix);
-    sphere->setMaterial(std::make_shared<Material>(Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5));
+    sphere->material->color = Color::black;
+    sphere->material->reflective = 1.0;
+    sphere->material->transparency = 1.0;
+    sphere->material->refractiveIndex = 1.5;
     world.addObject(sphere);
 
     auto quad = std::make_shared<Quad>();
     auto transformation = viewMatrix * translate(0.0, -1.0, 0.0) * rotateY(Math::pi_2) * scaling(3.0, 1.0, 3.0);
     quad->setTransformation(transformation);
-    quad->material = std::make_shared<Material>(color(0.0), 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
+    quad->material->reflective = 0.125;
     quad->material->pattern = std::make_shared<CheckerPattern>();
     quad->material->pattern.value()->transform(scaling(0.25, 1.0, 0.25));
     world.addObject(quad);
@@ -680,7 +682,7 @@ int main(int argc, char* argv[]) {
 #if 1
 
 #if RESOLUTION == 1
-    auto canvas = createCanvas(640, 360);
+    auto canvas = createCanvas(480, 320);
 #elif RESOLUTION == 2
     auto canvas = createCanvas(1280, 720);
 #elif RESOLUTION == 3
@@ -690,7 +692,7 @@ int main(int argc, char* argv[]) {
     constexpr auto samplesPerPixel = 1;
 
     // 反射次数
-    constexpr auto reflectionRemaining = 5;
+    constexpr auto reflectionRemaining = 2;
 
     // 折射次数
     constexpr auto refractionRemaining = 2;
@@ -718,37 +720,21 @@ int main(int argc, char* argv[]) {
 
     Timer timer;
     double percentage = 0.0;
-    #pragma omp parallel for schedule(dynamic, 1)       // OpenMP
+    //#pragma omp parallel for schedule(dynamic, 1)       // OpenMP
     for (auto y = 0; y < imageHeight; y++) {
-        percentage = (double)y / (imageHeight - 1) * 100;
-        fprintf(stderr, "\rRendering: (%i samples) %.2f%%", samplesPerPixel, percentage);
+        //percentage = (double)y / (imageHeight - 1) * 100;
+        //fprintf(stderr, "\rRendering: (%i samples) %.2f%%", samplesPerPixel, percentage);
         for (auto x = 0; x < imageWidth; x++) {
             //std::cout << "Hello, World!, ThreadId = " << omp_get_thread_num();
-            auto finalColor = color(0.0, 0.0, 0.0);
+            auto finalColor = Color::black;
 
             for (auto sample = 0; sample < samplesPerPixel; sample++) {
-                auto rx = randomDouble() * 0.0;
-                auto ry = randomDouble() * 0.0;
+                auto rx = 0.0;// randomDouble() * 0.0;
+                auto ry = 0.0;// randomDouble() * 0.0;
                 auto dx = (static_cast<double>(x) + rx) / (imageWidth - 1);
                 auto dy = (static_cast<double>(y) + ry) / (imageHeight - 1);
 
                 auto ray = camera.getRay(dx, dy);
-
-                //if (x == 195 && y == 6) {
-                    //finalColor += Color::green;
-                //}
-
-                //if (x == 0 && y == 76) {
-                //    finalColor += Color::green;
-                //}
-
-                //if (x == 0 && y == 75) {
-                //    finalColor += Color::green;
-                //}
-
-                //if (x == 238 && y == 126) {
-                //    finalColor += Color::green;
-                //}
 
                 finalColor += colorAt(world, ray, reflectionRemaining);
             }

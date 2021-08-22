@@ -351,15 +351,6 @@ int main() {
 
     auto projectionMatrix = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
 
-    auto matrix = glm::mat4(1.0);
-
-    auto v1 = glm::vec3(1.0, 0.0, -1.0);
-    auto v2 = glm::vec3(1.0, 0.0, 1.0);
-
-    auto value = v1 * v2;
-
-    glm::inverse(matrix);
-
     ourShader.setMat4("projectionMatrix", projectionMatrix);
 
     // render loop

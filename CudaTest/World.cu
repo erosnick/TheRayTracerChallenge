@@ -37,15 +37,25 @@ CUDA_HOST_DEVICE World::~World() {
 
 CUDA_HOST_DEVICE void World::intersect(const Ray& ray, Array<Intersection>& totalIntersections) {
     for (auto i = 0; i < objectCount(); i++) {
-        Array<Intersection> intersections;
-        if (objects[i]->intersect(ray, intersections)) {
-            for (auto j = 0; j < intersections.size(); j++) {
-                totalIntersections.add(intersections[j]);
-            }
-        }
+        objects[i]->intersect(ray, totalIntersections);
     }
 
     if (totalIntersections.size() > 0) {
         sort(totalIntersections, compareLess);
     }
 }
+
+//CUDA_HOST_DEVICE void World::intersect(const Ray& ray, Array<Intersection>& totalIntersections) {
+//    for (auto i = 0; i < objectCount(); i++) {
+//        Array<Intersection> intersections;
+//        if (objects[i]->intersect(ray, intersections)) {
+//            for (auto j = 0; j < intersections.size(); j++) {
+//                totalIntersections.add(intersections[j]);
+//            }
+//        }
+//    }
+//
+//    if (totalIntersections.size() > 0) {
+//        sort(totalIntersections, compareLess);
+//    }
+//}

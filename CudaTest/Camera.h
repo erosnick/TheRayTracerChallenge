@@ -15,9 +15,8 @@ public:
         imageWidth = inImageWidth;
         imageHeight = inImageHeight;
         fov = inFov;
-
         aspectRatio = static_cast<double>(imageWidth) / imageHeight;
-
+        focalLength = 1.0;
         origin = point(0.0, 0.0, 0.0);
     }
 
@@ -30,13 +29,14 @@ public:
 
         auto direction = (pixelPosition - origin).normalize();
 
-        auto ray = Ray(origin, direction);
-
-        return ray;
+        return Ray(origin, direction);
     }
 
-    inline Matrix4 viewTransform(const Tuple& eye, const Tuple& center, const Tuple& up) {
+    inline Matrix4 viewTransform(const Tuple& inEye, const Tuple& inCenter, const Tuple& up) {
         viewMatrix = Matrix4();
+
+        eye = inEye;
+        center = inCenter;
 
         auto forward = (center - eye).normalize();
         auto right = (forward.cross(up)).normalize();
@@ -64,7 +64,7 @@ public:
         vertical = vector(0.0, viewportHeight, 0.0);
 
         // Compute lower-left corner of projection plane
-        lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - vector(0.0, 0.0, 1.0);
+        lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - vector(0.0, 0.0, focalLength);
     }
 
     inline Matrix4 lookAt(double inFov, const Tuple& inFrom, const Tuple& inTo, const Tuple& inUp) {
@@ -77,6 +77,58 @@ public:
         return viewMatrix;
     }
 
+    void walk(double delta) {
+        eye += forward * cameraSpeed * delta;
+        center += forward * cameraSpeed * delta;
+        bIsDirty = true;
+    }
+
+    void strafe(double delta) {
+        eye += right * cameraSpeed * delta;
+        center += right * cameraSpeed * delta;
+        bIsDirty = true;
+    }
+
+    void raise(double delta) {
+        eye += up * cameraSpeed * delta;
+        center += up * cameraSpeed * delta;
+        bIsDirty = true;
+    }
+
+    void yaw(double delta) {
+        // Should rotate around up vector
+        auto rotation = rotateY(Math::radians(delta));
+        forward = (rotation * forward).normalize();
+        right = (rotation * right).normalize();
+
+        //up = glm::cross(right, forward);
+
+        center = eye + forward;
+
+        bIsDirty = true;
+    }
+
+    void pitch(float delta) {
+        // Should rotate around right vector
+        auto rotation = rotateX(Math::radians(delta));
+        forward = (rotation * forward).normalize();
+        //up = glm::normalize(rotation * up);
+        center = eye + forward;
+
+        bIsDirty = true;
+    }
+
+    void updateViewMatrix() {
+        if (bIsDirty) {
+            viewMatrix = lookAt(fov, eye, center, up);
+            right = { viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2] };
+            up = { viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2] };
+            forward = { viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2] };
+            forward = -forward;
+            bIsDirty = false;
+        }
+    }
+private:
     int32_t imageWidth;
     int32_t imageHeight;
 
@@ -93,14 +145,16 @@ public:
 
     double viewportWidth = 0.0;
     double viewportHeight = 0.0;
-    double focalLength = 2.0;
-
+    double focalLength = 1.0;
+    double cameraSpeed = 6.0f;
     double aspectRatio;
     double fov = 90;
 
-    Tuple from;
-    Tuple to;
+    Tuple eye;
+    Tuple center;
     Tuple right;
     Tuple up;
     Tuple forward;
+
+    bool bIsDirty = false;
 };

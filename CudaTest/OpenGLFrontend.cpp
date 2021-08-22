@@ -20,7 +20,7 @@
 #include "Array.h"
 #include "Camera.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void onFrameBufferResize(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 // settings
@@ -34,6 +34,13 @@ bool bShowOpenMenuItem = true;
 GLFWwindow* window = nullptr;
 
 float frameTime = 0.0f;
+
+bool bRightMouseButtonDown = false;
+bool bMiddleMouseButtonDown = false;
+
+Vector2 lastMousePosition = { 0.0f, 0.0f };
+
+float rotateSpeed = 3.0f;
 
 void initImGui() {
     // Setup Dear ImGui context.
@@ -223,6 +230,71 @@ void updateTexture()
     }
 }
 
+void onKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+}
+
+void onMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        bRightMouseButtonDown = true;
+        double x;
+        double y;
+        glfwGetCursorPos(window, &x, &y);
+        lastMousePosition.x = static_cast<float>(x);
+        lastMousePosition.y = static_cast<float>(y);
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+        bRightMouseButtonDown = false;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
+        bMiddleMouseButtonDown = true;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_RELEASE) {
+        bMiddleMouseButtonDown = false;
+    }
+
+    ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+}
+
+void onScrollCallback(GLFWwindow* window, double xOffset, double yOffset) {
+    ImGui_ImplGlfw_ScrollCallback(window, xOffset, yOffset);
+
+    if (ImGui::GetIO().WantCaptureMouse) {
+        return;
+    }
+
+    //payload->camera->walk(static_cast<float>(yOffset / 8.0f));
+}
+
+void onMouseMoveCallback(GLFWwindow* window, double x, double y) {
+    double dx = (lastMousePosition.x - x) * frameTime;
+    double dy = (lastMousePosition.y - y) * frameTime;
+
+    //if (bRightMouseButtonDown) {
+    //    payload->camera->yaw(static_cast<float>(dx) * rotateSpeed);
+    //    payload->camera->pitch(static_cast<float>(dy) * rotateSpeed);
+    //}
+
+    //if (bMiddleMouseButtonDown) {
+    //    payload->camera->strafe(static_cast<float>(-dx / 2.0f));
+    //    payload->camera->raise(static_cast<float>(dy / 2.0f));
+    //}
+
+    lastMousePosition.x = static_cast<float>(x);
+    lastMousePosition.y = static_cast<float>(y);
+}
+
+void bindCallbacks() {
+    glfwSetFramebufferSizeCallback(window, onFrameBufferResize);
+    glfwSetKeyCallback(window, onKeyCallback);
+    glfwSetMouseButtonCallback(window, onMouseButtonCallback);
+    glfwSetScrollCallback(window, onScrollCallback);
+    glfwSetCursorPosCallback(window, onMouseMoveCallback);
+}
+
 int main() {
     // glfw: initialize and configure
     // ------------------------------
@@ -244,7 +316,7 @@ int main() {
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetFramebufferSizeCallback(window, onFrameBufferResize);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -252,6 +324,8 @@ int main() {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+
+    //bindCallbacks();
 
     initImGui();
 
@@ -323,7 +397,7 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // load image, create texture and generate mipmaps
-    //initialize(SCR_WIDTH, SCR_HEIGHT);
+    initialize(SCR_WIDTH, SCR_HEIGHT);
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
@@ -344,7 +418,7 @@ int main() {
 
         update();
 
-        //updateTexture();
+        updateTexture();
 
         render(result, ourShader, VAO);
 
@@ -374,13 +448,44 @@ int main() {
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
+
+    if (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard) {
+        return;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        payload->camera->strafe(-frameTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        payload->camera->strafe(frameTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        payload->camera->walk(frameTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        payload->camera->walk(-frameTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+        payload->camera->raise(frameTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        payload->camera->raise(-frameTime);
+    }
+
+    payload->camera->updateViewMatrix();
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void onFrameBufferResize(GLFWwindow* window, int width, int height) {
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);

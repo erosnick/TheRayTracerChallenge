@@ -18,6 +18,7 @@ inline Matrix4 rotateY(double radian);
 inline Matrix4 rotateZ(double radian);
 inline Matrix4 shearing(double xy, double xz, double yx, double yz, double zx, double zy);
 inline Matrix4 operator*(const Matrix4& a, const Matrix4& b);
+inline Matrix4 operator*(const Matrix4& a, double b);
 
 class Matrix2 {
 public:
@@ -140,17 +141,17 @@ public:
 class Matrix4 {
 public:
     Matrix4() {
-        row[0] = { 1.0, 0.0, 0.0, 0.0 };
-        row[1] = { 0.0, 1.0, 0.0, 0.0 };
-        row[2] = { 0.0, 0.0, 1.0, 0.0 };
-        row[3] = { 0.0, 0.0, 0.0, 1.0 };
+        rows[0] = { 1.0, 0.0, 0.0, 0.0 };
+        rows[1] = { 0.0, 1.0, 0.0, 0.0 };
+        rows[2] = { 0.0, 0.0, 1.0, 0.0 };
+        rows[3] = { 0.0, 0.0, 0.0, 1.0 };
     }
 
     Matrix4(const Tuple& row0, const Tuple& row1, const Tuple& row2, const Tuple& row3) {
-        row[0] = row0;
-        row[1] = row1;
-        row[2] = row2;
-        row[3] = row3;
+        rows[0] = row0;
+        rows[1] = row1;
+        rows[2] = row2;
+        rows[3] = row3;
     }
 
     Matrix4 transpose() {
@@ -180,11 +181,11 @@ public:
     }
 
     const Tuple operator[](int32_t rowIndex) const {
-        return row[rowIndex];
+        return rows[rowIndex];
     }
 
     Tuple& operator[](int32_t rowIndex) {
-        return row[rowIndex];
+        return rows[rowIndex];
     }
 
     Matrix3 submatrix(int32_t row, int32_t column) const {
@@ -236,26 +237,81 @@ public:
     }
 
     Matrix4 inverse() const {
-        auto result = Matrix4();
+        //auto result = Matrix4();
 
-        if (!invertible()) {
-            std::cout << "Matrix is non-invertible.\n";
-            return result;
-        }
+        //if (!invertible()) {
+        //    std::cout << "Matrix is non-invertible.\n";
+        //    return result;
+        //}
 
-        auto d = determinant();
+        //auto d = determinant();
 
-        for (auto row = 0; row < 4; row++) {
-            for (auto column = 0; column < 4; column++) {
-                auto c = cofactor(row, column);
+        //for (auto row = 0; row < 4; row++) {
+        //    for (auto column = 0; column < 4; column++) {
+        //        auto c = cofactor(row, column);
 
-                // Note that "column, row" here, instead of "row, column",
-                // accomplishes the transpose operation!
-                result[column][row] = c / d;
-            }
-        }
+        //        // Note that "column, row" here, instead of "row, column",
+        //        // accomplishes the transpose operation!
+        //        result[column][row] = c / d;
+        //    }
+        //}
 
-        return result;
+        //return result;
+
+        // Taken form glm::mat4::inverse()
+        auto Coef00 = rows[2][2] * rows[3][3] - rows[3][2] * rows[2][3];
+        auto Coef02 = rows[1][2] * rows[3][3] - rows[3][2] * rows[1][3];
+        auto Coef03 = rows[1][2] * rows[2][3] - rows[2][2] * rows[1][3];
+
+        auto Coef04 = rows[2][1] * rows[3][3] - rows[3][1] * rows[2][3];
+        auto Coef06 = rows[1][1] * rows[3][3] - rows[3][1] * rows[1][3];
+        auto Coef07 = rows[1][1] * rows[2][3] - rows[2][1] * rows[1][3];
+
+        auto Coef08 = rows[2][1] * rows[3][2] - rows[3][1] * rows[2][2];
+        auto Coef10 = rows[1][1] * rows[3][2] - rows[3][1] * rows[1][2];
+        auto Coef11 = rows[1][1] * rows[2][2] - rows[2][1] * rows[1][2];
+
+        auto Coef12 = rows[2][0] * rows[3][3] - rows[3][0] * rows[2][3];
+        auto Coef14 = rows[1][0] * rows[3][3] - rows[3][0] * rows[1][3];
+        auto Coef15 = rows[1][0] * rows[2][3] - rows[2][0] * rows[1][3];
+
+        auto Coef16 = rows[2][0] * rows[3][2] - rows[3][0] * rows[2][2];
+        auto Coef18 = rows[1][0] * rows[3][2] - rows[3][0] * rows[1][2];
+        auto Coef19 = rows[1][0] * rows[2][2] - rows[2][0] * rows[1][2];
+
+        auto Coef20 = rows[2][0] * rows[3][1] - rows[3][0] * rows[2][1];
+        auto Coef22 = rows[1][0] * rows[3][1] - rows[3][0] * rows[1][1];
+        auto Coef23 = rows[1][0] * rows[2][1] - rows[2][0] * rows[1][1];
+
+        Tuple Fac0(Coef00, Coef00, Coef02, Coef03);
+        Tuple Fac1(Coef04, Coef04, Coef06, Coef07);
+        Tuple Fac2(Coef08, Coef08, Coef10, Coef11);
+        Tuple Fac3(Coef12, Coef12, Coef14, Coef15);
+        Tuple Fac4(Coef16, Coef16, Coef18, Coef19);
+        Tuple Fac5(Coef20, Coef20, Coef22, Coef23);
+
+        Tuple Vec0(rows[1][0], rows[0][0], rows[0][0], rows[0][0]);
+        Tuple Vec1(rows[1][1], rows[0][1], rows[0][1], rows[0][1]);
+        Tuple Vec2(rows[1][2], rows[0][2], rows[0][2], rows[0][2]);
+        Tuple Vec3(rows[1][3], rows[0][3], rows[0][3], rows[0][3]);
+
+        Tuple Inv0(Vec1 * Fac0 - Vec2 * Fac1 + Vec3 * Fac2);
+        Tuple Inv1(Vec0 * Fac0 - Vec2 * Fac3 + Vec3 * Fac4);
+        Tuple Inv2(Vec0 * Fac1 - Vec1 * Fac3 + Vec3 * Fac5);
+        Tuple Inv3(Vec0 * Fac2 - Vec1 * Fac4 + Vec2 * Fac5);
+
+        Tuple SignA(+1, -1, +1, -1);
+        Tuple SignB(-1, +1, -1, +1);
+        Matrix4 Inverse(Inv0 * SignA, Inv1 * SignB, Inv2 * SignA, Inv3 * SignB);
+
+        Tuple Row0(Inverse[0][0], Inverse[1][0], Inverse[2][0], Inverse[3][0]);
+
+        Tuple Dot0(rows[0] * Row0);
+        auto Dot1 = (Dot0.x + Dot0.y) + (Dot0.z + Dot0.w);
+
+        auto OneOverDeterminant = 1.0 / Dot1;
+
+        return Inverse * OneOverDeterminant;
     }
 
     double determinant() const {
@@ -320,7 +376,7 @@ public:
 
     union {
         struct {
-            Tuple row[4];
+            Tuple rows[4];
         };
 
         double m[4][4];
@@ -399,6 +455,19 @@ inline Tuple operator*(const Matrix4& a, const Tuple& b) {
 
     return result;
 }
+
+
+inline Matrix4 operator*(const Matrix4& a, double b) {
+    auto result = Matrix4();
+
+    result[0] = a[0] * b;
+    result[1] = a[1] * b;
+    result[2] = a[2] * b;
+    result[3] = a[3] * b;
+
+    return result;
+}
+
 
 inline std::ostream& operator << (std::ostream& os, const Matrix4& value) {
     os << "|" << value[0][0] << "|" << value[0][1] << "|" << value[0][2] << "|" << value[0][3] << "|\n"

@@ -2,7 +2,7 @@
 #include "Intersection.h"
 
 CUDA_HOST_DEVICE bool Sphere::intersect(const Ray& ray, Array<Intersection>& intersections) {
-    auto oc = (ray.origin - origin);
+    auto oc = (ray.origin - position);
     auto a = ray.direction.dot(ray.direction);
     auto b = 2.0 * ray.direction.dot(oc);
     auto c = oc.dot(oc) - radius * radius;
