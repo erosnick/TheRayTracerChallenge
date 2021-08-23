@@ -653,11 +653,12 @@ World testScene(const Matrix4& viewMatrix) {
     sphere->material->reflective = 1.0;
     sphere->material->transparency = 1.0;
     sphere->material->refractiveIndex = 1.5;
-    world.addObject(sphere);
+    //world.addObject(sphere);
 
     auto quad = std::make_shared<Quad>();
     auto transformation = viewMatrix * translate(0.0, -1.0, 0.0) * rotateY(Math::pi_2) * scaling(3.0, 1.0, 3.0);
     quad->setTransformation(transformation);
+    //quad->transformNormal(transformation);
     quad->material->reflective = 0.125;
     quad->material->pattern = std::make_shared<CheckerPattern>();
     quad->material->pattern.value()->transform(scaling(0.25, 1.0, 0.25));
@@ -705,7 +706,7 @@ int main(int argc, char* argv[]) {
     // 摄像机和射线起点位置重合会导致渲染瑕疵(屏幕左上角和右上角出现噪点)，具体原因还待排查(已解决，CheckerPattern算法的问题)
     //auto viewMatrix = camera.lookAt(60.0, point(5.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
     //auto viewMatrix = camera.lookAt(60.0, point(0.0, 1.0, 3.0), point(0.0, 0.0, -3.0), vector(0.0, 1.0, 0.0));
-    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(0.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
 
     auto world = testScene(viewMatrix);
      //world = cubeScene(viewMatrix);
@@ -722,8 +723,8 @@ int main(int argc, char* argv[]) {
     double percentage = 0.0;
     //#pragma omp parallel for schedule(dynamic, 1)       // OpenMP
     for (auto y = 0; y < imageHeight; y++) {
-        //percentage = (double)y / (imageHeight - 1) * 100;
-        //fprintf(stderr, "\rRendering: (%i samples) %.2f%%", samplesPerPixel, percentage);
+        percentage = (double)y / (imageHeight - 1) * 100;
+        fprintf(stderr, "\rRendering: (%i samples) %.2f%%", samplesPerPixel, percentage);
         for (auto x = 0; x < imageWidth; x++) {
             //std::cout << "Hello, World!, ThreadId = " << omp_get_thread_num();
             auto finalColor = Color::black;

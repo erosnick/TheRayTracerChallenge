@@ -6,9 +6,9 @@ CUDA_HOST_DEVICE bool Triangle::intersect(const Ray& ray, Array<Intersection>& i
     // that's specified by v0, v1 and v2 intersects with the ray (whose
     // origin is *orig* and direction is *dir*)
     // Also don't forget to update tnear, u and v.
-    Tuple E1 = v1 - v0;
-    Tuple E2 = v2 - v0;
-    Tuple S = ray.origin - v0;
+    Tuple E1 = transformedv1 - transformedv0;
+    Tuple E2 = transformedv2 - transformedv0;
+    Tuple S = ray.origin - transformedv0;
     Tuple S1 = ray.direction.cross(E2);
     Tuple S2 = S.cross(E1);
     double coefficient = 1.0f / S1.dot(E1);

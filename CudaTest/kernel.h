@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CUDA.h"
+#include "Array.h"
 #include <cstdint>
 
 struct Payload {
@@ -23,9 +25,20 @@ struct ImageData {
 };
 
 extern Payload* payload;
+extern class World** world;
+
+extern Array<class Shape**> objects;
+extern Array<class Light**> lights;
+extern Array<class Material**> materials;
 
 void initialize(int32_t width, int32_t height);
 
 ImageData* launch(int32_t width, int32_t height);
+
+void updateObjects(const Array<Shape**>& objects, const class Matrix4& transformation);
+CUDA_GLOBAL void updateObjectsKernel(Array<Shape**> objects, Matrix4 transformation);
+
+void updateObjects(class World* world, const class Matrix4& transformation);
+CUDA_GLOBAL void updateObjectsKernel(class World* world, Matrix4 transformation);
 
 void cleanup();

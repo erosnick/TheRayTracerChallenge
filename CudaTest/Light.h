@@ -9,12 +9,11 @@ public:
         constant = 1.0;
         linear = 0.045;
         quadratic = 0.0075;
-
         bAttenuation = true;;
     }
 
     CUDA_HOST_DEVICE Light(const Tuple& inPosition, const Tuple& inIntensity)
-    : position(inPosition), intensity(inIntensity) {
+    : position(inPosition), transformedPosition(position), intensity(inIntensity) {
         constant = 1.0;
         linear = 0.045;
         quadratic = 0.0075;
@@ -23,10 +22,11 @@ public:
     }
 
     CUDA_HOST_DEVICE void transform(const Matrix4& matrix) {
-        position = matrix * position;
+        transformedPosition = matrix * position;
     }
 
     Tuple position;
+    Tuple transformedPosition;
     Tuple intensity;
 
     double constant = 1.0;

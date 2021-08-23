@@ -32,13 +32,13 @@ CUDA_HOST_DEVICE void Quad::transform(const Matrix4& inTransformation) {
     }
 }
 
-CUDA_HOST_DEVICE void Quad::transformNormal(const Matrix4& worldMatrix) {
+CUDA_HOST_DEVICE void Quad::transformNormal(const Matrix4& inTransformation) {
     for (auto& triangle : triangles) {
-        triangle->transformNormal(worldMatrix);
+        triangle->transformNormal(inTransformation);
     }
 }
 
-CUDA_HOST_DEVICE Tuple Quad::normalAt(const Tuple& position) const {
+CUDA_HOST_DEVICE Tuple Quad::normalAt(const Tuple& inPosition) const {
     return triangles[0]->normalAt();
 }
 

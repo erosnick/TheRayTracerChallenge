@@ -22,16 +22,18 @@ public:
     }
 
     virtual CUDA_HOST_DEVICE void setPosition(const Tuple& inPosition) {
-
+        position = inPosition;
     }
 
     virtual CUDA_HOST_DEVICE void setTransformation(const Matrix4& inTransformation, bool bTransformPosition = false) {
-        transformation = inTransformation;
+        transformation = worldTransformation = inTransformation;
     }
 
     virtual CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) {
-        transformation = inTransformation * transformation;
+        transformation = inTransformation * worldTransformation;
     }
+
+    virtual CUDA_HOST_DEVICE void transformNormal(const Matrix4& worldMatrix) {}
 
     virtual inline CUDA_HOST_DEVICE Tuple normalAt(const Tuple& inPosition = point(0.0)) const { return Tuple(); }
 
@@ -41,6 +43,9 @@ public:
         material = inMaterial;
     }
 
+    Tuple position;
+    Tuple transformedPosition;
+    Matrix4 worldTransformation;
     Matrix4 transformation;
     Material* material = nullptr;
 

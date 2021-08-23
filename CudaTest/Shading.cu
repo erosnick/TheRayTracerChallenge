@@ -28,7 +28,7 @@ CUDA_HOST_DEVICE Tuple lighting(Material* material, Shape* object, Light* light,
     auto diffuseColor = surfaceColor * material->diffuse;
     auto specularColor = light->intensity * material->specular;
     
-    auto lightDirection = (light->position - position);
+    auto lightDirection = (light->transformedPosition - position);
     auto distance = lightDirection.magnitude();
 
     auto attenuation = 1.0;

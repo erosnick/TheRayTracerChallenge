@@ -10,6 +10,7 @@
 #include "Shape.h"
 #include "Sphere.h"
 #include "Quad.h"
+#include "Cube.h"
 #include "Utils.h"
 #include "Types.h"
 #include "Material.h"
@@ -42,11 +43,11 @@ struct Viewport {
 };
 
 Payload* payload = nullptr;
+World** world = nullptr;
 
 Array<Shape**> objects(4);
-Array<Light**> lights(1);
+Array<Light**> lights(2);
 Array<Material**> materials(4);
-World** world = nullptr;
 
 #define gpuErrorCheck(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort = true)
@@ -64,33 +65,50 @@ CUDA_HOST_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, const Tupl
     pixelBuffer[index + 2] = 256 * std::clamp(std::sqrt(pixelColor.z()), 0.0, 0.999);
 }
 
-CUDA_GLOBAL void createQuad(Shape** object, Material** material, Matrix4 transform) {
-    (*object) = new Quad();
-    (*object)->setTransformation(transform);
-    //(*object)->material = new Material(color(0.0), 0.1, 0.9, 0.9, 128.0, 0.25, 0.0, 1.0);
-    (*object)->material = *material;
-    (*object)->material->pattern = new CheckerPattern();
-    (*object)->material->pattern->transform(scaling(0.25, 1.0, 0.25));
+CUDA_GLOBAL void updateObjectsKernel(Array<Shape**> objects, Matrix4 transformation) {
+    for (auto i = 0; i < 4; i++) {
+        (*objects[i])->setTransformation(transformation);
+    }
 }
 
-template<typename T>
-CUDA_GLOBAL void updateObject(T* object, Matrix4 transformation) {
-    (*object)->setTransformation(transformation);
+void updateObjects(const Array<Shape**>& objects, const Matrix4& transformation) {
+    updateObjectsKernel<<<1, 1>>>(objects, transformation);
+    gpuErrorCheck(cudaDeviceSynchronize());
 }
 
-void updateObjects(World* world, Matrix4 transformation) {
-    for (auto i = 0; i < world->objectCount(); i++) {
-        world->getObject(i)->setTransformation(transformation);
+CUDA_GLOBAL void updateObjectsKernel(World* world, Matrix4 transformation) {
+    for (auto i = 0; i < 4; i++) {
+        world->getObject(i)->transform(transformation);
+        //world->getObject(i)->transformNormal(transformation);
+        if (world->getObject(i)->material->pattern) {
+            //world->getObject(i)->material->pattern->transform(transformation);
+        }
     }
 
-    for (auto i = 0; i < world->ligthCount(); i++) {
+    for (auto i = 0; i < 2; i++) {
         world->getLight(i)->transform(transformation);
     }
+}
+
+void updateObjects(World* world, const Matrix4& transformation) {
+    updateObjectsKernel<<<1, 1>>>(world, transformation);
+    gpuErrorCheck(cudaDeviceSynchronize());
 }
 
 template<typename T>
 CUDA_GLOBAL void createObject(T** object) {
     (*object) = new T();
+}
+
+CUDA_GLOBAL void createQuad(Shape** object, Material** material, Matrix4 transformation) {
+    (*object) = new Quad();
+    (*object)->setTransformation(transformation);
+    (*object)->transformNormal(transformation);
+    //(*object)->material = new Material(color(0.0), 0.1, 0.9, 0.9, 128.0, 0.25, 0.0, 1.0);
+    (*object)->material = *material;
+    (*object)->material->pattern = new CheckerPattern();
+    //(*object)->material->pattern->setTransformation(scaling(0.25, 1.0, 0.25));
+    (*object)->material->pattern->transform(scaling(0.25, 1.0, 0.25));
 }
 
 CUDA_GLOBAL void addObject(World** world, Shape** object) {
@@ -122,7 +140,8 @@ CUDA_GLOBAL void createSphere(Shape** object, Tuple origin, double radius, Mater
     // HAS to be on GPU as well.
     //auto index = threadIdx.x;
     (*object) = new Sphere(origin, radius);
-    (*object)->setTransformation(transformation);
+    //(*object)->setTransformation(transformation);
+    (*object)->transform(transformation);
     (*object)->material = *material;
     //(*object)->material = new Material(color(1.0, 0.0, 0.0), 0.1, 0.9, 0.9, 128.0, 0.25);
 }
@@ -273,7 +292,7 @@ void initialize(int32_t width, int32_t height) {
     createSphere<<<1, 1>>>(objects[1], origins[1], radiuses[1], materials[1], viewMatrix);
     createSphere<<<1, 1>>>(objects[2], origins[2], radiuses[2], materials[2], viewMatrix);
 
-    auto transformation = viewMatrix * translate(0.0, -1.0, 0.0) * rotateY(Math::pi_2) * scaling(3.0, 1.0, 3.0);
+    auto transformation = translate(0.0, -1.0, 0.0) * scaling(3.0, 1.0, 3.0);
     createQuad<<<1, 1>>>(objects[3], materials[3], transformation);
 
     createObject<<<1, 1>>>(world);
@@ -283,8 +302,10 @@ void initialize(int32_t width, int32_t height) {
     }
 
     createLight<<<1, 1>>>(lights[0], point(0.0, 1.0, 2.0), Tuple(1.0, 1.0, 1.0), viewMatrix);
+    createLight<<<1, 1>>>(lights[1], point(0.0, 1.0, -2.0), Tuple(1.0, 1.0, 1.0), viewMatrix);
 
     addLight<<<1, 1>>>(world, lights[0]);
+    addLight<<<1, 1>>>(world, lights[1]);
 
     gpuErrorCheck(cudaDeviceSynchronize());
 
@@ -404,37 +425,53 @@ int main() {
     World* world = new World();
 
     auto sphere = new Sphere(point(-1.5, 0.0, 0.0));
-    sphere->setTransformation(viewMatrix);
+    //sphere->setTransformation(viewMatrix);
     sphere->setMaterial(new Material(Color::red, 0.1, 0.9, 0.9, 128.0, 0.0, 0.0, 1.0));
+
     world->addObject(sphere);
 
     sphere = new Sphere(point(1.5, 0.0, 0.0));
-    sphere->setTransformation(viewMatrix);
+    //sphere->setTransformation(viewMatrix);
     sphere->setMaterial(new Material(Color::red, 0.1, 0.9, 0.9, 128.0, 0.0, 0.0, 1.0));
+
     world->addObject(sphere);
 
     sphere = new Sphere(point(0.0, -0.2, 1.8), 0.8);
-    sphere->setTransformation(viewMatrix);
+    //sphere->setTransformation(viewMatrix);
     sphere->setMaterial(new Material(Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5));
-    world->addObject(sphere);
+
+    //world->addObject(sphere);
 
     auto quad = new Quad();
-    auto transformation = viewMatrix * translate(0.0, -1.0, 0.0) * rotateY(Math::pi_2) * scaling(3.0, 1.0, 3.0);
+    auto transformation = translate(0.0, -1.0, 0.0) * scaling(3.0, 1.0, 3.0);
     quad->setTransformation(transformation);
     quad->material = new Material(color(0.0), 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
     quad->material->pattern = new CheckerPattern();
     quad->material->pattern->transform(scaling(0.25, 1.0, 0.25));
+
     world->addObject(quad);
+
+    auto cube = new Cube();
+    cube->transform(translate(0.0, -0.28, 0.0) * scaling(0.5, 0.5, 0.5));
+    cube->material = new Material();
+
+    //world->addObject(cube);
 
     auto light = new Light(point(0.0, 1.0, -2.0), Color::white);
     light->transform(viewMatrix);
+
     world->addLight(light);
 
     light = new Light(point(0.0, 1.0, 3.0), Color::white);
     light->transform(viewMatrix);
+
     world->addLight(light);
 
-    auto depth = 2;
+    for (auto i = 0; i < world->objectCount(); i++) {
+        world->getObject(i)->transform(viewMatrix);
+    }
+
+    auto depth = 3;
 
     auto pixelBuffer = new uint8_t[width * height * 3];
     Timer timer;

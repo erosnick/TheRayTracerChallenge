@@ -19,6 +19,7 @@
 
 #include "Array.h"
 #include "Camera.h"
+#include "World.h"
 
 void onFrameBufferResize(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -186,6 +187,10 @@ void buildImGuiWidgets() {
 }
 
 void update() {
+    auto viewMatrix = payload->camera->getViewMatrix();
+
+    updateObjects(payload->world, viewMatrix);
+
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -273,15 +278,15 @@ void onMouseMoveCallback(GLFWwindow* window, double x, double y) {
     double dx = (lastMousePosition.x - x) * frameTime;
     double dy = (lastMousePosition.y - y) * frameTime;
 
-    //if (bRightMouseButtonDown) {
-    //    payload->camera->yaw(static_cast<float>(dx) * rotateSpeed);
-    //    payload->camera->pitch(static_cast<float>(dy) * rotateSpeed);
-    //}
+    if (bRightMouseButtonDown) {
+        payload->camera->yaw(static_cast<float>(dx) * rotateSpeed);
+        payload->camera->pitch(static_cast<float>(dy) * rotateSpeed);
+    }
 
-    //if (bMiddleMouseButtonDown) {
-    //    payload->camera->strafe(static_cast<float>(-dx / 2.0f));
-    //    payload->camera->raise(static_cast<float>(dy / 2.0f));
-    //}
+    if (bMiddleMouseButtonDown) {
+        payload->camera->strafe(static_cast<float>(-dx / 2.0f));
+        payload->camera->raise(static_cast<float>(dy / 2.0f));
+    }
 
     lastMousePosition.x = static_cast<float>(x);
     lastMousePosition.y = static_cast<float>(y);
@@ -325,7 +330,7 @@ int main() {
         return -1;
     }
 
-    //bindCallbacks();
+    bindCallbacks();
 
     initImGui();
 

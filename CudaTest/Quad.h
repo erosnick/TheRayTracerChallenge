@@ -13,7 +13,7 @@ public:
 
     CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) override;
 
-    CUDA_HOST_DEVICE void transformNormal(const Matrix4& worldMatrix);
+    CUDA_HOST_DEVICE void transformNormal(const Matrix4& inTransformation);
 
     CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position = point(0.0)) const override;
 

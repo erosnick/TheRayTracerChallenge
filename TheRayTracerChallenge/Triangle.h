@@ -19,6 +19,8 @@ public:
         v0 = transformation * v0;
         v1 = transformation * v1;
         v2 = transformation * v2;
+
+        computeNormal();
     }
 
     inline void transformNormal(const Matrix4& worldMatrix) {
@@ -31,6 +33,8 @@ public:
         v0 = inTransformation * v0;
         v1 = inTransformation * v1;
         v2 = inTransformation * v2;
+
+        computeNormal();
     };
 
     inline void computeNormal() {

@@ -12,14 +12,15 @@ public:
     virtual CUDA_HOST_DEVICE Tuple patternAt(const Tuple& position) const { return Tuple(); };
     virtual CUDA_HOST_DEVICE Tuple patternAtShape(Shape* shape, const Tuple& position) const;
 
-    virtual CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) {
-        transformation = inTransformation * transformation;
-    }
-
     virtual CUDA_HOST_DEVICE void setTransformation(const Matrix4& inTransformation) {
-        transformation = inTransformation;
+        worldTransformation = inTransformation;
     }
 
+    virtual CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) {
+        transformation = inTransformation * worldTransformation;
+    }
+
+    Matrix4 worldTransformation;
     Matrix4 transformation;
     Tuple color1 = Color::white;
     Tuple color2 = Color::black;

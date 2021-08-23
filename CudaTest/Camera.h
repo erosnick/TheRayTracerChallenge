@@ -17,6 +17,7 @@ public:
         fov = inFov;
         aspectRatio = static_cast<double>(imageWidth) / imageHeight;
         focalLength = 1.0;
+        cameraSpeed = 6.0f;
         origin = point(0.0, 0.0, 0.0);
     }
 
@@ -32,22 +33,22 @@ public:
         return Ray(origin, direction);
     }
 
-    inline Matrix4 viewTransform(const Tuple& inEye, const Tuple& inCenter, const Tuple& up) {
+    inline Matrix4 viewTransform(const Tuple& inEye, const Tuple& inCenter, const Tuple& inUp) {
         viewMatrix = Matrix4();
 
         eye = inEye;
         center = inCenter;
 
-        auto forward = (center - eye).normalize();
-        auto right = (forward.cross(up)).normalize();
-        auto trueUp = (right.cross(forward)).normalize();
+        forward = (center - eye).normalize();
+        right = (forward.cross(inUp)).normalize();
+        up = (right.cross(forward)).normalize();
 
         viewMatrix[0] = right;
-        viewMatrix[1] = trueUp;
+        viewMatrix[1] = up;
         viewMatrix[2] = -forward;
 
         viewMatrix[0][3] = -right.dot(eye);
-        viewMatrix[1][3] = -trueUp.dot(eye);
+        viewMatrix[1][3] = -up.dot(eye);
         viewMatrix[2][3] = forward.dot(eye);
 
         return viewMatrix;
@@ -128,6 +129,11 @@ public:
             bIsDirty = false;
         }
     }
+
+    Matrix4& getViewMatrix() {
+        return viewMatrix;
+    }
+
 private:
     int32_t imageWidth;
     int32_t imageHeight;
