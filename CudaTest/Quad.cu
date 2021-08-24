@@ -2,10 +2,13 @@
 #include "Triangle.h"
 #include "Intersection.h"
 
-CUDA_HOST_DEVICE Quad::Quad(const char* inName)
-: name(inName) {
+CUDA_HOST_DEVICE Quad::Quad(const char* inName, bool isCube)
+: name(inName), bIsCube(isCube) {
     triangles[0] = new Triangle(point(-1.0, 0.0, -1.0), point(-1.0, 0.0, 1.0), point(1.0, 0.0, 1.0));
     triangles[1] = new Triangle(point(-1.0, 0.0, -1.0), point(1.0, 0.0, 1.0), point(1.0, 0.0, -1.0));
+
+    triangles[0]->bSaveFirstTransformation = bIsCube;
+    triangles[1]->bSaveFirstTransformation = bIsCube;
 }
 
 CUDA_HOST_DEVICE Quad::~Quad() {
@@ -57,9 +60,10 @@ CUDA_HOST_DEVICE bool Quad::intersect(const Ray& ray, Array<Intersection>& inter
     // 过滤掉Quad单独使用(不是Cube的部分)时t < 0的情况
     if (bHit) {
         intersections[intersections.size() - 1].object = this;
+        intersections[intersections.size() - 1].subObject = this;
 
         auto intersection = intersections[intersections.size() - 1];
-        if (!bCube && intersection.t < Math::epsilon) {
+        if (!bIsCube && intersection.t < Math::epsilon) {
             intersections.remove(intersection);
         }
     }
@@ -68,8 +72,8 @@ CUDA_HOST_DEVICE bool Quad::intersect(const Ray& ray, Array<Intersection>& inter
 }
 
 CUDA_HOST_DEVICE bool Quad::onQuad(const Tuple& inPosition, Tuple& normal) {
-    auto p0p1 = (inPosition - triangles[0]->v0).normalize();
-    auto p0p2 = (inPosition - triangles[1]->v2).normalize();
+    auto p0p1 = (inPosition - triangles[0]->transformedv0).normalize();
+    auto p0p2 = (inPosition - triangles[1]->transformedv2).normalize();
 
     auto normal1 = triangles[0]->normalAt(inPosition);
     auto normal2 = triangles[1]->normalAt(inPosition);

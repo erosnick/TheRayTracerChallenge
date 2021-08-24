@@ -28,6 +28,13 @@ public:
         transformedv1 = transformation * v1;
         transformedv2 = transformation * v2;
 
+        //if (bSaveFirstTransformation) {
+        //    v0 = transformedv0;
+        //    v1 = transformedv1;
+        //    v2 = transformedv2;
+        //    bSaveFirstTransformation = false;
+        //}
+
         computeNormal();
     };
 
@@ -51,4 +58,5 @@ public:
     Tuple transformedv1 = v1;
     Tuple transformedv2 = v2;
     Tuple normal = vector(0.0);
+    bool bSaveFirstTransformation = false;
 };

@@ -63,6 +63,7 @@ bool Cube::intersect(const Ray& ray, Array<Intersection>& intersections) {
             results.add(intersections[intersections.size() - 1]);
             auto hit = nearestHit(results);
             normal = hit.subObject->normalAt();
+            //printf("%f, %f, %f\n", normal.x(), normal.y(), normal.z());
         }
     }
 
@@ -92,42 +93,36 @@ bool Cube::intersect(const Ray& ray, Array<Intersection>& intersections) {
 //}
 
 void Cube::initQuads() {
-    auto top = new Quad("Top");
-    top->bCube = true;
+    auto top = new Quad("Top", true);
     top->setTransformation(translate(0.0, 1.0, 0.0));
 
     quads.add(top);
 
-    auto bottom = new Quad("Bottom");
-    bottom->bCube = true;
+    auto bottom = new Quad("Bottom", true);
     bottom->transformNormal(rotateX(Math::pi));
     bottom->setTransformation(translate(0.0, -1.0, 0.0) * rotateX(Math::pi));
 
     quads.add(bottom);
 
-    auto back = new Quad("Back");
-    back->bCube = true;
+    auto back = new Quad("Back", true);
     back->transformNormal(rotateX(-Math::pi_2));
     back->setTransformation(translate(0.0, 0.0, -1.0) * rotateX(-Math::pi_2));
 
     quads.add(back);
 
-    auto front = new Quad("Front");
-    front->bCube = true;
+    auto front = new Quad("Front", true);
     front->transformNormal(rotateX(Math::pi_2));
     front->setTransformation(translate(0.0, 0.0, 1.0) * rotateX(Math::pi_2));
 
     quads.add(front);
 
-    auto left = new Quad("Left");
-    left->bCube = true;
+    auto left = new Quad("Left", true);
     left->transformNormal(rotateZ(Math::pi_2));
     left->setTransformation(translate(-1.0, 0.0, 0.0) * rotateZ(Math::pi_2));
 
     quads.add(left);
 
-    auto right = new Quad("Right");
-    right->bCube = true;
+    auto right = new Quad("Right", true);
     right->transformNormal(rotateZ(-Math::pi_2));
     right->setTransformation(translate(1.0, 0.0, 0.0) * rotateZ(-Math::pi_2));
 

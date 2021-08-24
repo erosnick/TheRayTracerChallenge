@@ -71,7 +71,7 @@ CUDA_HOST_DEVICE Tuple lighting(Material* material, Shape* object, Light* light,
 }
 
 CUDA_HOST_DEVICE bool isShadow(World* world, Light* light, const Tuple& position) {
-    auto toLight = light->position - position;
+    auto toLight = light->transformedPosition - position;
     const auto distance = toLight.magnitude();
 
     auto ray = Ray(position, toLight.normalize());

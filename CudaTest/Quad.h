@@ -6,7 +6,7 @@
 
 class Quad : public Shape {
 public:
-    CUDA_HOST_DEVICE Quad(const char* inName = "Quad");
+    CUDA_HOST_DEVICE Quad(const char* inName = "Quad", bool isCube = false);
     CUDA_HOST_DEVICE virtual ~Quad();
 
     CUDA_HOST_DEVICE void setTransformation(const Matrix4& inTransformation, bool bTransformPosition  = false ) override;
@@ -23,7 +23,7 @@ public:
 
     CUDA_HOST_DEVICE void setMaterial(Material* inMaterial) override;
 
-    bool bCube = false;
+    bool bIsCube = false;
 
 //private:
     Triangle* triangles[2];

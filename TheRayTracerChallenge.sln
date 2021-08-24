@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLFrontend", "OpenGLFro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Playground", "Playground\Playground.vcxproj", "{E9FE8284-4A52-4B98-878A-8185A219446E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RayTracingInOneWeekEnd", "RayTracingInOneWeekEnd\RayTracingInOneWeekEnd.vcxproj", "{1E3F891A-644F-4967-98C4-C644BA42A046}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -61,6 +63,14 @@ Global
 		{E9FE8284-4A52-4B98-878A-8185A219446E}.Release|x64.ActiveCfg = Release|x64
 		{E9FE8284-4A52-4B98-878A-8185A219446E}.Release|x64.Build.0 = Release|x64
 		{E9FE8284-4A52-4B98-878A-8185A219446E}.Release|x86.ActiveCfg = Release|x64
+		{1E3F891A-644F-4967-98C4-C644BA42A046}.Debug|Win32.ActiveCfg = Debug|x64
+		{1E3F891A-644F-4967-98C4-C644BA42A046}.Debug|x64.ActiveCfg = Debug|x64
+		{1E3F891A-644F-4967-98C4-C644BA42A046}.Debug|x64.Build.0 = Debug|x64
+		{1E3F891A-644F-4967-98C4-C644BA42A046}.Debug|x86.ActiveCfg = Debug|x64
+		{1E3F891A-644F-4967-98C4-C644BA42A046}.Release|Win32.ActiveCfg = Release|x64
+		{1E3F891A-644F-4967-98C4-C644BA42A046}.Release|x64.ActiveCfg = Release|x64
+		{1E3F891A-644F-4967-98C4-C644BA42A046}.Release|x64.Build.0 = Release|x64
+		{1E3F891A-644F-4967-98C4-C644BA42A046}.Release|x86.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

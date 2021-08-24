@@ -14,6 +14,9 @@ public:
 
     CUDA_HOST_DEVICE Light(const Tuple& inPosition, const Tuple& inIntensity)
     : position(inPosition), transformedPosition(position), intensity(inIntensity) {
+        //transformation[0][3] = position.x();
+        //transformation[1][3] = position.y();
+        //transformation[2][3] = position.z();
         constant = 1.0;
         linear = 0.045;
         quadratic = 0.0075;
@@ -21,10 +24,11 @@ public:
         bAttenuation = true;;
     }
 
-    CUDA_HOST_DEVICE void transform(const Matrix4& matrix) {
-        transformedPosition = matrix * position;
+    CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) {
+        transformedPosition = inTransformation * transformation * position;
     }
 
+    Matrix4 transformation;
     Tuple position;
     Tuple transformedPosition;
     Tuple intensity;
