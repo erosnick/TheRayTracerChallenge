@@ -223,6 +223,9 @@ public:
     CUDA_HOST_DEVICE const T* begin() const { return internalArray; }
     CUDA_HOST_DEVICE const T* end() const { return internalArray + internalSize; }
 
+    CUDA_HOST_DEVICE T last() const { return internalArray[internalSize - 1]; }
+    CUDA_HOST_DEVICE T& last() { return internalArray[internalSize - 1]; }
+
     CUDA_HOST_DEVICE void print() {
         printf("size:%d, capacity:%d\n", internalSize, internalCapacity);
     }

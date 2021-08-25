@@ -24,6 +24,12 @@ void Cube::transform(const Matrix4& inTransformation) {
     }
 }
 
+CUDA_HOST_DEVICE void Cube::updateTransformation() {
+    for (auto& quad : quads) {
+        quad->updateTransformation();
+    }
+}
+
 void Cube::transformNormal(const Matrix4& worldMatrix) {
     for (auto& quad : quads) {
         quad->transformNormal(worldMatrix);
@@ -43,27 +49,51 @@ Tuple Cube::normalAt(const Tuple& position) const {
     return normal;
 }
 
+//bool Cube::intersect(const Ray& ray, Array<Intersection>& intersections) {
+//    auto size = intersections.size();
+//    for (const auto& quad : quads) {
+//        if (quad->intersect(ray, intersections)) {
+//            intersections[intersections.size() - 1].subObject = intersections[intersections.size() - 1].object;
+//            intersections[intersections.size() - 1].object = this;
+//        }
+//    }
+//    
+//    auto bHit = intersections.size() > size;
+//    if (bHit) {
+//        if ((intersections.size() - size) == 1 && intersections[intersections.size() - 1].t < Math::epsilon) {
+//            intersections.remove(intersections[intersections.size() - 1]);
+//        }
+//        else {
+//            Array<Intersection> results;
+//            results.add(intersections[intersections.size() - 2]);
+//            results.add(intersections[intersections.size() - 1]);
+//            auto hit = nearestHit(results);
+//            normal = hit.subObject->normalAt();
+//            //printf("%f, %f, %f\n", normal.x(), normal.y(), normal.z());
+//        }
+//    }
+//
+//    return bHit;
+//}
+
 bool Cube::intersect(const Ray& ray, Array<Intersection>& intersections) {
-    auto size = intersections.size();
     for (const auto& quad : quads) {
         if (quad->intersect(ray, intersections)) {
-            intersections[intersections.size() - 1].subObject = intersections[intersections.size() - 1].object;
-            intersections[intersections.size() - 1].object = this;
+            auto& result = intersections.last();
+            result.subObject = result.object;
+            result.object = this;
         }
     }
-    
-    auto bHit = intersections.size() > size;
+
+    auto bHit = intersections.size();
+
     if (bHit) {
-        if ((intersections.size() - size) == 1 && intersections[intersections.size() - 1].t < Math::epsilon) {
-            intersections.remove(intersections[intersections.size() - 1]);
+        if (intersections.size() == 1 && intersections[0].t < Math::epsilon) {
+            intersections.remove(intersections.last());
         }
         else {
-            Array<Intersection> results;
-            results.add(intersections[intersections.size() - 2]);
-            results.add(intersections[intersections.size() - 1]);
-            auto hit = nearestHit(results);
+            auto hit = nearestHit(intersections);
             normal = hit.subObject->normalAt();
-            //printf("%f, %f, %f\n", normal.x(), normal.y(), normal.z());
         }
     }
 

@@ -32,7 +32,9 @@ public:
 
     CUDA_HOST_DEVICE void transform(const Matrix4& inTransformation) override {
         Shape::transform(inTransformation);
+    }
 
+    CUDA_HOST_DEVICE void updateTransformation() override {
         transformedPosition = transformation * origin;
     }
 

@@ -45,9 +45,9 @@ struct Viewport {
 Payload* payload = nullptr;
 World** world = nullptr;
 
-Array<Shape**> objects(5);
+Array<Shape**> objects(4);
 Array<Light**> lights(2);
-Array<Material**> materials(5);
+Array<Material**> materials(4);
 Shape*** objectPool = nullptr;
 
 #define gpuErrorCheck(ans) { gpuAssert((ans), __FILE__, __LINE__); }
@@ -80,6 +80,7 @@ void updateObjects(const Array<Shape**>& objects, const Matrix4& transformation)
 CUDA_GLOBAL void updateObjectsKernel(World* world, Matrix4 transformation) {
     for (auto i = 0; i < world->objectCount(); i++) {
         world->getObject(i)->transform(transformation);
+        world->getObject(i)->updateTransformation();
         //world->getObject(i)->transformNormal(transformation);
         if (world->getObject(i)->material->pattern) {
             //world->getObject(i)->material->pattern->transform(transformation);
@@ -297,7 +298,7 @@ void initialize(int32_t width, int32_t height) {
     createMaterial<<<1, 1>>>(materials[1]);
     createMaterial<<<1, 1>>>(materials[2], Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5);
     createMaterial<<<1, 1>>>(materials[3], Color::red, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
-    createMaterial<<<1, 1>>>(materials[4], Color::limeGreen, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
+    //createMaterial<<<1, 1>>>(materials[4], Color::limeGreen, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
 
     Array<Tuple> origins(3);
 
@@ -315,7 +316,7 @@ void initialize(int32_t width, int32_t height) {
     createSphere<<<1, 1>>>(world, objects[2], origins[2], radiuses[2], materials[2], viewMatrix);
 
     auto transformation = translate(1.5, 0.0, 1.0) * scaling(0.25, 0.25, 0.25);
-    createCube<<<1, 1>>>(world, objects[4], materials[4], transformation);
+    //createCube<<<1, 1>>>(world, objects[4], materials[4], transformation);
 
     transformation = translate(0.0, -1.0, 0.0) * scaling(3.0, 1.0, 3.0);
     createQuad<<<1, 1>>>(world, objects[3], materials[3], transformation);
@@ -359,7 +360,7 @@ void cleanup() {
     gpuErrorCheck(cudaFree(payload));
 }
 
-#if 0
+#ifdef GPU_RELEASE
 ImageData* launch(int32_t width, int32_t height) {
     //queryDeviceProperties();
 
@@ -441,7 +442,7 @@ int main() {
 #else
     Camera camera(width, height);
 
-    auto viewMatrix = camera.lookAt(60.0, point(0.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(3.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
 
     World* world = new World();
 
@@ -470,12 +471,12 @@ int main() {
     quad->material->pattern = new CheckerPattern();
     quad->material->pattern->transform(scaling(0.25, 1.0, 0.25));
 
-    //world->addObject(quad);
+    world->addObject(quad);
 
     auto cube = new Cube();
     //cube->transform(translate(2.0, -0.28, 0.0) * scaling(0.125, 0.125, 0.125));
     cube->transform(scaling(0.125, 0.125, 0.125));
-    cube->material = new Material();
+    cube->setMaterial(new Material());
 
     world->addObject(cube);
 
@@ -484,16 +485,17 @@ int main() {
 
     //world->addLight(light);
 
-    light = new Light(point(0.0, 1.0, 3.0), Color::white);
+    light = new Light(point(0.0, 3.0, 3.0), Color::white);
     light->transform(viewMatrix);
 
     world->addLight(light);
 
     for (auto i = 0; i < world->objectCount(); i++) {
         world->getObject(i)->transform(viewMatrix);
+        world->getObject(i)->updateTransformation();
     }
 
-    auto depth = 3;
+    auto depth = 1;
 
     auto pixelBuffer = new uint8_t[width * height * 3];
     Timer timer;

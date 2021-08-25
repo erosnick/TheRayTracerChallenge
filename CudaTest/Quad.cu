@@ -6,9 +6,6 @@ CUDA_HOST_DEVICE Quad::Quad(const char* inName, bool isCube)
 : name(inName), bIsCube(isCube) {
     triangles[0] = new Triangle(point(-1.0, 0.0, -1.0), point(-1.0, 0.0, 1.0), point(1.0, 0.0, 1.0));
     triangles[1] = new Triangle(point(-1.0, 0.0, -1.0), point(1.0, 0.0, 1.0), point(1.0, 0.0, -1.0));
-
-    triangles[0]->bSaveFirstTransformation = bIsCube;
-    triangles[1]->bSaveFirstTransformation = bIsCube;
 }
 
 CUDA_HOST_DEVICE Quad::~Quad() {
@@ -35,6 +32,12 @@ CUDA_HOST_DEVICE void Quad::transform(const Matrix4& inTransformation) {
     }
 }
 
+CUDA_HOST_DEVICE void Quad::updateTransformation() {
+    for (auto& triangle : triangles) {
+        triangle->updateTransformation();
+    }
+}
+
 CUDA_HOST_DEVICE void Quad::transformNormal(const Matrix4& inTransformation) {
     for (auto& triangle : triangles) {
         triangle->transformNormal(inTransformation);
@@ -46,25 +49,29 @@ CUDA_HOST_DEVICE Tuple Quad::normalAt(const Tuple& inPosition) const {
 }
 
 CUDA_HOST_DEVICE bool Quad::intersect(const Ray& ray, Array<Intersection>& intersections) {
-    auto size = intersections.size();
+    Array<Intersection> triangleIntersection;
     
     // 如果和四边形其中一个三角形相交，则认为相交，因为两个三角形共面
-    triangles[0]->intersect(ray, intersections);
+    triangles[0]->intersect(ray, triangleIntersection);
     
-    if (intersections.size() == size) {
-        triangles[1]->intersect(ray, intersections);
+    if (triangleIntersection.size() == 0) {
+        triangles[1]->intersect(ray, triangleIntersection);
     }
 
-    auto bHit = intersections.size() > size;
+    auto bHit = triangleIntersection.size() > 0;
 
     // 过滤掉Quad单独使用(不是Cube的部分)时t < 0的情况
     if (bHit) {
-        intersections[intersections.size() - 1].object = this;
-        intersections[intersections.size() - 1].subObject = this;
+        triangleIntersection[0].object = this;
+        triangleIntersection[0].subObject = this;
 
-        auto intersection = intersections[intersections.size() - 1];
+        auto intersection = triangleIntersection[0];
+
         if (!bIsCube && intersection.t < Math::epsilon) {
-            intersections.remove(intersection);
+            triangleIntersection.remove(intersection);
+        }
+        else {
+            intersections.add(intersection);
         }
     }
 

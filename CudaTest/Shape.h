@@ -33,6 +33,8 @@ public:
         transformation = inTransformation * worldTransformation;
     }
 
+    virtual CUDA_HOST_DEVICE void updateTransformation() {}
+
     virtual CUDA_HOST_DEVICE void transformNormal(const Matrix4& worldMatrix) {}
 
     virtual inline CUDA_HOST_DEVICE Tuple normalAt(const Tuple& inPosition = point(0.0)) const { return Tuple(); }
