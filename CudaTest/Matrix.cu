@@ -208,25 +208,10 @@ CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, const Matrix4& b) {
 
     auto result = Matrix4();
 
-    result[0][0] = aRow0.dot(bColumn0);
-    result[0][1] = aRow0.dot(bColumn1);
-    result[0][2] = aRow0.dot(bColumn2);
-    result[0][3] = aRow0.dot(bColumn3);
-
-    result[1][0] = aRow1.dot(bColumn0);
-    result[1][1] = aRow1.dot(bColumn1);
-    result[1][2] = aRow1.dot(bColumn2);
-    result[1][3] = aRow1.dot(bColumn3);
-
-    result[2][0] = aRow2.dot(bColumn0);
-    result[2][1] = aRow2.dot(bColumn1);
-    result[2][2] = aRow2.dot(bColumn2);
-    result[2][3] = aRow2.dot(bColumn3);
-
-    result[3][0] = aRow3.dot(bColumn0);
-    result[3][1] = aRow3.dot(bColumn1);
-    result[3][2] = aRow3.dot(bColumn2);
-    result[3][3] = aRow3.dot(bColumn3);
+    result[0] = Tuple(aRow0.dot(bColumn0), aRow0.dot(bColumn1), aRow0.dot(bColumn2), aRow0.dot(bColumn3));
+    result[1] = Tuple(aRow1.dot(bColumn0), aRow1.dot(bColumn1), aRow1.dot(bColumn2), aRow1.dot(bColumn3));
+    result[2] = Tuple(aRow2.dot(bColumn0), aRow2.dot(bColumn1), aRow2.dot(bColumn2), aRow2.dot(bColumn3));
+    result[3] = Tuple(aRow3.dot(bColumn0), aRow3.dot(bColumn1), aRow3.dot(bColumn2), aRow3.dot(bColumn3));
 
     return result;
 }

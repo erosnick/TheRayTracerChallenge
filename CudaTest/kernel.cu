@@ -193,7 +193,7 @@ CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payloa
     Tuple pixelColor = Color::black;
 
     constexpr int32_t samplesPerPixel = 1;
-    constexpr int32_t depth = 3;
+    constexpr int32_t depth = 2;
 
     for (int i = 0; i < samplesPerPixel; i++) {
         //curandState state;
@@ -207,7 +207,7 @@ CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payloa
         auto x = (static_cast<double>(column) + rx) / (width - 1);
         auto y = (static_cast<double>(row) + ry) / (height - 1);
         
-        auto ray = payload->camera->getRay(x, y);
+        const auto& ray = payload->camera->getRay(x, y);
 
         // 在kernel里动态分配内存对性能影响很大！！！
         //auto hitInfo = colorAt(payload->world, ray);
@@ -217,8 +217,6 @@ CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payloa
         //}
 
         pixelColor += colorAt(payload->world, ray, depth);
-
-        //Array<Intersection> intersections;
     }
 
     writePixel(payload->pixelBuffer, index * 3, (pixelColor ) / samplesPerPixel);
@@ -241,23 +239,43 @@ void queryDeviceProperties() {
 int32_t size = 0;
 std::shared_ptr<ImageData> imageData;
 
-template<typename T>
-CUDA_HOST_DEVICE void foo(T** objects[]) {
-    auto object = objects[0];
+void reportGPUUsageInfo() {
+    size_t freeBytes;
+    size_t totalBytes;
+
+    gpuErrorCheck(cudaMemGetInfo(&freeBytes, &totalBytes));
+
+    double freeDb = (double)freeBytes;
+
+    double totalDb = (double)totalBytes;
+
+    double usedDb = totalDb - freeDb;
+
+    printf("GPU memory usage: used = %f, free = %f MB, total = %f MB\n",
+        usedDb / 1024.0 / 1024.0, freeDb / 1024.0 / 1024.0, totalDb / 1024.0 / 1024.0);
 }
 
 void initialize(int32_t width, int32_t height) {
     // Choose which GPU to run on, change this on a multi-GPU system.
     gpuErrorCheck(cudaSetDevice(0));
+    reportGPUUsageInfo();
 
     // Intersection = 32bits, MAXELEMENTS = 8, 32 * 8 * 16 = 4096
     gpuErrorCheck(cudaDeviceSetLimit(cudaLimitStackSize, sizeof(Intersection) * MAXELEMENTS * 1024));
 
-    gpuErrorCheck(cudaMallocManaged((void**)&payload, sizeof(Payload)));
+    gpuErrorCheck(cudaMallocManaged(&payload, sizeof(Payload)));
 
-    gpuErrorCheck(cudaMallocManaged((void**)&payload->pixelBuffer, width * height * 3 * sizeof(uint8_t)));
+    auto pixelCount = width * height;
 
-    gpuErrorCheck(cudaMallocManaged((void**)&payload->viewport, sizeof(Viewport)));
+    gpuErrorCheck(cudaMallocManaged(&payload->pixelBuffer, pixelCount * 3 * sizeof(uint8_t)));
+
+    gpuErrorCheck(cudaMallocManaged(&payload->viewport, sizeof(Viewport)));
+
+    gpuErrorCheck(cudaMallocManaged(&payload->intersections, sizeof(Array<Intersection>) * pixelCount));
+
+    for (auto i = 0; i < pixelCount; i++) {
+        payload->intersections[i] = Array<Intersection>();
+    }
 
     payload->viewport->fov = 90.0;
     payload->viewport->scale = std::tan(Math::radians(payload->viewport->fov / 2));
@@ -294,7 +312,7 @@ void initialize(int32_t width, int32_t height) {
 
     gpuErrorCheck(cudaMallocManaged(&world, sizeof(World**)));
 
-    createMaterial<<<1, 1>>>(materials[0], Color::black, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
+    createMaterial<<<1, 1>>>(materials[0], Color::black, 0.1, 0.9, 0.9, 128.0, 0.0, 0.0, 1.0);
     createMaterial<<<1, 1>>>(materials[1]);
     createMaterial<<<1, 1>>>(materials[2], Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5);
     createMaterial<<<1, 1>>>(materials[3], Color::red, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
@@ -356,11 +374,12 @@ void cleanup() {
     gpuErrorCheck(cudaDeviceSynchronize());
 
     gpuErrorCheck(cudaFree(payload->viewport));
+    gpuErrorCheck(cudaFree(payload->intersections));
     gpuErrorCheck(cudaFree(payload->pixelBuffer));
     gpuErrorCheck(cudaFree(payload));
 }
 
-#ifdef GPU_RELEASE
+#ifdef GPU_RENDERER
 ImageData* launch(int32_t width, int32_t height) {
     //queryDeviceProperties();
 
@@ -442,7 +461,7 @@ int main() {
 #else
     Camera camera(width, height);
 
-    auto viewMatrix = camera.lookAt(60.0, point(3.0, 3.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
+    auto viewMatrix = camera.lookAt(60.0, point(0.0, 0.0, 6.0), point(0.0, 0.0, -5.0), vector(0.0, 1.0, 0.0));
 
     World* world = new World();
 
@@ -450,19 +469,19 @@ int main() {
     //sphere->setTransformation(viewMatrix);
     sphere->setMaterial(new Material(Color::red, 0.1, 0.9, 0.9, 128.0, 0.0, 0.0, 1.0));
 
-    //world->addObject(sphere);
+    world->addObject(sphere);
 
     sphere = new Sphere(point(1.5, 0.0, 0.0));
     //sphere->setTransformation(viewMatrix);
     sphere->setMaterial(new Material(Color::red, 0.1, 0.9, 0.9, 128.0, 0.0, 0.0, 1.0));
 
-    //world->addObject(sphere);
+    world->addObject(sphere);
 
     sphere = new Sphere(point(0.0, -0.2, 1.8), 0.8);
     //sphere->setTransformation(viewMatrix);
     sphere->setMaterial(new Material(Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5));
 
-    //world->addObject(sphere);
+    world->addObject(sphere);
 
     auto quad = new Quad();
     auto transformation = translate(0.0, -1.0, 0.0) * scaling(3.0, 1.0, 3.0);
@@ -478,7 +497,7 @@ int main() {
     cube->transform(scaling(0.125, 0.125, 0.125));
     cube->setMaterial(new Material());
 
-    world->addObject(cube);
+    //world->addObject(cube);
 
     auto light = new Light(point(0.0, 1.0, -3.0), Color::white);
     light->transform(viewMatrix);
@@ -495,7 +514,9 @@ int main() {
         world->getObject(i)->updateTransformation();
     }
 
-    auto depth = 1;
+    //Array<Intersection>* intersections = new Array<Intersection>[width * height];
+
+    auto depth = 3;
 
     auto pixelBuffer = new uint8_t[width * height * 3];
     Timer timer;
@@ -510,7 +531,7 @@ int main() {
             Tuple defaultColor = Color::black;
             Tuple pixelColor = defaultColor;
 
-            if (x == 234 && y == 73) {
+            if (x == 193 && y == 120) {
                 auto a = 0;
             }
 
@@ -528,6 +549,7 @@ int main() {
     Utils::writeToPNG("./render.png", width, height, pixelBuffer);
     Utils::openImage(L"./render.png");
     delete[] pixelBuffer;
+    //delete[] intersections;
 #endif
 
     return 0;

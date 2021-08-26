@@ -3,6 +3,7 @@
 #include "CUDA.h"
 #include "FileUtils.h"
 #include "Memory.h"
+#include "Constants.h"
 
 #include <iostream>
 #include <stdint.h>
@@ -178,6 +179,7 @@ class Array
 {
 public:
     CUDA_HOST_DEVICE Array() {
+        //printf("Array\n");
     }
 
     CUDA_HOST_DEVICE Array(int32_t inSize) {
@@ -256,7 +258,7 @@ public:
 
 private:
     int32_t internalSize = 0;
-    static const int32_t capacityIncrement = 10;
+    static const int32_t capacityIncrement = MAXELEMENTS;
     int32_t internalCapacity = capacityIncrement;
     T internalArray[capacityIncrement];
 };

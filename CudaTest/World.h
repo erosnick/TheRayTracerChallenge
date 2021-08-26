@@ -15,13 +15,18 @@ public:
     CUDA_HOST_DEVICE ~World();
 
     CUDA_HOST_DEVICE void intersect(const Ray& ray, Array<Intersection>& totalIntersections);
+    CUDA_HOST_DEVICE void intersect(const Ray& ray, Intersection totalIntersections[], int32_t& size);
 
     CUDA_HOST_DEVICE void addLight(Light* light) {
-        lights.add(light);
+        //lights.add(light);
+        lights[lightIndex] = light;
+        lightIndex++;
     }
 
     CUDA_HOST_DEVICE void addObject(Shape* object) {
-        objects.add(object);
+        //objects.add(object);
+        objects[objectIndex] = object;
+        objectIndex++;
     }
 
     bool contains(Shape* object) const {
@@ -42,14 +47,20 @@ public:
     }
 
     CUDA_HOST_DEVICE int32_t ligthCount() const {
-        return lights.size();
+        //return lights.size();
+        return lightIndex;
     }
 
     CUDA_HOST_DEVICE int32_t objectCount() const {
-        return objects.size();
+        //return objects.size();
+        return objectIndex;
     }
 
 private:
-    Array<Shape*> objects;
-    Array<Light*> lights;
+    Shape* objects[5];
+    Light* lights[2];
+    int32_t objectIndex = 0;
+    int32_t lightIndex = 0;
+    //Array<Shape*> objects;
+    //Array<Light*> lights;
 };

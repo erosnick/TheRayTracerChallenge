@@ -70,22 +70,46 @@ CUDA_HOST_DEVICE Tuple lighting(Material* material, Shape* object, Light* light,
     return lighting(material, object, light, hitInfo.overPosition, hitInfo.viewDirection, hitInfo.normal, bInShadow, bHalfLambert, bBlinnPhong);
 }
 
+//CUDA_HOST_DEVICE bool isShadow(World* world, Light* light, const Tuple& position) {
+//    auto toLight = light->transformedPosition - position;
+//    const auto distance = toLight.magnitude();
+//
+//    auto ray = Ray(position, toLight.normalize());
+//
+//    Array<Intersection> intersections;
+//    world->intersect(ray, intersections);
+//
+//    if (intersections.size() > 0) {
+//        const auto& intersection = nearestHit(intersections);
+//
+//        if (intersection.bHit 
+//        && !intersection.object->bIsLight
+//        &&  intersection.object->material->bCastShadow
+//        &&  intersection.t < distance) {
+//            return true;
+//        }
+//    }
+//
+//    return false;
+//}
+
 CUDA_HOST_DEVICE bool isShadow(World* world, Light* light, const Tuple& position) {
     auto toLight = light->transformedPosition - position;
     const auto distance = toLight.magnitude();
 
     auto ray = Ray(position, toLight.normalize());
 
-    Array<Intersection> intersections;
-    world->intersect(ray, intersections);
+    Intersection intersections[4];
+    auto size = 0;
+    world->intersect(ray, intersections, size);
 
-    if (intersections.size() > 0) {
-        const auto& intersection = nearestHit(intersections);
+    if (size > 0) {
+        const auto& intersection = nearestHit(intersections, size);
 
-        if (intersection.bHit 
-        && !intersection.object->bIsLight
-        &&  intersection.object->material->bCastShadow
-        &&  intersection.t < distance) {
+        if (intersection.bHit
+            && !intersection.object->bIsLight
+            && intersection.object->material->bCastShadow
+            && intersection.t < distance) {
             return true;
         }
     }
@@ -148,10 +172,12 @@ CUDA_HOST_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
 
     HitInfo hitInfo;
 
-    Array<Intersection> totalIntersections;
-    world->intersect(ray, totalIntersections);
+    //Array<Intersection> totalIntersections;
+    Intersection totalIntersections[4];
+    auto count = 0;
+    world->intersect(ray, totalIntersections, count);
 
-    if (totalIntersections.size() == 0) {
+    if (count == 0) {
         auto t = 0.5 * (ray.direction.y() + 1.0);
         auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
         missColor = Color::background;
@@ -160,7 +186,7 @@ CUDA_HOST_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
     }
 
     // Nearest intersection
-    const auto& hit = nearestHit(totalIntersections);
+    const auto& hit = nearestHit(totalIntersections, count);
 
     if (!hit.bShading) {
         surface = Color::white;
@@ -168,7 +194,7 @@ CUDA_HOST_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
         return hitInfo;
     }
 
-    hitInfo = prepareComputations(hit, ray, totalIntersections);
+    hitInfo = prepareComputations(hit, ray, totalIntersections, count);
 
     hitInfo.surface = shadeHit(world, hitInfo, false, true);
 
@@ -287,28 +313,59 @@ CUDA_HOST_DEVICE Tuple shadeHit(World* world, const HitInfo& hitInfo,
 //  - world.intersect()
 //  - prepareComputations()
 //  - shadeHit() -> lighting()
+//CUDA_HOST_DEVICE Tuple colorAt(World* world, const Ray& ray, int32_t remaining) {
+//    auto surface = Color::black;
+//
+//    Array<Intersection> intersections;
+//    world->intersect(ray, intersections);
+//
+//    if (intersections.size() == 0) {
+//        auto t = 0.5 * (ray.direction.y() + 1.0);
+//        auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+//        missColor = Color::background;
+//        return missColor;
+//    }
+//
+//    // Nearest intersection
+//    const auto& hit = nearestHit(intersections);
+//
+//    if (!hit.bShading) {
+//        surface = Color::white;
+//        return surface;
+//    }
+//
+//    auto hitInfo = prepareComputations(hit, ray, intersections);
+//
+//    surface = shadeHit(world, hitInfo, remaining, false, true);
+//
+//    return surface;
+//}
+
 CUDA_HOST_DEVICE Tuple colorAt(World* world, const Ray& ray, int32_t remaining) {
     auto surface = Color::black;
 
-    Array<Intersection> intersections;
-    world->intersect(ray, intersections);
+    Intersection totalIntersections[6];
+    auto size = 0;
+    world->intersect(ray, totalIntersections, size);
 
-    if (intersections.size() == 0) {
+    if (size == 0) {
         auto t = 0.5 * (ray.direction.y() + 1.0);
         auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
         missColor = Color::background;
-        return missColor;
-    }
-
-    // Nearest intersection
-    const auto& hit = nearestHit(intersections);
-
-    if (!hit.bShading) {
-        surface = Color::white;
+        surface = missColor;
         return surface;
     }
 
-    auto hitInfo = prepareComputations(hit, ray, intersections);
+    // Nearest intersection
+    const auto& hit = nearestHit(totalIntersections, size);
+
+    if (!hit.bShading) {
+        surface = Color::white;
+        surface = surface;
+        return surface;
+    }
+
+    auto hitInfo = prepareComputations(hit, ray, totalIntersections, size);
 
     surface = shadeHit(world, hitInfo, remaining, false, true);
 

@@ -78,6 +78,37 @@ CUDA_HOST_DEVICE bool Quad::intersect(const Ray& ray, Array<Intersection>& inter
     return bHit;
 }
 
+CUDA_HOST_DEVICE bool Quad::intersect(const Ray& ray, Intersection intersections[]) {
+    Intersection triangleIntersection[1];
+
+    // 如果和四边形其中一个三角形相交，则认为相交，因为两个三角形共面
+    triangles[0]->intersect(ray, triangleIntersection);
+
+    if (!triangleIntersection[0].bHit) {
+        triangles[1]->intersect(ray, triangleIntersection);
+    }
+
+    auto bHit = triangleIntersection[0].bHit;
+
+    // 过滤掉Quad单独使用(不是Cube的部分)时t < 0的情况
+    if (bHit) {
+        triangleIntersection[0].object = this;
+        triangleIntersection[0].subObject = this;
+
+        auto intersection = triangleIntersection[0];
+
+        if (!bIsCube && intersection.t < Math::epsilon) {
+            triangleIntersection[0] = Intersection();
+            bHit = !bHit;
+        }
+        else {
+            intersections[0] = intersection;
+        }
+    }
+
+    return bHit;
+}
+
 CUDA_HOST_DEVICE bool Quad::onQuad(const Tuple& inPosition, Tuple& normal) {
     auto p0p1 = (inPosition - triangles[0]->transformedv0).normalize();
     auto p0p2 = (inPosition - triangles[1]->transformedv2).normalize();

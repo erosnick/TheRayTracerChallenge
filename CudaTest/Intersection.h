@@ -59,14 +59,6 @@ inline CUDA_HOST_DEVICE bool operator<(const Intersection& a, const Intersection
     return (a.t < b.t);
 }
 
-inline CUDA_HOST IntersectionSet intersections(const std::initializer_list<Intersection>& args) {
-    auto records = IntersectionSet();
-    for (const auto& element : args) {
-        records.push_back(element);
-    }
-    return records;
-}
-
 inline CUDA_HOST_DEVICE Intersection nearestHit(const Array<Intersection>& intersections) {
     Intersection intersection;
     for (auto i = 0; i < intersections.size(); i++) {
@@ -78,4 +70,16 @@ inline CUDA_HOST_DEVICE Intersection nearestHit(const Array<Intersection>& inter
     return intersection;
 }
 
+inline CUDA_HOST_DEVICE Intersection nearestHit(Intersection intersections[], int32_t count) {
+    Intersection intersection;
+    for (auto i = 0; i < count; i++) {
+        if ((intersections[i].t > 0.0) && (intersections[i].t < intersection.t)) {
+            intersection = intersections[i];
+        }
+    }
+
+    return intersection;
+}
+
 CUDA_HOST_DEVICE HitInfo prepareComputations(const Intersection& hit, const Ray& ray, const Array<Intersection>& intersections);
+CUDA_HOST_DEVICE HitInfo prepareComputations(const Intersection& hit, const Ray& ray, Intersection intersections[], int32_t count);

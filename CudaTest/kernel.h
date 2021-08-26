@@ -2,6 +2,7 @@
 
 #include "CUDA.h"
 #include "Array.h"
+#include "Intersection.h"
 #include <cstdint>
 
 struct Payload {
@@ -9,6 +10,7 @@ struct Payload {
     struct Viewport* viewport;
     uint8_t* pixelBuffer;
     class Camera* camera;
+    Array<Intersection>* intersections;
 };
 
 struct ImageData {
@@ -29,7 +31,7 @@ extern class World** world;
 
 extern Array<class Shape**> objects;
 extern Array<class Light**> lights;
-extern Array<class Material**> materials;
+extern Array<struct Material**> materials;
 
 void initialize(int32_t width, int32_t height);
 

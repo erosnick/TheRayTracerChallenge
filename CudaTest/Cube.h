@@ -22,6 +22,8 @@ public:
 
     CUDA_HOST_DEVICE bool intersect(const Ray& ray, Array<Intersection>& intersections) override;
 
+    CUDA_HOST_DEVICE bool intersect(const Ray& ray, Intersection intersections[]) override;
+
     //CUDA_HOST_DEVICE std::tuple<double, double> checkAxis(double origin, double direction);
 
     CUDA_HOST_DEVICE void initQuads();
