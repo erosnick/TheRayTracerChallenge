@@ -10,7 +10,6 @@ struct Payload {
     struct Viewport* viewport;
     uint8_t* pixelBuffer;
     class Camera* camera;
-    Array<Intersection>* intersections;
 };
 
 struct ImageData {

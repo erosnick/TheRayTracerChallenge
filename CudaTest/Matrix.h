@@ -289,10 +289,10 @@ inline CUDA_HOST_DEVICE Matrix4 scaling(const Vector3& v) {
 inline CUDA_HOST_DEVICE Matrix4 rotateX(double radian) {
     auto result = Matrix4();
 
-    result[1][1] =  std::cos(radian);
-    result[1][2] = -std::sin(radian);
-    result[2][1] =  std::sin(radian);
-    result[2][2] =  std::cos(radian);
+    result[1][1] =  cos(radian);
+    result[1][2] = -sin(radian);
+    result[2][1] =  sin(radian);
+    result[2][2] =  cos(radian);
 
     return result;
 }
@@ -300,10 +300,10 @@ inline CUDA_HOST_DEVICE Matrix4 rotateX(double radian) {
 inline CUDA_HOST_DEVICE Matrix4 rotateY(double radian) {
     auto result = Matrix4();
 
-    result[0][0] =  std::cos(radian);
-    result[0][2] =  std::sin(radian);
-    result[2][0] = -std::sin(radian);
-    result[2][2] =  std::cos(radian);
+    result[0][0] =  cos(radian);
+    result[0][2] =  sin(radian);
+    result[2][0] = -sin(radian);
+    result[2][2] =  cos(radian);
 
     return result;
 }
@@ -311,10 +311,10 @@ inline CUDA_HOST_DEVICE Matrix4 rotateY(double radian) {
 inline CUDA_HOST_DEVICE Matrix4 rotateZ(double radian) {
     auto result = Matrix4();
 
-    result[0][0] =  std::cos(radian);
-    result[0][1] = -std::sin(radian);
-    result[1][0] =  std::sin(radian);
-    result[1][1] =  std::cos(radian);
+    result[0][0] = cos(radian);
+    result[0][1] = -sin(radian);
+    result[1][0] = sin(radian);
+    result[1][1] = cos(radian);
 
     return result;
 }

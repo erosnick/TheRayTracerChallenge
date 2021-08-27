@@ -3,7 +3,7 @@
 #include "device_launch_parameters.h"
 
 #include "Intersection.h"
-#include "Timer.h"
+#include "GPUTimer.h"
 #include "Tuple.h"
 #include "Constants.h"
 #include "Ray.h"
@@ -46,7 +46,7 @@ Payload* payload = nullptr;
 World** world = nullptr;
 
 Array<Shape**> objects(4);
-Array<Light**> lights(2);
+Array<Light**> lights(1);
 Array<Material**> materials(4);
 Shape*** objectPool = nullptr;
 
@@ -193,7 +193,7 @@ CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payloa
     Tuple pixelColor = Color::black;
 
     constexpr int32_t samplesPerPixel = 1;
-    constexpr int32_t depth = 2;
+    constexpr int32_t depth = 3;
 
     for (int i = 0; i < samplesPerPixel; i++) {
         //curandState state;
@@ -271,12 +271,6 @@ void initialize(int32_t width, int32_t height) {
 
     gpuErrorCheck(cudaMallocManaged(&payload->viewport, sizeof(Viewport)));
 
-    gpuErrorCheck(cudaMallocManaged(&payload->intersections, sizeof(Array<Intersection>) * pixelCount));
-
-    for (auto i = 0; i < pixelCount; i++) {
-        payload->intersections[i] = Array<Intersection>();
-    }
-
     payload->viewport->fov = 90.0;
     payload->viewport->scale = std::tan(Math::radians(payload->viewport->fov / 2));
 
@@ -312,9 +306,9 @@ void initialize(int32_t width, int32_t height) {
 
     gpuErrorCheck(cudaMallocManaged(&world, sizeof(World**)));
 
-    createMaterial<<<1, 1>>>(materials[0], Color::black, 0.1, 0.9, 0.9, 128.0, 0.0, 0.0, 1.0);
+    createMaterial<<<1, 1>>>(materials[0], Color::dawn, 0.1, 0.9, 0.9, 128.0, 0.9, 0.0, 1.0);
     createMaterial<<<1, 1>>>(materials[1]);
-    createMaterial<<<1, 1>>>(materials[2], Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5);
+    createMaterial<<<1, 1>>>(materials[2], Color::dawn, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5);
     createMaterial<<<1, 1>>>(materials[3], Color::red, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
     //createMaterial<<<1, 1>>>(materials[4], Color::limeGreen, 0.1, 0.9, 0.9, 128.0, 0.125, 0.0, 1.0);
 
@@ -343,8 +337,8 @@ void initialize(int32_t width, int32_t height) {
     //    addObject<<<1, 1>>>(world, objects[i]);
     //}
 
-    createLight<<<1, 1>>>(world, lights[0], point(0.0, 1.0, 2.0), Tuple(1.0, 1.0, 1.0), viewMatrix);
-    createLight<<<1, 1>>>(world, lights[1], point(0.0, 1.0, -2.0), Tuple(1.0, 1.0, 1.0), viewMatrix);
+    createLight<<<1, 1>>>(world, lights[0], point(0.0, 3.0, 3.0), Tuple(1.0, 1.0, 1.0), viewMatrix);
+    //createLight<<<1, 1>>>(world, lights[1], point(0.0, 1.0, -2.0), Tuple(1.0, 1.0, 1.0), viewMatrix);
 
     //addLight<<<1, 1>>>(world, lights[0]);
     //addLight<<<1, 1>>>(world, lights[1]);
@@ -374,16 +368,13 @@ void cleanup() {
     gpuErrorCheck(cudaDeviceSynchronize());
 
     gpuErrorCheck(cudaFree(payload->viewport));
-    gpuErrorCheck(cudaFree(payload->intersections));
     gpuErrorCheck(cudaFree(payload->pixelBuffer));
     gpuErrorCheck(cudaFree(payload));
 }
 
-#ifdef GPU_RENDERER
+#ifdef GPU_RENDERER_REALTIME
 ImageData* launch(int32_t width, int32_t height) {
     //queryDeviceProperties();
-
-    //Timer timer;
 
     dim3 blockSize(32, 32);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
@@ -392,10 +383,6 @@ ImageData* launch(int32_t width, int32_t height) {
     rayTracingKernel<<<gridSize, blockSize>>>(width, height, payload);
 
     gpuErrorCheck(cudaDeviceSynchronize());
-
-    //timer.stop();
-
-    //writeToPPM("render.ppm", width, height, payload->pixelBuffer);
 
     imageData->width = width;
     imageData->height = height;
@@ -411,46 +398,36 @@ ImageData* launch(int32_t width, int32_t height) {
 int main() {
     //queryDeviceProperties();
 
-    constexpr int32_t width = 480;
-    constexpr int32_t height = 320;
+    constexpr int32_t width = 1920;
+    constexpr int32_t height = 1080;
 
-    auto size = width * height;
-
-#if 0
-    initialize(width, height);
-
+#ifdef GPU_RENDERER
     //int32_t minGridSize = 0;
     //int32_t blockSize = 0;
     //int32_t gridSize = 0;
-
-    //float time = 0.0f;
-    //cudaEvent_t start;
-    //cudaEvent_t stop;
-    //cudaEventCreate(&start);
-    //cudaEventCreate(&stop);
-    //cudaEventRecord(start, 0);
 
     //cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, rayTracingKernel, 0, size);
 
     //// Round up according to array size
     //gridSize = (size + blockSize - 1) / blockSize;
 
-    //cudaEventRecord(stop, 0);
-    //cudaEventSynchronize(stop);
-    //cudaEventElapsedTime(&time, start, stop);
-    //printf("Occupancy calculator elapsed time: %3.3f ms \n", time);
+    initialize(width, height);
 
     dim3 blockSize(32, 32);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
-                  (height + blockSize.y - 1) / blockSize.y);
+        (height + blockSize.y - 1) / blockSize.y);
 
-    Timer timer;
 
+    auto viewMatrix = payload->camera->getViewMatrix();
+
+    updateObjects(payload->world, viewMatrix);
+
+    GPUTimer timer("Rendering start...");
     rayTracingKernel<<<gridSize, blockSize>>>(width, height, payload);
 
     gpuErrorCheck(cudaDeviceSynchronize());
 
-    timer.stop();
+    timer.stop("Rendering elapsed time");
 
     //writeToPPM("render.ppm", width, height, payload->pixelBuffer);
     Utils::writeToPNG("./render.png", width, height, payload->pixelBuffer);
@@ -467,7 +444,7 @@ int main() {
 
     auto sphere = new Sphere(point(-1.5, 0.0, 0.0));
     //sphere->setTransformation(viewMatrix);
-    sphere->setMaterial(new Material(Color::red, 0.1, 0.9, 0.9, 128.0, 0.0, 0.0, 1.0));
+    sphere->setMaterial(new Material(Color::dawn, 0.1, 0.9, 0.9, 128.0, 0.9, 0.0, 1.0));
 
     world->addObject(sphere);
 
@@ -479,7 +456,7 @@ int main() {
 
     sphere = new Sphere(point(0.0, -0.2, 1.8), 0.8);
     //sphere->setTransformation(viewMatrix);
-    sphere->setMaterial(new Material(Color::black, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5));
+    sphere->setMaterial(new Material(Color::dawn, 0.1, 0.9, 0.9, 128.0, 1.0, 1.0, 1.5));
 
     world->addObject(sphere);
 
@@ -514,8 +491,6 @@ int main() {
         world->getObject(i)->updateTransformation();
     }
 
-    //Array<Intersection>* intersections = new Array<Intersection>[width * height];
-
     auto depth = 3;
 
     auto pixelBuffer = new uint8_t[width * height * 3];
@@ -549,10 +524,9 @@ int main() {
     Utils::writeToPNG("./render.png", width, height, pixelBuffer);
     Utils::openImage(L"./render.png");
     delete[] pixelBuffer;
-    //delete[] intersections;
-#endif
 
     return 0;
+#endif
 }
 
 #endif

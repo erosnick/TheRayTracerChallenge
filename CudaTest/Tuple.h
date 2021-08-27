@@ -5,6 +5,8 @@
 
 #include "utils.h"
 #include "CUDA.h"
+#include "cutil_math.h"
+
 #include <limits>
 #include <cstdint>
 #include <cmath>
@@ -132,6 +134,145 @@ public:
     } data;
 };
 
+//class Tuple {
+//public:
+//    CUDA_HOST_DEVICE constexpr Tuple()
+//        : elements({ 0.0, 0.0, 0.0, 0.0 }) {}
+//    CUDA_HOST_DEVICE constexpr Tuple(double inX, double inY, double inZ, double inW = 0.0)
+//        : elements({ inX, inY, inZ, inW }) {
+//    }
+//
+//    inline CUDA_HOST_DEVICE constexpr Tuple operator-() const {
+//        return Tuple(-x(), -y(), -z(), -w());
+//    }
+//
+//    inline CUDA_HOST_DEVICE double magnitude() const {
+//        return std::sqrt(magnitudeSqured());
+//    }
+//
+//    inline CUDA_HOST_DEVICE double magnitudeSqured() const {
+//        double lengthSquared = x() * x() + y() * y() + z() * z();
+//
+//        return lengthSquared;
+//    }
+//
+//    inline CUDA_HOST_DEVICE Tuple normalize() {
+//        double length = magnitude();
+//
+//        x() /= length;
+//        y() /= length;
+//        z() /= length;
+//
+//        return *this;
+//    }
+//
+//    inline CUDA_HOST_DEVICE constexpr double x() const {
+//        return elements.x;
+//    }
+//
+//    inline CUDA_HOST_DEVICE constexpr double& x() {
+//        return elements.x;
+//    }
+//
+//    inline CUDA_HOST_DEVICE constexpr double y() const {
+//        return elements.y;
+//    }
+//
+//    inline CUDA_HOST_DEVICE constexpr double& y() {
+//        return elements.y;
+//    }
+//
+//    inline CUDA_HOST_DEVICE constexpr double z() const {
+//        return elements.z;
+//    }
+//
+//    inline CUDA_HOST_DEVICE constexpr double& z() {
+//        return elements.z;
+//    }
+//
+//    inline CUDA_HOST_DEVICE constexpr double w() const {
+//        return elements.w;
+//    }
+//
+//    inline CUDA_HOST_DEVICE constexpr double& w() {
+//        return elements.w;
+//    }
+//
+//    CUDA_HOST_DEVICE double dot(const Tuple& other) const {
+//        return x() * other.x() + y() * other.y() + z() * other.z() + w() * other.w();
+//    }
+//
+//    CUDA_HOST_DEVICE Tuple cross(const Tuple& other) const {
+//        return Tuple(other.z() * y() - z() * other.y(),
+//            other.x() * z() - x() * other.z(),
+//            other.y() * x() - y() * other.x(), 0.0);
+//    }
+//
+//    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+//        switch (index)
+//        {
+//        case 0:
+//            return elements.x;
+//            break;
+//        case 1:
+//            return elements.y;
+//            break;
+//        case 2:
+//            return elements.z;
+//        case 3:
+//            return elements.w;
+//            break;
+//        default:
+//            return elements.w;
+//            break;
+//        }
+//    }
+//
+//    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+//        switch (index)
+//        {
+//        case 0:
+//            return elements.x;
+//            break;
+//        case 1:
+//            return elements.y;
+//            break;
+//        case 2:
+//            return elements.z;
+//        case 3:
+//            return elements.w;
+//            break;
+//        default:
+//            return elements.w;
+//            break;
+//        }
+//    }
+//
+//    CUDA_HOST_DEVICE Tuple& operator+=(const Tuple& other) {
+//        elements.x += other.x();
+//        elements.y += other.y();
+//        elements.z += other.z();
+//        elements.w += other.w();
+//
+//        return *this;
+//    }
+//
+//    CUDA_HOST_DEVICE Tuple& operator*=(const Tuple& other) {
+//        elements.x *= other.x();
+//        elements.y *= other.y();
+//        elements.z *= other.z();
+//        elements.w *= other.w();
+//
+//        return *this;
+//    }
+//
+//    CUDA_HOST_DEVICE void print() const {
+//        printf("(%f, %f, %f)\n", x(), y(), z());
+//    }
+//
+//    double4 elements;
+//};
+
 class Vector2 {
 public:
     //CUDA_HOST_DEVICE Vector2()
@@ -203,71 +344,211 @@ public:
     } data;
 };
 
+//class Vector3 {
+//public:
+//    //constexpr Vector3()
+//    //: x(0.0), y(0.0), z(0.0) {}
+//
+//    //constexpr Vector3(double inX, double inY, double inZ)
+//    //: x(inX), y(inY), z(inZ) {}
+//
+//    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+//        switch (index)
+//        {
+//        case 0:
+//            return elements.x;
+//            break;
+//        case 1:
+//            return elements.y;
+//            break;
+//        case 2:
+//            return elements.z;
+//        default:
+//            return elements.z;
+//            break;
+//        }
+//    }
+//
+//    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+//        switch (index)
+//        {
+//        case 0:
+//            return elements.x;
+//            break;
+//        case 1:
+//            return elements.y;
+//            break;
+//        case 2:
+//            return elements.z;
+//        default:
+//            return elements.z;
+//            break;
+//        }
+//    }
+//
+//    CUDA_HOST_DEVICE double x() const {
+//        return elements.x;
+//    }
+//
+//    CUDA_HOST_DEVICE double& x() {
+//        return elements.x;
+//    }
+//
+//    CUDA_HOST_DEVICE double y() const {
+//        return elements.y;
+//    }
+//
+//    CUDA_HOST_DEVICE double& y() {
+//        return elements.y;
+//    }
+//
+//    CUDA_HOST_DEVICE double z() const {
+//        return elements.z;
+//    }
+//
+//    CUDA_HOST_DEVICE double& z() {
+//        return elements.z;
+//    }
+//
+//    double3 elements;
+//};
+
+//class Vector4 {
+//public:
+//    constexpr Vector4()
+//    : data({ 0.0, 0.0, 0.0, 0.0 }) {}
+//
+//    constexpr Vector4(double inX, double inY, double inZ, double inW)
+//    : data({ inX, inY, inZ, inW }) {}
+//
+//    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+//        return elements.elements[index];
+//    }
+//
+//    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+//        return elements.elements[index];
+//    }
+//
+//    CUDA_HOST_DEVICE operator Tuple () const {
+//        return Tuple(elements.x, elements.y, elements.z, elements.w);
+//    }
+//
+//    //CUDA_HOST_DEVICE operator Tuple&() const {
+//    //    return (*this);
+//    //}
+//
+//    CUDA_HOST_DEVICE double x() const {
+//        return elements.x;
+//    }
+//
+//    CUDA_HOST_DEVICE double& x() {
+//        return elements.x;
+//    }
+//
+//    CUDA_HOST_DEVICE double y() const {
+//        return elements.y;
+//    }
+//
+//    CUDA_HOST_DEVICE double& y() {
+//        return elements.y;
+//    }
+//
+//    CUDA_HOST_DEVICE double z() const {
+//        return elements.z;
+//    }
+//
+//    CUDA_HOST_DEVICE double& z() {
+//        return elements.z;
+//    }
+//
+//    CUDA_HOST_DEVICE double w() const {
+//        return elements.w;
+//    }
+//
+//    CUDA_HOST_DEVICE double& w() {
+//        return elements.w;
+//    }
+//
+//    union Data {
+//        struct {
+//            double x;
+//            double y;
+//            double z;
+//            double w;
+//        };
+//        double elements[4];
+//    } data;
+//};
+
 class Vector4 {
 public:
     constexpr Vector4()
-    : data({ 0.0, 0.0, 0.0, 0.0 }) {}
+        : elements({ 0.0, 0.0, 0.0, 0.0 }) {}
 
     constexpr Vector4(double inX, double inY, double inZ, double inW)
-    : data({ inX, inY, inZ, inW }) {}
+        : elements({ inX, inY, inZ, inW }) {}
 
     CUDA_HOST_DEVICE double operator[](int32_t index) const {
-        return data.elements[index];
+        switch (index)
+        {
+        case 0:
+            return elements.x;
+            break;
+        case 1:
+            return elements.y;
+            break;
+        case 2:
+            return elements.z;
+        case 3:
+            return elements.w;
+            break;
+        default:
+            return elements.w;
+            break;
+        }
     }
 
     CUDA_HOST_DEVICE double& operator[](int32_t index) {
-        return data.elements[index];
+        return (*this)[index];
     }
 
     CUDA_HOST_DEVICE operator Tuple () const {
-        return Tuple(data.x, data.y, data.z, data.w);
+        return Tuple(elements.x, elements.y, elements.z, elements.w);
     }
 
-    //CUDA_HOST_DEVICE operator Tuple&() const {
-    //    return (*this);
-    //}
-
     CUDA_HOST_DEVICE double x() const {
-        return data.x;
+        return elements.x;
     }
 
     CUDA_HOST_DEVICE double& x() {
-        return data.x;
+        return elements.x;
     }
 
     CUDA_HOST_DEVICE double y() const {
-        return data.y;
+        return elements.y;
     }
 
     CUDA_HOST_DEVICE double& y() {
-        return data.y;
+        return elements.y;
     }
 
     CUDA_HOST_DEVICE double z() const {
-        return data.z;
+        return elements.z;
     }
 
     CUDA_HOST_DEVICE double& z() {
-        return data.z;
+        return elements.z;
     }
 
     CUDA_HOST_DEVICE double w() const {
-        return data.w;
+        return elements.w;
     }
 
     CUDA_HOST_DEVICE double& w() {
-        return data.w;
+        return elements.w;
     }
 
-    union Data {
-        struct {
-            double x;
-            double y;
-            double z;
-            double w;
-        };
-        double elements[4];
-    } data;
+    double4 elements;
 };
 
 inline constexpr Tuple point(double x, double y, double z) {
