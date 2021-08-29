@@ -25,11 +25,11 @@
 
 #include "cuda_runtime.h"
 
-typedef unsigned int uint;
-typedef unsigned short ushort;
+using uint = unsigned int;
+using ushort = unsigned short;
 
 #ifndef __CUDACC__
-#include <math.h>
+#include <cmath>
 
 ////////////////////////////////////////////////////////////////////////////////
 // host implementations of CUDA functions
@@ -257,6 +257,11 @@ inline __host__ __device__ int2 operator-(int2 &a)
     return make_int2(-a.x, -a.y);
 }
 inline __host__ __device__ float3 operator-(float3 &a)
+{
+    return make_float3(-a.x, -a.y, -a.z);
+}
+
+inline __host__ __device__ float3 operator-(const float3& a)
 {
     return make_float3(-a.x, -a.y, -a.z);
 }

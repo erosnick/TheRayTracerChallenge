@@ -1,6 +1,5 @@
 #include "Utils.h"
 #include "Tuple.h"
-#include "lodepng.h"
 
 #include <iostream>
 #include <fstream>
@@ -10,6 +9,9 @@
 #define NOMINMAX
 #include <windows.h>
 #undef NOMINMAX
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 namespace Utils {
     std::string toPPM(int32_t width, int32_t height) {
@@ -34,9 +36,11 @@ namespace Utils {
             for (auto x = 0; x < width; x++) {
                 auto index = y * width + x;
                 const auto& pixelColor = pixelBuffer[index];
-                auto r = static_cast<uint32_t>(256 * std::clamp(pixelColor.x(), 0.0, 0.999));
-                auto g = static_cast<uint32_t>(256 * std::clamp(pixelColor.y(), 0.0, 0.999));
-                auto b = static_cast<uint32_t>(256 * std::clamp(pixelColor.z(), 0.0, 0.999));
+                Float start = 0.0;
+                Float end = 0.999;
+                auto r = static_cast<uint32_t>(256 * std::clamp(pixelColor.x(), start, end));
+                auto g = static_cast<uint32_t>(256 * std::clamp(pixelColor.y(), start, end));
+                auto b = static_cast<uint32_t>(256 * std::clamp(pixelColor.z(), start, end));
                 ss << r << ' ' << g << ' ' << b << '\n';
             }
         }
@@ -93,21 +97,6 @@ namespace Utils {
     }
 
     void writeToPNG(const std::string& path, int32_t width, int32_t height, uint8_t* pixelBuffer) {
-        std::vector<uint8_t> pixelData;
-
-        for (auto y = height - 1; y >= 0; y--) {
-            for (auto x = 0; x < width; x++) {
-                auto index = y * width + x;
-                pixelData.push_back(pixelBuffer[index * 3]);
-                pixelData.push_back(pixelBuffer[index * 3 + 1]);
-                pixelData.push_back(pixelBuffer[index * 3 + 2]);
-                pixelData.push_back(255);
-            }
-        }
-
-        //Encode the image
-        unsigned error = lodepng::encode(path, pixelData, width, height);
-        //if there's an error, display it
-        if (error) std::cout << "encoder error " << error << ": " << lodepng_error_text(error) << std::endl;
+        stbi_write_png("render.png", width, height, 3, pixelBuffer, width * 3);
     }
 }

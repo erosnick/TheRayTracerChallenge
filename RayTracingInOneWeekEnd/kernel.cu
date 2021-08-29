@@ -27,41 +27,56 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
 
 CUDA_HOST_DEVICE Vec3 rayColor(const Ray& ray) {
     auto unitDirection = unitVector(ray.direction);
-    auto t = 0.5 * (unitDirection.y() + 1.0);
+    auto t = 0.5f * (unitDirection.y() + 1.0f);
     return lerp(Color::White(), Color::LightCornflower(), t);
 }
 
-CUDA_HOST_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, double r, double g, double b) {
-    pixelBuffer[index] = static_cast<uint8_t>(256 * std::clamp(r, 0.0, 0.999));
-    pixelBuffer[index + 1] = static_cast<uint8_t>(256 * std::clamp(g, 0.0, 0.999));
-    pixelBuffer[index + 2] = static_cast<uint8_t>(256 * std::clamp(b, 0.0, 0.999));
+CUDA_HOST_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, Float r, Float g, Float b) {
+    Float start = 0.0f;
+    Float end = 0.999f;
+    pixelBuffer[index] = static_cast<uint8_t>(256 * std::clamp(r, start, end));
+    pixelBuffer[index + 1] = static_cast<uint8_t>(256 * std::clamp(g, start, end));
+    pixelBuffer[index + 2] = static_cast<uint8_t>(256 * std::clamp(b, start, end));
 }
 
 
 CUDA_GLOBAL void pathTracingKernel(uint8_t* pixelBuffer, int32_t width, int32_t height) {
-    auto row = threadIdx.y + blockDim.y * blockIdx.y;
-    auto column = threadIdx.x + blockDim.x * blockIdx.x;
+    auto x = threadIdx.x + blockDim.x * blockIdx.x;
+    auto y = threadIdx.y + blockDim.y * blockIdx.y;
 
-    auto index = row * width + column;
+    auto index = y * width + x;
 
-    Vec3 upperLeftCorner(-2.0, 1.0, -1.0);
-    Vec3 horizontal(4.0, 0.0, 0.0);
-    Vec3 vertical(0.0, 2.0, 0.0);
-    Vec3 origin(0.0, 0.0, 0.0);
+    if (index < width * height) {
+        Vec3 upperLeftCorner(-2.0f, 1.0f, -1.0f);
+        Vec3 horizontal(4.0f, 0.0f, 0.0f);
+        Vec3 vertical(0.0f, 2.0f, 0.0f);
+        Vec3 origin(0.0f, 0.0f, 0.0f);
 
-    auto u = double(column) / width;
-    auto v = double(row) / height;
+        auto u = Float(x) / width;
+        auto v = Float(y) / height;
 
-    Ray ray(origin, unitVector(upperLeftCorner + u * horizontal + v * vertical));
+        Ray ray(origin, unitVector(upperLeftCorner + u * horizontal + v * vertical));
 
-    auto color = rayColor(ray);
-    writePixel(pixelBuffer, index * 3, color.x(), color.y(), color.z());
+        auto color = rayColor(ray);
+        writePixel(pixelBuffer, index * 3, color.x(), color.y(), color.z());
+    }
 }
 
  void pathTracing(uint8_t* pixelBuffer, int32_t width, int32_t height) {
-    dim3 blockSize(20, 20);
+    dim3 blockSize(32, 32);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.y,
                   (width + blockSize.y - 1) / blockSize.y);
+
+    //int32_t minGridSize = 0;
+    //int32_t blockSize = 0;
+    //int32_t gridSize = 0;
+
+    //auto size = width * height;
+
+    //cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, pathTracingKernel, 0, size);
+
+    //// Round up according to array size
+    //gridSize = (size + blockSize - 1) / blockSize;
 
     pathTracingKernel<<<gridSize, blockSize>>>(pixelBuffer, width, height);
     gpuErrorCheck(cudaDeviceSynchronize());
@@ -69,8 +84,8 @@ CUDA_GLOBAL void pathTracingKernel(uint8_t* pixelBuffer, int32_t width, int32_t 
 
 int main()
 {
-    constexpr auto width = 200;
-    constexpr auto height = 100;
+    constexpr auto width = 512;
+    constexpr auto height = 384;
 
     uint8_t* pixelBuffer = nullptr;
 

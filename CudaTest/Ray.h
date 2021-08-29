@@ -9,7 +9,7 @@ public:
     CUDA_HOST_DEVICE Ray(const Tuple& inOrigin, const Tuple& inDirection)
     : origin(inOrigin), direction(inDirection) {}
 
-    inline CUDA_HOST_DEVICE Tuple position(double t) const {
+    inline CUDA_HOST_DEVICE Tuple position(Float t) const {
         return origin + direction * t;
     }
 

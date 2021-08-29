@@ -10,7 +10,7 @@
 
 struct HitInfo {
     bool bHit = false;
-    double t;
+    Float t;
     Shape* object = nullptr;
     Tuple position;
     Tuple viewDirection;
@@ -19,8 +19,8 @@ struct HitInfo {
     Tuple underPosition;
     Tuple reflectVector;
     Tuple surface;
-    double n1 = 1.0;
-    double n2 = 1.0;
+    Float n1 = 1.0;
+    Float n2 = 1.0;
     bool bInside = false;
 };
 
@@ -28,15 +28,15 @@ struct Intersection {
     CUDA_HOST_DEVICE Intersection() {
     }
 
-    CUDA_HOST_DEVICE Intersection(double inT, Shape* inShape)
+    CUDA_HOST_DEVICE Intersection(Float inT, Shape* inShape)
     : t(inT), object(inShape), subObject(nullptr) {
     }
 
-    CUDA_HOST_DEVICE Intersection(bool bInHit, double inT, Shape* inSphere)
+    CUDA_HOST_DEVICE Intersection(bool bInHit, Float inT, Shape* inSphere)
     : bHit(bInHit), t(inT), object(inSphere), subObject(nullptr) {
     }
 
-    CUDA_HOST_DEVICE Intersection(bool bInHit, bool bInShading, double inT, Shape* inSphere)
+    CUDA_HOST_DEVICE Intersection(bool bInHit, bool bInShading, Float inT, Shape* inSphere)
     : bHit(bInHit), bShading(bInShading), t(inT), object(inSphere), subObject(nullptr) {
     }
 
@@ -44,7 +44,7 @@ struct Intersection {
 
     bool bHit = false;
     bool bShading = true;
-    double t = 100000000.0;
+    Float t = 100000000.0;
     Shape* subObject = nullptr;
     Shape* object = nullptr;
 };

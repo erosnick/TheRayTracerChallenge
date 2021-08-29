@@ -10,17 +10,17 @@
 
 class Matrix4;
 
-inline CUDA_HOST_DEVICE Matrix4 translate(double x, double y, double z);
+inline CUDA_HOST_DEVICE Matrix4 translate(Float x, Float y, Float z);
 inline CUDA_HOST_DEVICE Matrix4 translate(const Vector3& v);
-inline CUDA_HOST_DEVICE Matrix4 scaling(double x, double y, double z);
+inline CUDA_HOST_DEVICE Matrix4 scaling(Float x, Float y, Float z);
 inline CUDA_HOST_DEVICE Matrix4 scaling(const Vector3& v);
-inline CUDA_HOST_DEVICE Matrix4 rotateX(double radian);
-inline CUDA_HOST_DEVICE Matrix4 rotateY(double radian);
-inline CUDA_HOST_DEVICE Matrix4 rotateZ(double radian);
-inline CUDA_HOST_DEVICE Matrix4 shearing(double xy, double xz, double yx, double yz, double zx, double zy);
+inline CUDA_HOST_DEVICE Matrix4 rotateX(Float radian);
+inline CUDA_HOST_DEVICE Matrix4 rotateY(Float radian);
+inline CUDA_HOST_DEVICE Matrix4 rotateZ(Float radian);
+inline CUDA_HOST_DEVICE Matrix4 shearing(Float xy, Float xz, Float yx, Float yz, Float zx, Float zy);
 CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, const Matrix4& b);
 CUDA_HOST_DEVICE Tuple operator*(const Matrix4& a, const Tuple& b);
-CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, double b);
+CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, Float b);
 
 class Matrix2 {
 public:
@@ -38,7 +38,7 @@ public:
         struct {
             Vector2 row[2];
         };
-        double m[2][2];
+        Float m[2][2];
     } data;
 
     CUDA_HOST_DEVICE const Vector2 operator[](int32_t rowIndex) const {
@@ -49,7 +49,7 @@ public:
         return data.row[rowIndex];
     }
 
-    CUDA_HOST_DEVICE double determinant() const {
+    CUDA_HOST_DEVICE Float determinant() const {
         return data.m[0][0] * data.m[1][1] - data.m[0][1] * data.m[1][0];
     }
 };
@@ -78,13 +78,13 @@ public:
 
     CUDA_HOST_DEVICE Matrix2 submatrix(int32_t row, int32_t column) const;
 
-    CUDA_HOST_DEVICE double minor(int32_t row, int32_t column) const {
+    CUDA_HOST_DEVICE Float minor(int32_t row, int32_t column) const {
         return submatrix(row, column).determinant();
     }
 
     // if row + column is an odd number, then you negate the minor.Otherwise,
     // you just return the minor as is.
-    CUDA_HOST_DEVICE double cofactor(int32_t row, int32_t column) const {
+    CUDA_HOST_DEVICE Float cofactor(int32_t row, int32_t column) const {
         if ((row + column) % 2 == 0) {
             return minor(row, column);
         }
@@ -93,8 +93,8 @@ public:
         }
     }
 
-    CUDA_HOST_DEVICE double determinant() const {
-        double result = 0.0;
+    CUDA_HOST_DEVICE Float determinant() const {
+        Float result = 0.0;
 
         // Pick any row(or column), multiply each element by its cofactor,
         // and add the results.
@@ -110,7 +110,7 @@ public:
             Vector3 row[3];
         };
 
-        double m[3][3];
+        Float m[3][3];
     } data;
 };
 
@@ -142,13 +142,13 @@ public:
 
     CUDA_HOST_DEVICE Matrix3 submatrix(int32_t row, int32_t column) const;
 
-    CUDA_HOST_DEVICE double minor(int32_t row, int32_t column) const {
+    CUDA_HOST_DEVICE Float minor(int32_t row, int32_t column) const {
         return submatrix(row, column).determinant();
     }
 
     // if row + column is an odd number, then you negate the minor.Otherwise,
     // you just return the minor as is.
-    CUDA_HOST_DEVICE double cofactor(int32_t row, int32_t column) const {
+    CUDA_HOST_DEVICE Float cofactor(int32_t row, int32_t column) const {
         if ((row + column) % 2 == 0) {
             return minor(row, column);
         }
@@ -159,8 +159,8 @@ public:
 
     CUDA_HOST_DEVICE Matrix4 inverse() const;
 
-    CUDA_HOST_DEVICE double determinant() const {
-        double result = 0.0;
+    CUDA_HOST_DEVICE Float determinant() const {
+        Float result = 0.0;
         
         // Pick any row(or column), multiply each element by its cofactor,
         // and add the results.
@@ -175,7 +175,7 @@ public:
         return (determinant() != 0.0);
     }
 
-    CUDA_HOST_DEVICE Matrix4& scaling(double x, double y, double z) {
+    CUDA_HOST_DEVICE Matrix4& scaling(Float x, Float y, Float z) {
         auto self = *this;
         *this = self * ::scaling(x, y, z);
         return (*this);
@@ -185,7 +185,7 @@ public:
         return scaling(v.x(), v.y(), v.z());
     }
 
-    CUDA_HOST_DEVICE Matrix4& translate(double x, double y, double z) {
+    CUDA_HOST_DEVICE Matrix4& translate(Float x, Float y, Float z) {
         auto self = *this;
         *this = self * translate(x, y, z);
         return (*this);
@@ -195,25 +195,25 @@ public:
         return translate(v.x(), v.y(), v.z());
     }
 
-    CUDA_HOST_DEVICE Matrix4& rotateX(double radian) {
+    CUDA_HOST_DEVICE Matrix4& rotateX(Float radian) {
         auto self = *this;
         *this = self * rotateX(radian);
         return (*this);
     }
 
-    CUDA_HOST_DEVICE Matrix4& rotateY(double radian) {
+    CUDA_HOST_DEVICE Matrix4& rotateY(Float radian) {
         auto self = *this;
         *this = self * rotateY(radian);
         return (*this);
     }
 
-    CUDA_HOST_DEVICE Matrix4& rotateZ(double radian) {
+    CUDA_HOST_DEVICE Matrix4& rotateZ(Float radian) {
         auto self = *this;
         *this = self * rotateZ(radian);
         return (*this);
     }
 
-    CUDA_HOST_DEVICE Matrix4& shearing(double xy, double xz, double yx, double yz, double zx, double zy) {
+    CUDA_HOST_DEVICE Matrix4& shearing(Float xy, Float xz, Float yx, Float yz, Float zx, Float zy) {
         auto self = *this;
         *this = self * shearing(xy, xz, yx, yz, zx, zy);
         return (*this);
@@ -224,7 +224,7 @@ public:
     //        Vector4 row[4];
     //    };
 
-    //    double m[4][4];
+    //    Float m[4][4];
     //} data;
     Tuple rows[4];
 };
@@ -258,7 +258,7 @@ inline std::ostream& operator << (std::ostream& os, const Matrix4& value) {
     return os;
 }
 
-inline CUDA_HOST_DEVICE Matrix4 translate(double x, double y, double z) {
+inline CUDA_HOST_DEVICE Matrix4 translate(Float x, Float y, Float z) {
     auto result = Matrix4();
 
     result[0][3] = x;
@@ -272,7 +272,7 @@ inline CUDA_HOST_DEVICE Matrix4 translate(const Vector3& v) {
     return translate(v.x(), v.y(), v.z());
 }
 
-inline CUDA_HOST_DEVICE Matrix4 scaling(double x, double y, double z) {
+inline CUDA_HOST_DEVICE Matrix4 scaling(Float x, Float y, Float z) {
     auto result = Matrix4();
 
     result[0][0] = x;
@@ -286,7 +286,7 @@ inline CUDA_HOST_DEVICE Matrix4 scaling(const Vector3& v) {
     return scaling(v.x(), v.y(), v.z());
 }
 
-inline CUDA_HOST_DEVICE Matrix4 rotateX(double radian) {
+inline CUDA_HOST_DEVICE Matrix4 rotateX(Float radian) {
     auto result = Matrix4();
 
     result[1][1] =  cos(radian);
@@ -297,7 +297,7 @@ inline CUDA_HOST_DEVICE Matrix4 rotateX(double radian) {
     return result;
 }
 
-inline CUDA_HOST_DEVICE Matrix4 rotateY(double radian) {
+inline CUDA_HOST_DEVICE Matrix4 rotateY(Float radian) {
     auto result = Matrix4();
 
     result[0][0] =  cos(radian);
@@ -308,7 +308,7 @@ inline CUDA_HOST_DEVICE Matrix4 rotateY(double radian) {
     return result;
 }
 
-inline CUDA_HOST_DEVICE Matrix4 rotateZ(double radian) {
+inline CUDA_HOST_DEVICE Matrix4 rotateZ(Float radian) {
     auto result = Matrix4();
 
     result[0][0] = cos(radian);
@@ -319,7 +319,7 @@ inline CUDA_HOST_DEVICE Matrix4 rotateZ(double radian) {
     return result;
 }
 
-inline CUDA_HOST_DEVICE Matrix4 shearing(double xy, double xz, double yx, double yz, double zx, double zy) {
+inline CUDA_HOST_DEVICE Matrix4 shearing(Float xy, Float xz, Float yx, Float yz, Float zx, Float zy) {
     auto result = Matrix4();
 
     result[0][1] = xy;

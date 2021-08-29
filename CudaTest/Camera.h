@@ -7,15 +7,15 @@
 
 class Camera {
 public:
-    Camera(int32_t inImageWidth, int32_t inImageHeight, double inFov = 90.0) {
+    Camera(int32_t inImageWidth, int32_t inImageHeight, Float inFov = 90.0) {
         init(inImageWidth, inImageHeight, inFov);
     }
 
-    void init(int32_t inImageWidth, int32_t inImageHeight, double inFov = 90.0) {
+    void init(int32_t inImageWidth, int32_t inImageHeight, Float inFov = 90.0) {
         imageWidth = inImageWidth;
         imageHeight = inImageHeight;
         fov = inFov;
-        aspectRatio = static_cast<double>(imageWidth) / imageHeight;
+        aspectRatio = static_cast<Float>(imageWidth) / imageHeight;
         focalLength = 1.0;
         cameraSpeed = 6.0f;
         origin = point(0.0, 0.0, 0.0);
@@ -25,8 +25,8 @@ public:
         position = inPosition;
     }
 
-    inline CUDA_HOST_DEVICE Ray getRay(double dx, double dy) {
-        auto pixelPosition = lowerLeftCorner + horizontal * dx + vertical * dy;
+    inline CUDA_HOST_DEVICE Ray getRay(Float dx, Float dy) {
+        auto pixelPosition = upperLeftCorner + horizontal * dx - vertical * dy;
 
         auto direction = (pixelPosition - origin).normalize();
 
@@ -65,10 +65,10 @@ public:
         vertical = vector(0.0, viewportHeight, 0.0);
 
         // Compute lower-left corner of projection plane
-        lowerLeftCorner = origin - horizontal / 2 - vertical / 2 - vector(0.0, 0.0, focalLength);
+        upperLeftCorner = origin - horizontal / 2 + vertical / 2 - vector(0.0, 0.0, focalLength);
     }
 
-    inline Matrix4 lookAt(double inFov, const Tuple& inFrom, const Tuple& inTo, const Tuple& inUp) {
+    inline Matrix4 lookAt(Float inFov, const Tuple& inFrom, const Tuple& inTo, const Tuple& inUp) {
         fov = inFov;
 
         computeParameters();
@@ -78,25 +78,25 @@ public:
         return viewMatrix;
     }
 
-    void walk(double delta) {
+    void walk(Float delta) {
         eye += forward * cameraSpeed * delta;
         center += forward * cameraSpeed * delta;
         bIsDirty = true;
     }
 
-    void strafe(double delta) {
+    void strafe(Float delta) {
         eye += right * cameraSpeed * delta;
         center += right * cameraSpeed * delta;
         bIsDirty = true;
     }
 
-    void raise(double delta) {
+    void raise(Float delta) {
         eye += up * cameraSpeed * delta;
         center += up * cameraSpeed * delta;
         bIsDirty = true;
     }
 
-    void yaw(double delta) {
+    void yaw(Float delta) {
         // Should rotate around up vector
         auto rotation = rotateY(Math::radians(delta));
         forward = (rotation * forward).normalize();
@@ -109,7 +109,7 @@ public:
         bIsDirty = true;
     }
 
-    void pitch(float delta) {
+    void pitch(Float delta) {
         // Should rotate around right vector
         auto rotation = rotateX(Math::radians(delta));
         forward = (rotation * forward).normalize();
@@ -145,16 +145,16 @@ private:
 
     Tuple origin;
 
-    Tuple lowerLeftCorner;
+    Tuple upperLeftCorner;
 
     Matrix4 viewMatrix;
 
-    double viewportWidth = 0.0;
-    double viewportHeight = 0.0;
-    double focalLength = 1.0;
-    double cameraSpeed = 6.0f;
-    double aspectRatio;
-    double fov = 90;
+    Float viewportWidth = 0.0;
+    Float viewportHeight = 0.0;
+    Float focalLength = 1.0;
+    Float cameraSpeed = 6.0f;
+    Float aspectRatio;
+    Float fov = 90;
 
     Tuple eye;
     Tuple center;

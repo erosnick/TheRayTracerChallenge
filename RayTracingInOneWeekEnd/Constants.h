@@ -7,39 +7,39 @@
 constexpr int32_t MAXELEMENTS = 8;
 
 namespace Math {
-    constexpr double pi = 3.1415926535897932;
-    constexpr double pi_3 = 1.0471975511965976;
-    constexpr double pi_2 = 1.5707963267948966;
-    constexpr double pi_4 = 0.7853981633974483;
-    constexpr double pi_6 = 0.5235987755982988;
-    constexpr double sqrt_2 = 1.414214;
-    constexpr double sqrt_3 = 1.732051;
-    constexpr double cos30d = 0.866025;
-    constexpr double cos45d = 0.707107;
-    constexpr double cos60d = 0.5;
-    constexpr double sin30d = 0.5;
-    constexpr double sin45d = 0.707107;
-    constexpr double sin60D = 0.866025;
-    constexpr double epsilon = 0.000001;
+    constexpr Float pi = 3.1415926535897932;
+    constexpr Float pi_3 = 1.0471975511965976;
+    constexpr Float pi_2 = 1.5707963267948966;
+    constexpr Float pi_4 = 0.7853981633974483;
+    constexpr Float pi_6 = 0.5235987755982988;
+    constexpr Float sqrt_2 = 1.414214;
+    constexpr Float sqrt_3 = 1.732051;
+    constexpr Float cos30d = 0.866025;
+    constexpr Float cos45d = 0.707107;
+    constexpr Float cos60d = 0.5;
+    constexpr Float sin30d = 0.5;
+    constexpr Float sin45d = 0.707107;
+    constexpr Float sin60D = 0.866025;
+    constexpr Float epsilon = 0.000001;
     constexpr Vec3 xAxis = Vec3(1.0, 0.0, 0.0);
     constexpr Vec3 yAxis = Vec3(0.0, 1.0, 0.0);
     constexpr Vec3 zAxis = Vec3(0.0, 0.0, -1.0);
-    //constexpr double infinityd = std::numeric_limits<double>::infinity();
-    constexpr double infinityd = 10000000.0;
-    constexpr double infinityf = std::numeric_limits<float>::infinity();
-    constexpr double infinityi = std::numeric_limits<int32_t>::infinity();
+    //constexpr Float infinityd = std::numeric_limits<Float>::infinity();
+    constexpr Float infinityd = 10000000.0;
+    constexpr Float infinityf = std::numeric_limits<Float>::infinity();
+    constexpr int32_t infinityi = std::numeric_limits<int32_t>::infinity();
 
-    inline CUDA_HOST_DEVICE double radians(double degree) {
-        return pi / 180.0 * degree;
+    inline CUDA_HOST_DEVICE Float radians(Float degree) {
+        return pi / 180.0f * degree;
     }
 
-    inline CUDA_HOST_DEVICE double degrees(double radian) {
-        return radian * 180.0 / pi;
+    inline CUDA_HOST_DEVICE Float degrees(Float radian) {
+        return radian * 180.0f / pi;
     }
 }
 
 namespace Color {
-    constexpr double oneOver255 = 1.0 / 255;
+    constexpr Float oneOver255 = 1.0f / 255;
     constexpr Vec3 black = Vec3(0.0, 0.0, 0.0);
     constexpr Vec3 dawn = Vec3(0.1, 0.1, 0.1);
     constexpr Vec3 white = Vec3(1.0, 1.0, 1.0);

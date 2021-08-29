@@ -5,14 +5,12 @@
 #include "Intersection.h"
 #include "GPUTimer.h"
 #include "Tuple.h"
-#include "Constants.h"
 #include "Ray.h"
 #include "Shape.h"
 #include "Sphere.h"
 #include "Quad.h"
 #include "Cube.h"
 #include "Utils.h"
-#include "Types.h"
 #include "Material.h"
 #include "Camera.h"
 #include "World.h"
@@ -24,9 +22,8 @@
 
 #include "KernelRandom.h"
 
-#include <math.h>
-
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 #include <iostream>
 #include <fstream>
@@ -35,11 +32,11 @@
 #include <algorithm>
 
 struct Viewport {
-    double scale;
-    double fov;
-    double imageAspectRatio;
-    double width;
-    double height;
+    Float scale;
+    Float fov;
+    Float imageAspectRatio;
+    Float width;
+    Float height;
 };
 
 Payload* payload = nullptr;
@@ -61,9 +58,11 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
 }
 
 CUDA_HOST_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, const Tuple& pixelColor) {
-    pixelBuffer[index] = 256 * std::clamp(std::sqrt(pixelColor.x()), 0.0, 0.999);
-    pixelBuffer[index + 1] = 256 * std::clamp(std::sqrt(pixelColor.y()), 0.0, 0.999);
-    pixelBuffer[index + 2] = 256 * std::clamp(std::sqrt(pixelColor.z()), 0.0, 0.999);
+    Float start = 0.0;
+    Float end = 0.999;
+    pixelBuffer[index] = 256 * std::clamp(std::sqrt(pixelColor.x()), start, end);
+    pixelBuffer[index + 1] = 256 * std::clamp(std::sqrt(pixelColor.y()), start, end);
+    pixelBuffer[index + 2] = 256 * std::clamp(std::sqrt(pixelColor.z()), start, end);
 }
 
 CUDA_GLOBAL void updateObjectsKernel(Array<Shape**> objects, Matrix4 transformation) {
@@ -144,7 +143,7 @@ CUDA_GLOBAL void addLights(World** world, Light** lights[], int32_t count) {
     }
 }
 
-CUDA_GLOBAL void createSphere(World**world, Shape** object, Tuple origin, double radius, Material** material, Matrix4 transformation) {
+CUDA_GLOBAL void createSphere(World**world, Shape** object, Tuple origin, Float radius, Material** material, Matrix4 transformation) {
     // It is necessary to create object representing a function
     // directly in global memory of the GPU device for virtual
     // functions to work correctly, i.e. virtual function table
@@ -168,8 +167,8 @@ CUDA_GLOBAL void createLight(World** world, Light** light, Tuple inPosition, Tup
     (*world)->addLight(*light);
 }
 
-CUDA_GLOBAL void createMaterial(Material** material, Tuple color = Color::red, double ambient = 0.1, double diffuse = 0.9, double specular = 0.9, 
-                                double shininess = 128.0, double reflective = 0.0, double transparency = 0.0, double refractiveIndex = 1.0) {
+CUDA_GLOBAL void createMaterial(Material** material, Tuple color = Color::red, Float ambient = 0.1, Float diffuse = 0.9, Float specular = 0.9, 
+                                Float shininess = 128.0, Float reflective = 0.0, Float transparency = 0.0, Float refractiveIndex = 1.0) {
     // It is necessary to create object representing a function
     // directly in global memory of the GPU device for virtual
     // functions to work correctly, i.e. virtual function table
@@ -182,44 +181,53 @@ CUDA_GLOBAL void deleteObject(T** object) {
     delete (*object);
 }
 
-CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payload) {
-    int32_t row = threadIdx.y + blockIdx.y * blockDim.y;
-    int32_t column = threadIdx.x + blockIdx.x * blockDim.x;
-    int32_t index = row * width + column;
-
-    //auto viewport = payload->viewport;
-
-    //printf("%d, %d\n", threadIdx.x, threadIdx.y);
-    Tuple pixelColor = Color::black;
-
-    constexpr int32_t samplesPerPixel = 1;
-    constexpr int32_t depth = 3;
-
-    for (int i = 0; i < samplesPerPixel; i++) {
-        //curandState state;
-        //curand_init((unsigned long long)clock() + column, 0, 0, &state);
-
-        double rx = 0.0; // curand_uniform_double(&state);
-        double ry = 0.0; // curand_uniform_double(&state);
-
-        //auto x = (viewport->height * (column + 0.5 + rx) / width - 1) * viewport->imageAspectRatio * viewport->scale;
-        //auto y = (1.0 - viewport->height * (row + 0.5 + ry) / height) * viewport->scale;
-        auto x = (static_cast<double>(column) + rx) / (width - 1);
-        auto y = (static_cast<double>(row) + ry) / (height - 1);
-        
-        const auto& ray = payload->camera->getRay(x, y);
-
-        // 在kernel里动态分配内存对性能影响很大！！！
-        //auto hitInfo = colorAt(payload->world, ray);
-
-        //if (hitInfo.bHit) {
-        //    pixelColor = hitInfo.surface + computeReflectionAndRefraction(hitInfo, payload->world, depth);
-        //}
-
-        pixelColor += colorAt(payload->world, ray, depth);
+CUDA_DEVICE void foo(const Ray& ray, int32_t depth) {
+    if (depth == 0) {
+        return;
     }
 
-    writePixel(payload->pixelBuffer, index * 3, (pixelColor ) / samplesPerPixel);
+    foo(ray, depth - 1);
+}
+
+CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payload) {
+    int32_t x = threadIdx.x + blockIdx.x * blockDim.x;
+    int32_t y = threadIdx.y + blockIdx.y * blockDim.y;
+    int32_t index = y * width + x;
+
+    if (index < width * height) {
+        //auto viewport = payload->viewport;
+
+        //printf("%d, %d\n", threadIdx.x, threadIdx.y);
+        Tuple pixelColor = Color::black;
+
+        constexpr int32_t samplesPerPixel = 1;
+        constexpr int32_t depth = 3;
+
+        for (int i = 0; i < samplesPerPixel; i++) {
+            //curandState state;
+            //curand_init((unsigned long long)clock() + column, 0, 0, &state);
+
+            Float rx = 0.0; // curand_uniform_Float(&state);
+            Float ry = 0.0; // curand_uniform_Float(&state);
+
+            //auto x = (viewport->height * (column + 0.5 + rx) / width - 1) * viewport->imageAspectRatio * viewport->scale;
+            //auto y = (1.0 - viewport->height * (row + 0.5 + ry) / height) * viewport->scale;
+            auto dx = Float(x) / (width - 1);
+            auto dy = Float(y) / (height - 1);
+
+            const auto& ray = payload->camera->getRay(dx, dy);
+
+            // 在kernel里动态分配内存对性能影响很大！！！
+            //auto hitInfo = colorAt(payload->world, ray);
+
+            //if (hitInfo.bHit) {
+            //    pixelColor = hitInfo.surface + computeReflectionAndRefraction(hitInfo, payload->world, depth);
+            //}
+            pixelColor += colorAt(payload->world, ray, depth);
+        }
+
+        writePixel(payload->pixelBuffer, index * 3, (pixelColor) / samplesPerPixel);
+    }
 }
 
 void queryDeviceProperties() {
@@ -245,11 +253,11 @@ void reportGPUUsageInfo() {
 
     gpuErrorCheck(cudaMemGetInfo(&freeBytes, &totalBytes));
 
-    double freeDb = (double)freeBytes;
+    auto freeDb = (Float)freeBytes;
 
-    double totalDb = (double)totalBytes;
+    auto totalDb = (Float)totalBytes;
 
-    double usedDb = totalDb - freeDb;
+    Float usedDb = totalDb - freeDb;
 
     printf("GPU memory usage: used = %f, free = %f MB, total = %f MB\n",
         usedDb / 1024.0 / 1024.0, freeDb / 1024.0 / 1024.0, totalDb / 1024.0 / 1024.0);
@@ -274,7 +282,7 @@ void initialize(int32_t width, int32_t height) {
     payload->viewport->fov = 90.0;
     payload->viewport->scale = std::tan(Math::radians(payload->viewport->fov / 2));
 
-    payload->viewport->imageAspectRatio = static_cast<double>(width) / height;
+    payload->viewport->imageAspectRatio = static_cast<Float>(width) / height;
 
     payload->viewport->height = 2.0 * payload->viewport->scale;
     payload->viewport->width = payload->viewport->height * payload->viewport->imageAspectRatio;
@@ -318,7 +326,7 @@ void initialize(int32_t width, int32_t height) {
     origins[1] = point( 1.5,  0.0, 0.0);
     origins[2] = point( 0.0, -0.2, 1.5);
 
-    double radiuses[3] = { 1.0, 1.0, 0.8 };
+    Float radiuses[3] = { 1.0, 1.0, 0.8 };
 
     createObject<<<1, 1>>>(world);
     gpuErrorCheck(cudaDeviceSynchronize());
@@ -386,9 +394,19 @@ ImageData* launch(int32_t width, int32_t height) {
 
     imageData->width = width;
     imageData->height = height;
-    imageData->data = payload->pixelBuffer;
+    //imageData->data = payload->pixelBuffer;
     imageData->channels = 3;
     imageData->size = size;
+
+    for (auto y = height - 1; y >= 0; y--) {
+        for (auto x = 0; x < width; x++) {
+            auto sourceIndex = y * width + x;
+            auto destIndex = (height - 1 - y) * width + x;
+            imageData->data[destIndex * 3] = payload->pixelBuffer[sourceIndex * 3];
+            imageData->data[destIndex * 3 + 1] = payload->pixelBuffer[sourceIndex * 3 + 1];
+            imageData->data[destIndex * 3 + 2] = payload->pixelBuffer[sourceIndex * 3 + 2];
+        }
+    }
 
     return imageData.get();
 }
@@ -398,8 +416,8 @@ ImageData* launch(int32_t width, int32_t height) {
 int main() {
     //queryDeviceProperties();
 
-    constexpr int32_t width = 1920;
-    constexpr int32_t height = 1080;
+    constexpr int32_t width = 1280;
+    constexpr int32_t height = 720;
 
 #ifdef GPU_RENDERER
     //int32_t minGridSize = 0;
@@ -415,8 +433,7 @@ int main() {
 
     dim3 blockSize(32, 32);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x,
-        (height + blockSize.y - 1) / blockSize.y);
-
+                  (height + blockSize.y - 1) / blockSize.y);
 
     auto viewMatrix = payload->camera->getViewMatrix();
 
@@ -498,8 +515,8 @@ int main() {
     for (auto y = 0; y < height; y++) {
         for (auto x = 0; x < width; x++) {
             auto index = y * width + x;
-            auto dx = (static_cast<double>(x)) / (width - 1);
-            auto dy = (static_cast<double>(y)) / (height - 1);
+            auto dx = (static_cast<Float>(x)) / (width - 1);
+            auto dy = (static_cast<Float>(y)) / (height - 1);
 
             auto ray = camera.getRay(dx, dy);
 

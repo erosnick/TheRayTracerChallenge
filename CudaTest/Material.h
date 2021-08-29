@@ -18,20 +18,20 @@ struct Material {
         pattern = nullptr;
     }
 
-    CUDA_HOST_DEVICE Material(const Tuple& inColor, double inAmbient, double inDiffse, double inSpecular, double inShininess, 
-                              double inReflective = 0.0, double inTransparency = 0.0, double inRefractiveIndex = 1.0)
+    CUDA_HOST_DEVICE Material(const Tuple& inColor, Float inAmbient, Float inDiffse, Float inSpecular, Float inShininess, 
+                              Float inReflective = 0.0, Float inTransparency = 0.0, Float inRefractiveIndex = 1.0)
     : color(inColor), ambient(inAmbient), diffuse(inDiffse), specular(inSpecular), shininess(inShininess), 
       reflective(inReflective), transparency(inTransparency), refractiveIndex(inRefractiveIndex) {
     }
 
     Tuple color = { 1.0, 0.0, 0.0, 0.0 };
-    double ambient = 0.1;
-    double diffuse = 0.9;
-    double specular = 0.9;
-    double shininess = 128.0;
-    double reflective = 0.0;
-    double transparency = 0.0;
-    double refractiveIndex = 1.0;
+    Float ambient = 0.1;
+    Float diffuse = 0.9;
+    Float specular = 0.9;
+    Float shininess = 128.0;
+    Float reflective = 0.0;
+    Float transparency = 0.0;
+    Float refractiveIndex = 1.0;
     bool bCastShadow = true;
     Pattern* pattern = nullptr;
 };

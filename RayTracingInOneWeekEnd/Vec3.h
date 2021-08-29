@@ -12,11 +12,11 @@ public:
     : elements({ 0.0f, 0.0f, 0.0f }) {
     }
 
-    CUDA_HOST_DEVICE constexpr Vec3(double element0, double element1, double element2)
+    CUDA_HOST_DEVICE constexpr Vec3(Float element0, Float element1, Float element2)
     : elements({ element0, element1, element2 }) {
     }
 
-    CUDA_HOST_DEVICE Vec3(const double3& inElements) {
+    CUDA_HOST_DEVICE Vec3(const Float3& inElements) {
         elements = inElements;
     }
 
@@ -24,7 +24,7 @@ public:
         return -elements;
     }
 
-    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+    CUDA_HOST_DEVICE Float operator[](int32_t index) const {
         switch (index)
         {
         case 0:
@@ -37,12 +37,12 @@ public:
             return elements.y;
             break;
         default:
-            return -1.0;
+            return -1.0f;
             break;
         }
     }
 
-    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+    CUDA_HOST_DEVICE Float& operator[](int32_t index) {
         return (*this)[index];
     }
 
@@ -54,7 +54,7 @@ public:
         return *this;
     }
 
-    CUDA_HOST_DEVICE Vec3& operator*=(double t) {
+    CUDA_HOST_DEVICE Vec3& operator*=(Float t) {
         elements.x *= t;
         elements.y *= t;
         elements.z *= t;
@@ -62,31 +62,31 @@ public:
         return *this;
     }
 
-    CUDA_HOST_DEVICE Vec3& operator/=(double t) {
-        return *this *= 1.0 / t;
+    CUDA_HOST_DEVICE Vec3& operator/=(Float t) {
+        return *this *= 1.0f / t;
     }
 
-    CUDA_HOST_DEVICE double length() const {
+    CUDA_HOST_DEVICE Float length() const {
         return sqrt(lengthSquared());
     }
 
-    CUDA_HOST_DEVICE double lengthSquared() const {
+    CUDA_HOST_DEVICE Float lengthSquared() const {
         return dot(elements, elements);
     }
 
-    CUDA_HOST_DEVICE double x() const {
+    CUDA_HOST_DEVICE Float x() const {
         return elements.x;
     }
 
-    CUDA_HOST_DEVICE double y() const {
+    CUDA_HOST_DEVICE Float y() const {
         return elements.y;
     }
 
-    CUDA_HOST_DEVICE double z() const {
+    CUDA_HOST_DEVICE Float z() const {
         return elements.z;
     }
 
-    double3 elements;
+    Float3 elements;
 };
 
 inline CUDA_HOST_DEVICE Vec3 operator+(const Vec3& u, const Vec3& v) {
@@ -101,19 +101,19 @@ inline CUDA_HOST_DEVICE Vec3 operator*(const Vec3& u, const Vec3& v) {
     return Vec3(u.x() * v.x(), u.x() * v.y(), u.z() * v.z());
 }
 
-inline CUDA_HOST_DEVICE Vec3 operator*(double t, const Vec3& v) {
+inline CUDA_HOST_DEVICE Vec3 operator*(Float t, const Vec3& v) {
     return Vec3(t * v.x(), t * v.y(), t * v.z());
 }
 
-inline CUDA_HOST_DEVICE Vec3 operator*(const Vec3& v, double t) {
+inline CUDA_HOST_DEVICE Vec3 operator*(const Vec3& v, Float t) {
     return t * v;
 }
 
-inline CUDA_HOST_DEVICE Vec3 operator/(Vec3 v, double t) {
+inline CUDA_HOST_DEVICE Vec3 operator/(Vec3 v, Float t) {
     return (1 / t) * v;
 }
 
-inline CUDA_HOST_DEVICE double dot(const Vec3& u, const Vec3& v) {
+inline CUDA_HOST_DEVICE Float dot(const Vec3& u, const Vec3& v) {
     return u.x() * v.x()
          + u.y() * v.y()
          + u.z() * v.z();
@@ -129,6 +129,6 @@ inline CUDA_HOST_DEVICE Vec3 unitVector(const Vec3& v) {
     return v / v.length();
 }
 
-inline CUDA_HOST_DEVICE Vec3 lerp(const Vec3& v0, const Vec3& v1, double t) {
-    return (1.0 - t) * v0 + t * v1;
+inline CUDA_HOST_DEVICE Vec3 lerp(const Vec3& v0, const Vec3& v1, Float t) {
+    return (1.0f - t) * v0 + t * v1;
 }

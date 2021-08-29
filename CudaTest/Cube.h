@@ -16,7 +16,7 @@ public:
 
     CUDA_HOST_DEVICE void updateTransformation() override;
 
-    CUDA_HOST_DEVICE void transformNormal(const Matrix4& worldMatrix);
+    CUDA_HOST_DEVICE void transformNormal(const Matrix4& worldMatrix) override;
 
     CUDA_HOST_DEVICE Tuple normalAt(const Tuple& position) const override;
 
@@ -28,7 +28,7 @@ public:
 
     CUDA_HOST_DEVICE void initQuads();
 
-    CUDA_HOST_DEVICE void setMaterial(Material* inMaterial);
+    CUDA_HOST_DEVICE void setMaterial(Material* inMaterial) override;
 
     CUDA_HOST_DEVICE void setMaterial(Material* inMaterial, int32_t quadIndex);
 

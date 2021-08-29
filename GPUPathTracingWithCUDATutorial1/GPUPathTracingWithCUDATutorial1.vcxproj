@@ -14,6 +14,7 @@
     <ClInclude Include="CUDA.h" />
     <ClInclude Include="cutil_math.h" />
     <ClInclude Include="GPUTimer.h" />
+    <ClInclude Include="Types.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>

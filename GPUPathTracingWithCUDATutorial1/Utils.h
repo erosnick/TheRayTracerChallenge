@@ -5,6 +5,7 @@
 
 #include "CUDA.h"
 #include "GPUTimer.h"
+#include "Types.h"
 
 #include <string>
 #include <algorithm>
@@ -13,28 +14,30 @@
 #define gpuErrorCheck(ans) { Utils::gpuAssert((ans), __FILE__, __LINE__); }
 
 namespace Utils {
-    inline double randomDouble(double start = 0.0, double end = 1.0) {
-        std::uniform_real_distribution<double> distribution(start, end);
+    inline Float randomFloat(Float start = 0.0, Float end = 1.0) {
+        std::uniform_real_distribution<Float> distribution(start, end);
         static std::random_device randomDevice;
         static std::mt19937 generator(randomDevice());
         return distribution(generator);
     }
 
-    inline float clamp(float x) { return x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; }
+    inline Float clamp(Float x) { return x < 0.0f ? 0.0f : x > 1.0f ? 1.0f : x; }
 
-    // convert RGB float in range [0,1] to int in range [0, 255] and perform gamma correction
-    inline int toInt(float x) { return int(pow(clamp(x), 1 / 2.2) * 255 + 0.5); }
+    // convert RGB Float in range [0,1] to int in range [0, 255] and perform gamma correction
+    inline int toInt(Float x) { return int(pow(clamp(x), 1 / 2.2) * 255 + 0.5); }
 
     std::string toPPM(int32_t width, int32_t height);
     void writeToPPM(const std::string& path, int32_t width, int32_t height, uint8_t* pixelBuffer);
     void writeToPNG(const std::string& path, int32_t width, int32_t height, uint8_t* pixelBuffer);
-    void writeToPNG(const std::string& path, int32_t width, int32_t height, float3* pixelBuffer);
+    void writeToPNG(const std::string& path, int32_t width, int32_t height, Float3* pixelBuffer);
     void openImage(const std::wstring& path);
 
-    inline CUDA_HOST_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, double r, double g, double b) {
-        pixelBuffer[index] = 256 * std::clamp(r, 0.0, 0.999);
-        pixelBuffer[index + 1] = 256 * std::clamp(g, 0.0, 0.999);
-        pixelBuffer[index + 2] = 256 * std::clamp(b, 0.0, 0.999);
+    inline CUDA_HOST_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, Float r, Float g, Float b) {
+        Float start = 0.0;
+        Float end = 0.999;
+        pixelBuffer[index] = 256 * std::clamp(r, start, end);
+        pixelBuffer[index + 1] = 256 * std::clamp(g, start, end);
+        pixelBuffer[index + 2] = 256 * std::clamp(b, start, end);
     }
 
     inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort = true) {
@@ -51,9 +54,9 @@ namespace Utils {
 
         gpuErrorCheck(cudaMemGetInfo(&freeBytes, &totalBytes));
 
-        auto freeDb = (double)freeBytes;
+        auto freeDb = (Float)freeBytes;
 
-        auto totalDb = (double)totalBytes;
+        auto totalDb = (Float)totalBytes;
 
         auto usedDb = totalDb - freeDb;
 

@@ -187,7 +187,7 @@ void buildImGuiWidgets() {
 }
 
 void update() {
-    auto viewMatrix = payload->camera->getViewMatrix();
+    const auto& viewMatrix = payload->camera->getViewMatrix();
 
     updateObjects(payload->world, viewMatrix);
 

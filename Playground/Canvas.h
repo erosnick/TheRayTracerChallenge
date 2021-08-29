@@ -47,15 +47,17 @@ public:
         return height;
     }
 
-    inline CUDA_HOST_DEVICE void writePixel(int32_t x, int32_t y, double red, double green, double blue) {
+    inline CUDA_HOST_DEVICE void writePixel(int32_t x, int32_t y, Float red, Float green, Float blue) {
         auto index = y * width + x;
         writePixel(index, red, green, blue);
     }
 
-    inline CUDA_HOST_DEVICE void writePixel(int32_t index, double red, double green, double blue) {
-        (*pixelBuffer)[index * 3] = 256 * std::clamp(sqrt(red), 0.0, 0.999);
-        (*pixelBuffer)[index * 3 + 1] = 256 * std::clamp(sqrt(green), 0.0, 0.999);
-        (*pixelBuffer)[index * 3 + 2] = 256 * std::clamp(sqrt(blue), 0.0, 0.999);
+    inline CUDA_HOST_DEVICE void writePixel(int32_t index, Float red, Float green, Float blue) {
+        Float start = 0.0;
+        Float end = 0.999;
+        (*pixelBuffer)[index * 3] = 256 * std::clamp(sqrt(red), start, end);
+        (*pixelBuffer)[index * 3 + 1] = 256 * std::clamp(sqrt(green), start, end);
+        (*pixelBuffer)[index * 3 + 2] = 256 * std::clamp(sqrt(blue), start, end);
     }
 
     //inline Tuple pixelAt(int32_t x, int32_t y) {

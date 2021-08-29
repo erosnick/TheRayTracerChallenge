@@ -11,10 +11,10 @@ CUDA_HOST_DEVICE bool Triangle::intersect(const Ray& ray, Array<Intersection>& i
     Tuple S = ray.origin - transformedv0;
     Tuple S1 = ray.direction.cross(E2);
     Tuple S2 = S.cross(E1);
-    double coefficient = 1.0f / S1.dot(E1);
-    double t = coefficient * S2.dot(E2);
-    double b1 = coefficient * S1.dot(S);
-    double b2 = coefficient * S2.dot(ray.direction);
+    Float coefficient = 1.0f / S1.dot(E1);
+    Float t = coefficient * S2.dot(E2);
+    Float b1 = coefficient * S1.dot(S);
+    Float b2 = coefficient * S2.dot(ray.direction);
 
     // Constrains:
     // 1 ~ 4 must be satisfied at the same time
@@ -66,10 +66,10 @@ CUDA_HOST_DEVICE bool Triangle::intersect(const Ray& ray, Intersection intersect
     Tuple S = ray.origin - transformedv0;
     Tuple S1 = ray.direction.cross(E2);
     Tuple S2 = S.cross(E1);
-    double coefficient = 1.0f / S1.dot(E1);
-    double t = coefficient * S2.dot(E2);
-    double b1 = coefficient * S1.dot(S);
-    double b2 = coefficient * S2.dot(ray.direction);
+    Float coefficient = 1.0f / S1.dot(E1);
+    Float t = coefficient * S2.dot(E2);
+    Float b1 = coefficient * S1.dot(S);
+    Float b2 = coefficient * S2.dot(ray.direction);
 
     // Constrains:
     // 1 ~ 4 must be satisfied at the same time

@@ -216,7 +216,7 @@ CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, const Matrix4& b) {
     return result;
 }
 
-CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, double b) {
+CUDA_HOST_DEVICE Matrix4 operator*(const Matrix4& a, Float b) {
     auto result = Matrix4();
     
     result[0] = a[0] * b;

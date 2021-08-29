@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Tuple.h"
-#include "Matrix.h"
-#include "Constants.h"
-#include "Types.h"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 
-#include <cmath>
+#include "Matrix.h"
 
 class Pattern {
 public:
@@ -45,9 +43,8 @@ public:
         if ((std::fmod(std::floor(position.x()), 2.0) == 0.0)) {
             return color1;
         }
-        else {
-            return color2;
-        }
+        
+        return color2;
     }
 };
 
@@ -55,7 +52,7 @@ class CheckerPattern : public Pattern {
 public:
     CUDA_HOST_DEVICE CheckerPattern() {}
     CUDA_HOST_DEVICE CheckerPattern(const Tuple& inColor1, const Tuple& inColor2,
-                   const PlaneOrientation& inPlaneOrientation = PlaneOrientation::XZ, double inScale = 1.0) {
+                   const PlaneOrientation& inPlaneOrientation = PlaneOrientation::XZ, Float inScale = 1.0) {
         color1 = inColor1;
         color2 = inColor2;
         planeOrientation = inPlaneOrientation;
@@ -63,31 +60,30 @@ public:
     }
 
     inline CUDA_HOST_DEVICE Tuple patternAt(const Tuple& position) const override {
-        double sum = 0.0;
+        Float sum = 0.0;
         switch (planeOrientation)
         {
         case PlaneOrientation::XY:
-            sum = std::floor(position.x() * scale) + std::floor(position.y() * scale);
+            sum = floor(position.x() * scale) + floor(position.y() * scale);
             break;
         case PlaneOrientation::YZ:
-            sum = std::floor(position.y() * scale) + std::floor(position.z() * scale);
+            sum = floor(position.y() * scale) + floor(position.z() * scale);
             break;
         case PlaneOrientation::XZ:
-            sum = std::floor(position.x() * scale) + std::floor(position.z() * scale);
+            sum = floor(position.x() * scale) + floor(position.z() * scale);
             break;
         default:
             break;
         }
         
-        if (std::fmod(sum, 2.0) == 0.0) {
+        if (fmod(sum, 2.0) == 0.0) {
             return color1;
         }
-        else {
-            return color2;
-        }
+
+        return color2;
     }
 
-    double scale = 1.0;
+    Float scale = 1.0;
     Tuple transformedPosition;
     PlaneOrientation planeOrientation = PlaneOrientation::XZ;
 };

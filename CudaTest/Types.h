@@ -12,7 +12,7 @@ class Tuple;
 
 class World;
 
-class Payload;
+struct Payload;
 
 class Ray;
 

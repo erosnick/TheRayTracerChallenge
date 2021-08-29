@@ -40,10 +40,10 @@ CUDA_HOST_DEVICE Tuple lighting(Material* material, Shape* object, Light* light,
     lightDirection = lightDirection / distance;
 
     auto diffuseTerm = normal.dot(lightDirection);
-    auto diffuse = std::max(diffuseTerm, 0.0) * attenuation;
+    auto diffuse = max(diffuseTerm, 0.0) * attenuation;
 
     if (bHalfLambert) {
-        ambientColor = color(0.0, 0.0, 0.0);
+        ambientColor = Color::black;
         diffuse = diffuse * 0.5 + 0.5;
     }
 
@@ -53,10 +53,10 @@ CUDA_HOST_DEVICE Tuple lighting(Material* material, Shape* object, Light* light,
         auto reflectVector = 2.0 * (diffuseTerm) * normal - lightDirection;
         if (bBlinnPhong) {
             auto halfVector = (lightDirection + viewDirection) / (lightDirection + viewDirection).magnitude();
-            specular = std::pow(std::max(halfVector.dot(normal), 0.0), material->shininess * 2) * attenuation;
+            specular = pow(max(halfVector.dot(normal), 0.0), material->shininess * 2) * attenuation;
         }
         else {
-            specular = std::pow(std::max(reflectVector.dot(viewDirection), 0.0), material->shininess) * attenuation;
+            specular = pow(max(reflectVector.dot(viewDirection), 0.0), material->shininess) * attenuation;
         }
     }
 
@@ -179,7 +179,7 @@ CUDA_HOST_DEVICE HitInfo colorAt(World* world, const Ray& ray) {
 
     if (count == 0) {
         auto t = 0.5 * (ray.direction.y() + 1.0);
-        auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+        auto missColor = (1.0 - t) * Color::White() + t * Color::LightCornflower();
         missColor = Color::background;
         hitInfo.surface = missColor;
         return hitInfo;
@@ -216,10 +216,10 @@ CUDA_HOST_DEVICE Tuple reflectedColor(World* world, HitInfo& inHitInfo) {
     return color;
 }
 
-CUDA_HOST_DEVICE Tuple refract(const Tuple& uv, const Tuple& n, double etaiOverEtat) {
-    auto costheta = std::fmin(-uv.dot(n), 1.0);
+CUDA_HOST_DEVICE Tuple refract(const Tuple& uv, const Tuple& n, Float etaiOverEtat) {
+    auto costheta = min(-uv.dot(n), 1.0);
     Tuple rOutPerp = etaiOverEtat * (uv + costheta * n);
-    Tuple rOutParallel = -std::sqrt(std::fabs(1.0 - rOutPerp.magnitudeSqured())) * n;
+    Tuple rOutParallel = -sqrt(std::fabs(1.0 - rOutPerp.magnitudeSqured())) * n;
     return rOutPerp + rOutParallel;
 }
 
@@ -235,7 +235,7 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, HitInfo& inHitInfo) {
     // cos(¦Èi) is the same as the dot product of the two vectors
     auto cos¦Èi = inHitInfo.viewDirection.dot(inHitInfo.normal);
 
-    auto sin¦Èi = std::sqrt(1.0 - cos¦Èi * cos¦Èi);
+    auto sin¦Èi = sqrt(1.0 - cos¦Èi * cos¦Èi);
 
     // Find sin(¦¨t)^2 via trigonometric identity
     auto sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
@@ -253,7 +253,7 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, HitInfo& inHitInfo) {
     }
 
     // Find cos(¦Èt) via trigonometric identity
-    auto cos¦Èt = std::sqrt(1.0 - sin¦Èt2);
+    auto cos¦Èt = sqrt(1.0 - sin¦Èt2);
 
     // Compute the direction of the refracted ray
     // For the first recursion, viewDirection is the "real" view direction
@@ -350,7 +350,7 @@ CUDA_HOST_DEVICE Tuple colorAt(World* world, const Ray& ray, int32_t remaining) 
 
     if (size == 0) {
         auto t = 0.5 * (ray.direction.y() + 1.0);
-        auto missColor = (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
+        auto missColor = (1.0 - t) * Color::White() + t * Color::LightCornflower();
         missColor = Color::background;
         surface = missColor;
         return surface;
@@ -399,7 +399,7 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, const HitInfo& hitInfo, int3
     // cos(¦Èi) is the same as the dot product of the two vectors
     auto cos¦Èi = hitInfo.viewDirection.dot(hitInfo.normal);
 
-    auto sin¦Èi = std::sqrt(1.0 - cos¦Èi * cos¦Èi);
+    auto sin¦Èi = sqrt(1.0 - cos¦Èi * cos¦Èi);
 
     // Find sin(¦¨t)^2 via trigonometric identity
     auto sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
@@ -421,7 +421,7 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, const HitInfo& hitInfo, int3
     //}
 
     // Find cos(¦Èt) via trigonometric identity
-    auto cos¦Èt = std::sqrt(1.0 - sin¦Èt2);
+    auto cos¦Èt = sqrt(1.0 - sin¦Èt2);
 
     // Compute the direction of the refracted ray
     // For the first recursion, viewDirection is the "real" view direction
@@ -444,7 +444,7 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, const HitInfo& hitInfo, int3
     return color;
 }
 
-CUDA_HOST_DEVICE double schlick(const HitInfo& hitInfo) {
+CUDA_HOST_DEVICE Float schlick(const HitInfo& hitInfo) {
     // Find the cosine of the angle between the eye and normal vectors
     auto cos¦È = hitInfo.viewDirection.dot(hitInfo.normal);
 
@@ -457,7 +457,7 @@ CUDA_HOST_DEVICE double schlick(const HitInfo& hitInfo) {
         }
 
         // Compute cosine of ¦Èt using trigonometric identity
-        auto cos¦Èt = std::sqrt(1.0 - sin¦Èt2);
+        auto cos¦Èt = sqrt(1.0 - sin¦Èt2);
 
         // When n1 > n2, use cos(¦Èt) instead
         cos¦È = cos¦Èt;

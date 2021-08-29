@@ -52,7 +52,7 @@ namespace Utils {
         stbi_write_png("render.png", width, height, 3, pixelBuffer, width * 3);
     }
 
-    void writeToPNG(const std::string& path, int32_t width, int32_t height, float3* pixelBuffer) {
+    void writeToPNG(const std::string& path, int32_t width, int32_t height, Float3* pixelBuffer) {
         auto size = width * height;
         auto* pixelData = new uint8_t[size * 3];
 

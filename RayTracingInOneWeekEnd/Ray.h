@@ -9,7 +9,7 @@ public:
     : origin(inOrigin), direction(inDirection) {
     }
 
-    CUDA_HOST_DEVICE Vec3 at(double t) {
+    CUDA_HOST_DEVICE Vec3 at(Float t) {
         return origin + t * direction;
     }
 

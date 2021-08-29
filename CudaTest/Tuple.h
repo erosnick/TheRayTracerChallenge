@@ -1,21 +1,18 @@
 #pragma once
 
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-
-#include "utils.h"
+#include "Utils.h"
+#include <cmath>
 #include "CUDA.h"
 #include "cutil_math.h"
+#include "Types.h"
 
-#include <limits>
 #include <cstdint>
-#include <cmath>
 
 class Tuple {
 public:
     CUDA_HOST_DEVICE constexpr Tuple()
     : data({ 0.0, 0.0, 0.0, 0.0 }) {}
-    CUDA_HOST_DEVICE constexpr Tuple(double inX, double inY, double inZ, double inW = 0.0)
+    CUDA_HOST_DEVICE constexpr Tuple(Float inX, Float inY, Float inZ, Float inW = 0.0)
     : data({ inX, inY, inZ, inW }) {
     }
 
@@ -23,18 +20,18 @@ public:
         return Tuple(-x(), -y(), -z(), -w());
     }
 
-    inline CUDA_HOST_DEVICE double magnitude() const {
-        return std::sqrt(magnitudeSqured());
+    inline CUDA_HOST_DEVICE Float magnitude() const {
+        return sqrt(magnitudeSqured());
     }
 
-    inline CUDA_HOST_DEVICE double magnitudeSqured() const {
-        double lengthSquared = x() * x() + y() * y() + z() * z();
+    inline CUDA_HOST_DEVICE Float magnitudeSqured() const {
+        Float lengthSquared = x() * x() + y() * y() + z() * z();
 
         return lengthSquared;
     }
 
     inline CUDA_HOST_DEVICE Tuple normalize() {
-        double length = magnitude();
+        Float length = magnitude();
 
         x() /= length;
         y() /= length;
@@ -43,39 +40,39 @@ public:
         return *this;
     }
 
-    inline CUDA_HOST_DEVICE constexpr double x() const {
+    inline CUDA_HOST_DEVICE constexpr Float x() const {
         return data.x;
     }
 
-    inline CUDA_HOST_DEVICE constexpr double& x() {
+    inline CUDA_HOST_DEVICE constexpr Float& x() {
         return data.x;
     }
 
-    inline CUDA_HOST_DEVICE constexpr double y() const {
+    inline CUDA_HOST_DEVICE constexpr Float y() const {
         return data.y;
     }
 
-    inline CUDA_HOST_DEVICE constexpr double& y() {
+    inline CUDA_HOST_DEVICE constexpr Float& y() {
         return data.y;
     }
 
-    inline CUDA_HOST_DEVICE constexpr double z() const {
+    inline CUDA_HOST_DEVICE constexpr Float z() const {
         return data.z;
     }
 
-    inline CUDA_HOST_DEVICE constexpr double& z() {
+    inline CUDA_HOST_DEVICE constexpr Float& z() {
         return data.z;
     }
 
-    inline CUDA_HOST_DEVICE constexpr double w() const {
+    inline CUDA_HOST_DEVICE constexpr Float w() const {
         return data.w;
     }
 
-    inline CUDA_HOST_DEVICE constexpr double& w() {
+    inline CUDA_HOST_DEVICE constexpr Float& w() {
         return data.w;
     }
 
-    CUDA_HOST_DEVICE double dot(const Tuple& other) const {
+    CUDA_HOST_DEVICE Float dot(const Tuple& other) const {
         return x() * other.x() + y() * other.y() + z() * other.z() + w() * other.w();
     }
 
@@ -85,11 +82,11 @@ public:
                      other.y() * x() - y() * other.x(), 0.0);
     }
 
-    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+    CUDA_HOST_DEVICE Float operator[](int32_t index) const {
         return data.elements[index];
     }
 
-    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+    CUDA_HOST_DEVICE Float& operator[](int32_t index) {
         return data.elements[index];
     }
 
@@ -117,20 +114,20 @@ public:
 
     union Data {
         struct {
-            double x;
-            double y;
-            double z;
-            double w;
+            Float x;
+            Float y;
+            Float z;
+            Float w;
         };
 
         struct {
-            double red;
-            double green;
-            double blue;
-            double alpha;
+            Float red;
+            Float green;
+            Float blue;
+            Float alpha;
         };
 
-        double elements[4];
+        Float elements[4];
     } data;
 };
 
@@ -138,7 +135,7 @@ public:
 //public:
 //    CUDA_HOST_DEVICE constexpr Tuple()
 //        : elements({ 0.0, 0.0, 0.0, 0.0 }) {}
-//    CUDA_HOST_DEVICE constexpr Tuple(double inX, double inY, double inZ, double inW = 0.0)
+//    CUDA_HOST_DEVICE constexpr Tuple(Float inX, Float inY, Float inZ, Float inW = 0.0)
 //        : elements({ inX, inY, inZ, inW }) {
 //    }
 //
@@ -146,18 +143,18 @@ public:
 //        return Tuple(-x(), -y(), -z(), -w());
 //    }
 //
-//    inline CUDA_HOST_DEVICE double magnitude() const {
+//    inline CUDA_HOST_DEVICE Float magnitude() const {
 //        return std::sqrt(magnitudeSqured());
 //    }
 //
-//    inline CUDA_HOST_DEVICE double magnitudeSqured() const {
-//        double lengthSquared = x() * x() + y() * y() + z() * z();
+//    inline CUDA_HOST_DEVICE Float magnitudeSqured() const {
+//        Float lengthSquared = x() * x() + y() * y() + z() * z();
 //
 //        return lengthSquared;
 //    }
 //
 //    inline CUDA_HOST_DEVICE Tuple normalize() {
-//        double length = magnitude();
+//        Float length = magnitude();
 //
 //        x() /= length;
 //        y() /= length;
@@ -166,39 +163,39 @@ public:
 //        return *this;
 //    }
 //
-//    inline CUDA_HOST_DEVICE constexpr double x() const {
+//    inline CUDA_HOST_DEVICE constexpr Float x() const {
 //        return elements.x;
 //    }
 //
-//    inline CUDA_HOST_DEVICE constexpr double& x() {
+//    inline CUDA_HOST_DEVICE constexpr Float& x() {
 //        return elements.x;
 //    }
 //
-//    inline CUDA_HOST_DEVICE constexpr double y() const {
+//    inline CUDA_HOST_DEVICE constexpr Float y() const {
 //        return elements.y;
 //    }
 //
-//    inline CUDA_HOST_DEVICE constexpr double& y() {
+//    inline CUDA_HOST_DEVICE constexpr Float& y() {
 //        return elements.y;
 //    }
 //
-//    inline CUDA_HOST_DEVICE constexpr double z() const {
+//    inline CUDA_HOST_DEVICE constexpr Float z() const {
 //        return elements.z;
 //    }
 //
-//    inline CUDA_HOST_DEVICE constexpr double& z() {
+//    inline CUDA_HOST_DEVICE constexpr Float& z() {
 //        return elements.z;
 //    }
 //
-//    inline CUDA_HOST_DEVICE constexpr double w() const {
+//    inline CUDA_HOST_DEVICE constexpr Float w() const {
 //        return elements.w;
 //    }
 //
-//    inline CUDA_HOST_DEVICE constexpr double& w() {
+//    inline CUDA_HOST_DEVICE constexpr Float& w() {
 //        return elements.w;
 //    }
 //
-//    CUDA_HOST_DEVICE double dot(const Tuple& other) const {
+//    CUDA_HOST_DEVICE Float dot(const Tuple& other) const {
 //        return x() * other.x() + y() * other.y() + z() * other.z() + w() * other.w();
 //    }
 //
@@ -208,7 +205,7 @@ public:
 //            other.y() * x() - y() * other.x(), 0.0);
 //    }
 //
-//    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+//    CUDA_HOST_DEVICE Float operator[](int32_t index) const {
 //        switch (index)
 //        {
 //        case 0:
@@ -228,7 +225,7 @@ public:
 //        }
 //    }
 //
-//    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+//    CUDA_HOST_DEVICE Float& operator[](int32_t index) {
 //        switch (index)
 //        {
 //        case 0:
@@ -270,7 +267,7 @@ public:
 //        printf("(%f, %f, %f)\n", x(), y(), z());
 //    }
 //
-//    double4 elements;
+//    Float4 elements;
 //};
 
 class Vector2 {
@@ -278,19 +275,19 @@ public:
     //CUDA_HOST_DEVICE Vector2()
     //: x(0.0), y(0.0) {}
 
-    //Vector2(double inX, double inY)
+    //Vector2(Float inX, Float inY)
     //: x(inX), y(inY) {}
 
-    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+    CUDA_HOST_DEVICE Float& operator[](int32_t index) {
         return elements[index];
     }
 
     union{
         struct {
-            double x;
-            double y;
+            Float x;
+            Float y;
         };
-        double elements[2];
+        Float elements[2];
     };
 };
 
@@ -299,48 +296,48 @@ public:
     //constexpr Vector3()
     //: x(0.0), y(0.0), z(0.0) {}
 
-    //constexpr Vector3(double inX, double inY, double inZ)
+    //constexpr Vector3(Float inX, Float inY, Float inZ)
     //: x(inX), y(inY), z(inZ) {}
 
-    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+    CUDA_HOST_DEVICE Float operator[](int32_t index) const {
         return data.elements[index];
     }
 
-    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+    CUDA_HOST_DEVICE Float& operator[](int32_t index) {
         return data.elements[index];
     }
 
-    CUDA_HOST_DEVICE double x() const {
+    CUDA_HOST_DEVICE Float x() const {
         return data.x;
     }
 
-    CUDA_HOST_DEVICE double& x() {
+    CUDA_HOST_DEVICE Float& x() {
         return data.x;
     }
 
-    CUDA_HOST_DEVICE double y() const {
+    CUDA_HOST_DEVICE Float y() const {
         return data.y;
     }
 
-    CUDA_HOST_DEVICE double& y() {
+    CUDA_HOST_DEVICE Float& y() {
         return data.y;
     }
 
-    CUDA_HOST_DEVICE double z() const {
+    CUDA_HOST_DEVICE Float z() const {
         return data.z;
     }
 
-    CUDA_HOST_DEVICE double& z() {
+    CUDA_HOST_DEVICE Float& z() {
         return data.z;
     }
 
     union Data {
         struct {
-            double x;
-            double y;
-            double z;
+            Float x;
+            Float y;
+            Float z;
         };
-        double elements[3];
+        Float elements[3];
     } data;
 };
 
@@ -349,10 +346,10 @@ public:
 //    //constexpr Vector3()
 //    //: x(0.0), y(0.0), z(0.0) {}
 //
-//    //constexpr Vector3(double inX, double inY, double inZ)
+//    //constexpr Vector3(Float inX, Float inY, Float inZ)
 //    //: x(inX), y(inY), z(inZ) {}
 //
-//    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+//    CUDA_HOST_DEVICE Float operator[](int32_t index) const {
 //        switch (index)
 //        {
 //        case 0:
@@ -369,7 +366,7 @@ public:
 //        }
 //    }
 //
-//    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+//    CUDA_HOST_DEVICE Float& operator[](int32_t index) {
 //        switch (index)
 //        {
 //        case 0:
@@ -386,31 +383,31 @@ public:
 //        }
 //    }
 //
-//    CUDA_HOST_DEVICE double x() const {
+//    CUDA_HOST_DEVICE Float x() const {
 //        return elements.x;
 //    }
 //
-//    CUDA_HOST_DEVICE double& x() {
+//    CUDA_HOST_DEVICE Float& x() {
 //        return elements.x;
 //    }
 //
-//    CUDA_HOST_DEVICE double y() const {
+//    CUDA_HOST_DEVICE Float y() const {
 //        return elements.y;
 //    }
 //
-//    CUDA_HOST_DEVICE double& y() {
+//    CUDA_HOST_DEVICE Float& y() {
 //        return elements.y;
 //    }
 //
-//    CUDA_HOST_DEVICE double z() const {
+//    CUDA_HOST_DEVICE Float z() const {
 //        return elements.z;
 //    }
 //
-//    CUDA_HOST_DEVICE double& z() {
+//    CUDA_HOST_DEVICE Float& z() {
 //        return elements.z;
 //    }
 //
-//    double3 elements;
+//    Float3 elements;
 //};
 
 //class Vector4 {
@@ -418,14 +415,14 @@ public:
 //    constexpr Vector4()
 //    : data({ 0.0, 0.0, 0.0, 0.0 }) {}
 //
-//    constexpr Vector4(double inX, double inY, double inZ, double inW)
+//    constexpr Vector4(Float inX, Float inY, Float inZ, Float inW)
 //    : data({ inX, inY, inZ, inW }) {}
 //
-//    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+//    CUDA_HOST_DEVICE Float operator[](int32_t index) const {
 //        return elements.elements[index];
 //    }
 //
-//    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+//    CUDA_HOST_DEVICE Float& operator[](int32_t index) {
 //        return elements.elements[index];
 //    }
 //
@@ -437,46 +434,46 @@ public:
 //    //    return (*this);
 //    //}
 //
-//    CUDA_HOST_DEVICE double x() const {
+//    CUDA_HOST_DEVICE Float x() const {
 //        return elements.x;
 //    }
 //
-//    CUDA_HOST_DEVICE double& x() {
+//    CUDA_HOST_DEVICE Float& x() {
 //        return elements.x;
 //    }
 //
-//    CUDA_HOST_DEVICE double y() const {
+//    CUDA_HOST_DEVICE Float y() const {
 //        return elements.y;
 //    }
 //
-//    CUDA_HOST_DEVICE double& y() {
+//    CUDA_HOST_DEVICE Float& y() {
 //        return elements.y;
 //    }
 //
-//    CUDA_HOST_DEVICE double z() const {
+//    CUDA_HOST_DEVICE Float z() const {
 //        return elements.z;
 //    }
 //
-//    CUDA_HOST_DEVICE double& z() {
+//    CUDA_HOST_DEVICE Float& z() {
 //        return elements.z;
 //    }
 //
-//    CUDA_HOST_DEVICE double w() const {
+//    CUDA_HOST_DEVICE Float w() const {
 //        return elements.w;
 //    }
 //
-//    CUDA_HOST_DEVICE double& w() {
+//    CUDA_HOST_DEVICE Float& w() {
 //        return elements.w;
 //    }
 //
 //    union Data {
 //        struct {
-//            double x;
-//            double y;
-//            double z;
-//            double w;
+//            Float x;
+//            Float y;
+//            Float z;
+//            Float w;
 //        };
-//        double elements[4];
+//        Float elements[4];
 //    } data;
 //};
 
@@ -485,10 +482,10 @@ public:
     constexpr Vector4()
         : elements({ 0.0, 0.0, 0.0, 0.0 }) {}
 
-    constexpr Vector4(double inX, double inY, double inZ, double inW)
+    constexpr Vector4(Float inX, Float inY, Float inZ, Float inW)
         : elements({ inX, inY, inZ, inW }) {}
 
-    CUDA_HOST_DEVICE double operator[](int32_t index) const {
+    CUDA_HOST_DEVICE Float operator[](int32_t index) const {
         switch (index)
         {
         case 0:
@@ -508,7 +505,7 @@ public:
         }
     }
 
-    CUDA_HOST_DEVICE double& operator[](int32_t index) {
+    CUDA_HOST_DEVICE Float& operator[](int32_t index) {
         return (*this)[index];
     }
 
@@ -516,42 +513,42 @@ public:
         return Tuple(elements.x, elements.y, elements.z, elements.w);
     }
 
-    CUDA_HOST_DEVICE double x() const {
+    CUDA_HOST_DEVICE Float x() const {
         return elements.x;
     }
 
-    CUDA_HOST_DEVICE double& x() {
+    CUDA_HOST_DEVICE Float& x() {
         return elements.x;
     }
 
-    CUDA_HOST_DEVICE double y() const {
+    CUDA_HOST_DEVICE Float y() const {
         return elements.y;
     }
 
-    CUDA_HOST_DEVICE double& y() {
+    CUDA_HOST_DEVICE Float& y() {
         return elements.y;
     }
 
-    CUDA_HOST_DEVICE double z() const {
+    CUDA_HOST_DEVICE Float z() const {
         return elements.z;
     }
 
-    CUDA_HOST_DEVICE double& z() {
+    CUDA_HOST_DEVICE Float& z() {
         return elements.z;
     }
 
-    CUDA_HOST_DEVICE double w() const {
+    CUDA_HOST_DEVICE Float w() const {
         return elements.w;
     }
 
-    CUDA_HOST_DEVICE double& w() {
+    CUDA_HOST_DEVICE Float& w() {
         return elements.w;
     }
 
-    double4 elements;
+    Float4 elements;
 };
 
-inline constexpr Tuple point(double x, double y, double z) {
+inline constexpr Tuple point(Float x, Float y, Float z) {
     return Tuple(x, y, z, 1.0);
 }
 
@@ -559,15 +556,15 @@ inline constexpr Tuple point() {
     return Tuple(0.0, 0.0, 0.0, 1.0);
 }
 
-inline constexpr Tuple point(double value) {
+inline constexpr Tuple point(Float value) {
     return point(value, value, value);
 }
 
-inline constexpr Tuple vector(double x, double y, double z) {
+inline constexpr Tuple vector(Float x, Float y, Float z) {
     return Tuple(x, y, z);
 }
 
-inline constexpr Tuple vector(double value) {
+inline constexpr Tuple vector(Float value) {
     return vector(value, value, value);
 }
 
@@ -575,7 +572,7 @@ inline constexpr Tuple vector() {
     return Tuple();
 }
 
-inline constexpr Tuple color(double inRed, double inGreen, double inBlue) {
+inline constexpr Tuple color(Float inRed, Float inGreen, Float inBlue) {
     return Tuple(inRed, inGreen, inBlue);
 }
 
@@ -585,12 +582,12 @@ inline constexpr Tuple color(int32_t inRed, int32_t inGreen, int32_t inBlue) {
                  1.0 / 255 * inBlue);
 }
 
-inline constexpr Tuple color(double value) {
+inline constexpr Tuple color(Float value) {
     return color(value, value, value);
 }
 
 inline bool operator==(const Vector2& a, const Vector2& b) {
-    constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
+    constexpr Float epsilon = 0.0001;// std::numeric_limits<Float>::epsilon();
     auto dx = std::abs(std::abs(a.x) - std::abs(b.x));
     auto dy = std::abs(std::abs(a.y) - std::abs(b.y));
     if ((dx < epsilon)
@@ -602,7 +599,7 @@ inline bool operator==(const Vector2& a, const Vector2& b) {
 }
 
 inline bool operator==(const Vector3& a, const Vector3& b) {
-    constexpr double epsilon = 0.0001;// std::numeric_limits<double>::epsilon();
+    constexpr Float epsilon = 0.0001;// std::numeric_limits<Float>::epsilon();
     auto dx = std::abs(std::abs(a.x()) - std::abs(b.x()));
     auto dy = std::abs(std::abs(a.y()) - std::abs(b.y()));
     auto dz = std::abs(std::abs(a.z()) - std::abs(b.z()));
@@ -616,7 +613,7 @@ inline bool operator==(const Vector3& a, const Vector3& b) {
 }
 
 inline CUDA_HOST_DEVICE bool operator==(const Tuple& a, const Tuple& b) {
-    constexpr double epsilon = 0.00001;// std::numeric_limits<double>::epsilon();
+    constexpr Float epsilon = 0.00001;// std::numeric_limits<Float>::epsilon();
     auto dx = std::abs(std::abs(a.x()) - std::abs(b.x()));
     auto dy = std::abs(std::abs(a.y()) - std::abs(b.y()));
     auto dz = std::abs(std::abs(a.z()) - std::abs(b.z()));
@@ -647,19 +644,19 @@ inline constexpr Tuple operator*(const Tuple& a, const Tuple& b) {
     return Tuple(a.x() * b.x(), a.y() * b.y(), a.z() * b.z(), a.w() * b.w());
 }
 
-inline constexpr Tuple operator+(const Tuple& v, double scalar) {
+inline constexpr Tuple operator+(const Tuple& v, Float scalar) {
     return Tuple(v.x() + scalar, v.y() + scalar, v.z() + scalar, v.w());
 }
 
-inline constexpr Tuple operator*(const Tuple& v, double scalar) {
+inline constexpr Tuple operator*(const Tuple& v, Float scalar) {
     return Tuple(v.x() * scalar, v.y() * scalar, v.z() * scalar, v.w() * scalar);
 }
 
-inline constexpr Tuple operator*(double scalar, const Tuple& v) {
+inline constexpr Tuple operator*(Float scalar, const Tuple& v) {
     return v * scalar;
 }
 
-inline constexpr Tuple operator/(const Tuple& v, double scalar) {
+inline constexpr Tuple operator/(const Tuple& v, Float scalar) {
     return Tuple(v.x() / scalar, v.y() / scalar, v.z() / scalar, v.w() / scalar);
 }
 

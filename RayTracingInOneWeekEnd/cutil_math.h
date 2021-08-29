@@ -25,11 +25,11 @@
 
 #include "cuda_runtime.h"
 
-typedef unsigned int uint;
-typedef unsigned short ushort;
+using uint = unsigned int;
+using ushort = unsigned short;
 
 #ifndef __CUDACC__
-#include <math.h>
+#include <cmath>
 
 ////////////////////////////////////////////////////////////////////////////////
 // host implementations of CUDA functions
@@ -135,6 +135,11 @@ inline __host__ __device__ float3 make_float3(int3 a)
 inline __host__ __device__ float3 make_float3(uint3 a)
 {
     return make_float3(float(a.x), float(a.y), float(a.z));
+}
+
+inline __host__ __device__ double3 make_double3(double s)
+{
+    return make_double3(s, s, s);
 }
 
 inline __host__ __device__ int3 make_int3(int s)
@@ -256,6 +261,11 @@ inline __host__ __device__ float3 operator-(float3 &a)
     return make_float3(-a.x, -a.y, -a.z);
 }
 
+inline __host__ __device__ float3 operator-(const float3& a)
+{
+    return make_float3(-a.x, -a.y, -a.z);
+}
+
 inline __host__ __device__ double3 operator-(double3& a)
 {
     return make_double3(-a.x, -a.y, -a.z);
@@ -362,6 +372,16 @@ inline __host__ __device__ float3 operator+(float3 a, float b)
 inline __host__ __device__ void operator+=(float3 &a, float b)
 {
     a.x += b; a.y += b; a.z += b;
+}
+
+inline __host__ __device__ double3 operator+(double3 a, double3 b)
+{
+    return make_double3(a.x + b.x, a.y + b.y, a.z + b.z);
+}
+
+inline __host__ __device__ void operator+=(double3& a, double3 b)
+{
+    a.x += b.x; a.y += b.y; a.z += b.z;
 }
 
 inline __host__ __device__ int3 operator+(int3 a, int3 b)
@@ -562,6 +582,11 @@ inline __host__ __device__ void operator-=(float3 &a, float b)
     a.x -= b; a.y -= b; a.z -= b;
 }
 
+inline __host__ __device__ double3 operator-(double3 a, double3 b)
+{
+    return make_double3(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
 inline __host__ __device__ int3 operator-(int3 a, int3 b)
 {
     return make_int3(a.x - b.x, a.y - b.y, a.z - b.z);
@@ -747,6 +772,26 @@ inline __host__ __device__ float3 operator*(float b, float3 a)
     return make_float3(b * a.x, b * a.y, b * a.z);
 }
 inline __host__ __device__ void operator*=(float3 &a, float b)
+{
+    a.x *= b; a.y *= b; a.z *= b;
+}
+
+inline __host__ __device__ double3 operator*(double3 a, double3 b)
+{
+    return make_double3(a.x * b.x, a.y * b.y, a.z * b.z);
+}
+
+inline __host__ __device__ double3 operator*(double3 a, double b)
+{
+    return make_double3(a.x * b, a.y * b, a.z * b);
+}
+
+inline __host__ __device__ void operator*=(double3& a, double3 b)
+{
+    a.x *= b.x; a.y *= b.y; a.z *= b.z;
+}
+
+inline __host__ __device__ void operator*=(double3& a, double b)
 {
     a.x *= b; a.y *= b; a.z *= b;
 }
@@ -1213,6 +1258,12 @@ inline __host__ __device__ float4 normalize(float4 v)
     return v * invLen;
 }
 
+inline __host__ __device__ double3 normalize(double3 v)
+{
+    double invLen = rsqrt(dot(v, v));
+    return v * invLen;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // floor
 ////////////////////////////////////////////////////////////////////////////////
@@ -1316,6 +1367,11 @@ inline __host__ __device__ float3 reflect(float3 i, float3 n)
 inline __host__ __device__ float3 cross(float3 a, float3 b)
 { 
     return make_float3(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x); 
+}
+
+inline __host__ __device__ double3 cross(double3 a, double3 b)
+{
+    return make_double3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

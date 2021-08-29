@@ -15,7 +15,7 @@ public:
         position = origin;
     }
 
-    CUDA_HOST_DEVICE Sphere(const Tuple& inOrigin, double inRadius = 1.0)
+    CUDA_HOST_DEVICE Sphere(const Tuple& inOrigin, Float inRadius = 1.0)
         : origin(inOrigin), radius(inRadius) {
         position = origin;
     }
@@ -45,5 +45,5 @@ public:
     }
 
     Tuple origin;;
-    double radius;
+    Float radius;
 };

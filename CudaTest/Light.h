@@ -33,9 +33,9 @@ public:
     Tuple transformedPosition;
     Tuple intensity;
 
-    double constant = 1.0;
-    double linear = 0.045;
-    double quadratic = 0.0075;
+    Float constant = 1.0;
+    Float linear = 0.045;
+    Float quadratic = 0.0075;
 
     bool bAttenuation = true;;
 };
