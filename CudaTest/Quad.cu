@@ -117,10 +117,10 @@ CUDA_HOST_DEVICE bool Quad::onQuad(const Tuple& inPosition, Tuple& normal) {
     auto normal2 = triangles[1]->normalAt(inPosition);
     
     // 这里要用绝对值，因为点积的值可能为负(钝角的情况)
-    if (std::abs(p0p1.dot(normal1)) <= Math::epsilon) {
+    if (abs(p0p1.dot(normal1)) <= Math::epsilon) {
         normal = normal1;
     }
-    else if (std::abs(p0p2.dot(normal2)) <= Math::epsilon) {
+    else if (abs(p0p2.dot(normal2)) <= Math::epsilon) {
         normal = normal2;
     }
 

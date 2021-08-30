@@ -31,32 +31,32 @@ CUDA_HOST_DEVICE Tuple lighting(Material* material, Shape* object, Light* light,
     auto lightDirection = (light->transformedPosition - position);
     auto distance = lightDirection.magnitude();
 
-    auto attenuation = 1.0;
+    auto attenuation = 1.0f;
 
     if (light->bAttenuation) {
-        attenuation = 1.0 / (light->constant + light->linear * distance + light->quadratic * (distance * distance));
+        attenuation = 1.0f / (light->constant + light->linear * distance + light->quadratic * (distance * distance));
     }
 
     lightDirection = lightDirection / distance;
 
     auto diffuseTerm = normal.dot(lightDirection);
-    auto diffuse = max(diffuseTerm, 0.0) * attenuation;
+    auto diffuse = max(diffuseTerm, 0.0f) * attenuation;
 
     if (bHalfLambert) {
         ambientColor = Color::black;
-        diffuse = diffuse * 0.5 + 0.5;
+        diffuse = diffuse * 0.5f + 0.5f;
     }
 
-    auto specular = 0.0;
+    auto specular = 0.0f;
 
-    if (diffuseTerm > 0) {
-        auto reflectVector = 2.0 * (diffuseTerm) * normal - lightDirection;
+    if (diffuseTerm > Math::epsilon) {
+        auto reflectVector = 2.0f * (diffuseTerm) * normal - lightDirection;
         if (bBlinnPhong) {
             auto halfVector = (lightDirection + viewDirection) / (lightDirection + viewDirection).magnitude();
-            specular = pow(max(halfVector.dot(normal), 0.0), material->shininess * 2) * attenuation;
+            specular = pow(max(halfVector.dot(normal), 0.0f), material->shininess * 2) * attenuation;
         }
         else {
-            specular = pow(max(reflectVector.dot(viewDirection), 0.0), material->shininess) * attenuation;
+            specular = pow(max(reflectVector.dot(viewDirection), 0.0f), material->shininess) * attenuation;
         }
     }
 
@@ -144,7 +144,7 @@ CUDA_HOST_DEVICE Tuple computeReflectionAndRefraction(const HitInfo& hitInfo, Wo
 
     if (material->reflective > Math::epsilon && material->transparency > Math::epsilon) {
         auto reflectance = schlick(hitInfo);
-        return reflected * reflectance + refracted * (1.0 - reflectance);
+        return reflected * reflectance + refracted * (1.0f - reflectance);
     }
     else {
         return reflected + refracted;
@@ -217,9 +217,9 @@ CUDA_HOST_DEVICE Tuple reflectedColor(World* world, HitInfo& inHitInfo) {
 }
 
 CUDA_HOST_DEVICE Tuple refract(const Tuple& uv, const Tuple& n, Float etaiOverEtat) {
-    auto costheta = min(-uv.dot(n), 1.0);
+    auto costheta = min(-uv.dot(n), 1.0f);
     Tuple rOutPerp = etaiOverEtat * (uv + costheta * n);
-    Tuple rOutParallel = -sqrt(std::fabs(1.0 - rOutPerp.magnitudeSqured())) * n;
+    Tuple rOutParallel = -sqrt(std::fabs(1.0f - rOutPerp.magnitudeSqured())) * n;
     return rOutPerp + rOutParallel;
 }
 
@@ -235,25 +235,25 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, HitInfo& inHitInfo) {
     // cos(¦Èi) is the same as the dot product of the two vectors
     auto cos¦Èi = inHitInfo.viewDirection.dot(inHitInfo.normal);
 
-    auto sin¦Èi = sqrt(1.0 - cos¦Èi * cos¦Èi);
+    auto sin¦Èi = sqrt(1.0f - cos¦Èi * cos¦Èi);
 
     // Find sin(¦¨t)^2 via trigonometric identity
     auto sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
 
-    if (ratio * sin¦Èi > 1.0) {
+    if (ratio * sin¦Èi > 1.0f) {
         auto angle = Math::degrees(std::asin(sin¦Èi));
 
-        if (angle > 41.5) {
+        if (angle > 41.5f) {
             //std::cout << angle << std::endl;
         }
 
         return Color::red;
-        ratio = 1.0;
+        ratio = 1.0f;
         sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
     }
 
     // Find cos(¦Èt) via trigonometric identity
-    auto cos¦Èt = sqrt(1.0 - sin¦Èt2);
+    auto cos¦Èt = sqrt(1.0f - sin¦Èt2);
 
     // Compute the direction of the refracted ray
     // For the first recursion, viewDirection is the "real" view direction
@@ -290,19 +290,19 @@ CUDA_HOST_DEVICE Tuple shadeHit(World* world, const HitInfo& hitInfo,
 
     auto reflected = Color::black;
 
-    if (material->reflective > 0.0) {
+    if (material->reflective > Math::epsilon) {
         reflected = reflectedColor(world, hitInfo, remaining);
     }
 
     auto refracted = Color::black;
 
-    if (material->transparency > 0.0) {
+    if (material->transparency > Math::epsilon) {
         refracted = refractedColor(world, hitInfo, remaining);
     }
 
-    if (material->reflective > 0.0 && material->transparency > 0.0) {
+    if (material->reflective > Math::epsilon && material->transparency > Math::epsilon) {
         auto reflectance = schlick(hitInfo);
-        return surface + reflected * reflectance + refracted * (1.0 - reflectance);
+        return surface + reflected * reflectance + refracted * (1.0f - reflectance);
     }
     else {
         return surface + reflected + refracted;
@@ -349,8 +349,8 @@ CUDA_HOST_DEVICE Tuple colorAt(World* world, const Ray& ray, int32_t remaining) 
     world->intersect(ray, totalIntersections, size);
 
     if (size == 0) {
-        auto t = 0.5 * (ray.direction.y() + 1.0);
-        auto missColor = (1.0 - t) * Color::White() + t * Color::LightCornflower();
+        auto t = 0.5f * (ray.direction.y() + 1.0f);
+        auto missColor = (1.0f - t) * Color::White() + t * Color::LightCornflower();
         missColor = Color::background;
         surface = missColor;
         return surface;
@@ -373,7 +373,7 @@ CUDA_HOST_DEVICE Tuple colorAt(World* world, const Ray& ray, int32_t remaining) 
 }
 
 CUDA_HOST_DEVICE Tuple reflectedColor(World* world, const HitInfo& hitInfo, int32_t reflectionRemaining) {
-    if (hitInfo.object->material->reflective == 0.0 || reflectionRemaining == 0) {
+    if (hitInfo.object->material->reflective == 0.0f || reflectionRemaining == 0) {
         return Color::black;
     }
 
@@ -384,7 +384,7 @@ CUDA_HOST_DEVICE Tuple reflectedColor(World* world, const HitInfo& hitInfo, int3
 }
 
 CUDA_HOST_DEVICE Tuple refractedColor(World* world, const HitInfo& hitInfo, int32_t refractionRemaining) {
-    if (hitInfo.object->material->transparency == 0.0 || refractionRemaining == 0) {
+    if (hitInfo.object->material->transparency == 0.0f || refractionRemaining == 0) {
         return  Color::black;
     }
 
@@ -392,22 +392,22 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, const HitInfo& hitInfo, int3
     // (Yup, this is inverted from the definition of Snell's Law.)
     auto ratio = hitInfo.n1 / hitInfo.n2;
 
-    if (ratio > 1.0) {
+    if (ratio > 1.0f) {
         int a = 0;
     }
 
     // cos(¦Èi) is the same as the dot product of the two vectors
     auto cos¦Èi = hitInfo.viewDirection.dot(hitInfo.normal);
 
-    auto sin¦Èi = sqrt(1.0 - cos¦Èi * cos¦Èi);
+    auto sin¦Èi = sqrt(1.0f - cos¦Èi * cos¦Èi);
 
     // Find sin(¦¨t)^2 via trigonometric identity
     auto sin¦Èt2 = ratio * ratio * (1 - cos¦Èi * cos¦Èi);
 
-    if (ratio * sin¦Èi > 1.0) {
+    if (ratio * sin¦Èi > 1.0f) {
         auto angle = Math::degrees(std::asin(sin¦Èi));
 
-        if (angle > 41.5) {
+        if (angle > 41.5f) {
             //std::cout << angle << std::endl;
         }
 
@@ -421,7 +421,7 @@ CUDA_HOST_DEVICE Tuple refractedColor(World* world, const HitInfo& hitInfo, int3
     //}
 
     // Find cos(¦Èt) via trigonometric identity
-    auto cos¦Èt = sqrt(1.0 - sin¦Èt2);
+    auto cos¦Èt = sqrt(1.0f - sin¦Èt2);
 
     // Compute the direction of the refracted ray
     // For the first recursion, viewDirection is the "real" view direction
@@ -451,13 +451,13 @@ CUDA_HOST_DEVICE Float schlick(const HitInfo& hitInfo) {
     // Total internal reflection can only occur if n1 > n2
     if (hitInfo.n1 > hitInfo.n2) {
         auto n = hitInfo.n1 / hitInfo.n2;
-        auto sin¦Èt2 = n * n * (1.0 - cos¦È * cos¦È);
-        if (sin¦Èt2 > 1.0) {
-            return 1.0;
+        auto sin¦Èt2 = n * n * (1.0f - cos¦È * cos¦È);
+        if (sin¦Èt2 > 1.0f) {
+            return 1.0f;
         }
 
         // Compute cosine of ¦Èt using trigonometric identity
-        auto cos¦Èt = sqrt(1.0 - sin¦Èt2);
+        auto cos¦Èt = sqrt(1.0f - sin¦Èt2);
 
         // When n1 > n2, use cos(¦Èt) instead
         cos¦È = cos¦Èt;
@@ -465,6 +465,6 @@ CUDA_HOST_DEVICE Float schlick(const HitInfo& hitInfo) {
 
     // Return anything but 1.0 here, so that the test will fail
     // Appropriately if something goes wrong.
-    auto r0 = std::pow(((hitInfo.n1 - hitInfo.n2) / (hitInfo.n1 + hitInfo.n2)), 2.0);
-    return r0 + (1.0 - r0) * std::pow((1.0 - cos¦È), 5.0);
+    auto r0 = std::pow(((hitInfo.n1 - hitInfo.n2) / (hitInfo.n1 + hitInfo.n2)), 2.0f);
+    return r0 + (1.0 - r0) * std::pow((1.0f - cos¦È), 5.0f);
 }

@@ -117,6 +117,7 @@
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <AdditionalOptions>--std=c++17 --expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
       <Defines>USE_DOUBLE</Defines>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -133,6 +134,7 @@
     <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="kernels.h" />
     <ClInclude Include="Ray.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vec3.h" />
   </ItemGroup>

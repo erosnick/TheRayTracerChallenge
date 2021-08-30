@@ -18,4 +18,9 @@ using Float = float;
 using Float3 = float3;
 using Float4 = float4;
 #define fmod fmodf
+#define sqrt sqrtf
+#define cos cosf
+#define sin sinf
+#define tan tanf
+#define floor floorf
 #endif

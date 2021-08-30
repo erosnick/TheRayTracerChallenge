@@ -46,7 +46,7 @@ struct Sphere {
         Float b = dot(op, r.dir);    // b in quadratic equation
         Float disc = b * b - dot(op, op) + rad * rad;  // discriminant quadratic equation
         if (disc < 0) return 0;       // if disc < 0, no real solution (we're not interested in complex roots) 
-        disc = sqrtf(disc);    // if disc >= 0, check for solutions using negative and positive discriminant
+        disc = sqrt(disc);    // if disc >= 0, check for solutions using negative and positive discriminant
         return (t = b - disc) > epsilon ? t : ((t = b + disc) > epsilon ? t : 0); // pick closest point in front of ray origin
     }
 };

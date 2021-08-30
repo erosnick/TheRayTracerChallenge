@@ -8,7 +8,7 @@
 #define CUDA_CONSTANT __constant__
 
 #include "vector_types.h"
-#include "cutil_math.h"
+#include "../Common/cutil_math.h"
 
 #ifdef USE_DOUBLE
 using Float = double;

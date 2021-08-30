@@ -18,7 +18,7 @@ namespace Math {
     constexpr Float sin30d = 0.5f;
     constexpr Float sin45d = 0.707107f;
     constexpr Float sin60D = 0.866025f;
-    constexpr Float epsilon = 0.000001f;
+    constexpr Float epsilon = 0.00001f;
     constexpr Tuple xAxis = vector(1.0f, 0.0f, 0.0f);
     constexpr Tuple yAxis = vector(0.0f, 1.0f, 0.0f);
     constexpr Tuple zAxis = vector(0.0f, 0.0f, -1.0f);

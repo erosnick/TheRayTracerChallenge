@@ -3,6 +3,7 @@
 #include "device_launch_parameters.h"
 
 #include "Intersection.h"
+#include "Timer.h"
 #include "GPUTimer.h"
 #include "Tuple.h"
 #include "Ray.h"
@@ -58,11 +59,11 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
 }
 
 CUDA_HOST_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, const Tuple& pixelColor) {
-    Float start = 0.0;
-    Float end = 0.999;
-    pixelBuffer[index] = 256 * std::clamp(std::sqrt(pixelColor.x()), start, end);
-    pixelBuffer[index + 1] = 256 * std::clamp(std::sqrt(pixelColor.y()), start, end);
-    pixelBuffer[index + 2] = 256 * std::clamp(std::sqrt(pixelColor.z()), start, end);
+    Float start = 0.0f;
+    Float end = 0.999f;
+    pixelBuffer[index] = 256 * clamp(sqrt(pixelColor.x()), start, end);
+    pixelBuffer[index + 1] = 256 * clamp(sqrt(pixelColor.y()), start, end);
+    pixelBuffer[index + 2] = 256 * clamp(sqrt(pixelColor.z()), start, end);
 }
 
 CUDA_GLOBAL void updateObjectsKernel(Array<Shape**> objects, Matrix4 transformation) {
@@ -204,16 +205,16 @@ CUDA_GLOBAL void rayTracingKernel(int32_t width, int32_t height, Payload* payloa
         constexpr int32_t depth = 3;
 
         for (int i = 0; i < samplesPerPixel; i++) {
-            //curandState state;
-            //curand_init((unsigned long long)clock() + column, 0, 0, &state);
+            curandState state;
+            curand_init((unsigned long long)clock() + x, 0, 0, &state);
 
-            Float rx = 0.0; // curand_uniform_Float(&state);
-            Float ry = 0.0; // curand_uniform_Float(&state);
+            Float rx = 0.5f; // curand_uniform_double(&state);
+            Float ry = 0.5f; // curand_uniform_double(&state);
 
             //auto x = (viewport->height * (column + 0.5 + rx) / width - 1) * viewport->imageAspectRatio * viewport->scale;
             //auto y = (1.0 - viewport->height * (row + 0.5 + ry) / height) * viewport->scale;
-            auto dx = Float(x) / (width - 1);
-            auto dy = Float(y) / (height - 1);
+            auto dx = Float(x + rx) / width;
+            auto dy = Float(y + ry) / height;
 
             const auto& ray = payload->camera->getRay(dx, dy);
 
@@ -280,7 +281,7 @@ void initialize(int32_t width, int32_t height) {
     gpuErrorCheck(cudaMallocManaged(&payload->viewport, sizeof(Viewport)));
 
     payload->viewport->fov = 90.0;
-    payload->viewport->scale = std::tan(Math::radians(payload->viewport->fov / 2));
+    payload->viewport->scale = tan(Math::radians(payload->viewport->fov / 2));
 
     payload->viewport->imageAspectRatio = static_cast<Float>(width) / height;
 
@@ -523,17 +524,16 @@ int main() {
             Tuple defaultColor = Color::black;
             Tuple pixelColor = defaultColor;
 
-            if (x == 193 && y == 120) {
-                auto a = 0;
-            }
-
             //auto hitInfo = colorAt(world, ray);
 
             //if (hitInfo.bHit) {
             //    pixelColor = hitInfo.surface + computeReflectionAndRefraction(hitInfo, world, depth);
             //}
-            pixelColor += colorAt(world, ray, depth);
 
+            if (x == 762 && y == 360) {
+                pixelColor = color(0.0f, 1.0f, 0.0f);
+            }
+            pixelColor += colorAt(world, ray, depth);
             writePixel(pixelBuffer, index * 3, pixelColor);
         }
     }

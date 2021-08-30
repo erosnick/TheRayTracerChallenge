@@ -1,5 +1,6 @@
 #include "kernels.h"
 #include "Utils.h"
+#include "Timer.h"
 #include "GPUTimer.h"
 #include "Canvas.h"
 
@@ -269,10 +270,15 @@ void sharedMemoryKernel(int32_t width, int32_t height) {
 }
 
 #include "Constants.h"
-#include "Ray.h"
 
 constexpr Float INF = 2e10f;
-constexpr auto SPHERES = 800;
+constexpr auto SPHERES = 400;
+
+struct Ray {
+    Float3 origin; // ray origin
+    Float3 direction;  // ray direction 
+    CUDA_HOST_DEVICE Ray(Float3 inOrigin, Float3 inDirection) : origin(inOrigin), direction(inDirection) {}
+};
 
 struct Sphere {
     Float3 color;
@@ -288,20 +294,43 @@ struct Sphere {
             auto dz = sqrt(radius * radius - dx * dx - dy * dy);
             // 根据距离计算颜色衰减
             *n = dz / sqrt(radius * radius);
+
             return dz + origin.z;
         }
 
         return -INF;
     }
+
+    CUDA_HOST_DEVICE Float hit(const Ray& ray, Float* n) {
+        Float3 oc = (ray.origin - origin);
+        Float a = dot(ray.direction, ray.direction);
+        Float b = 2.0f * dot(ray.direction, oc);
+        Float c = dot(oc, oc) - radius * radius;
+        Float t = -INF;
+        Float epsilon = FLT_EPSILON;
+        auto discriminant = b * b - 4 * a * c;
+
+        if (discriminant < 0.0f) {
+            return -INF;
+        }
+
+        auto inverse2a = 1.0f / 2 * a;
+
+        auto d = sqrt(discriminant);
+
+        Float t1 = (-b - d) * inverse2a;
+        Float t2 = (-b + d) * inverse2a;
+        (t = t1) > epsilon ? t : ((t = t2) > epsilon ? t : -INF);
+
+        Float3 position = ray.origin + t * ray.direction;
+
+        *n = (abs(origin.z) - abs(position.z)) / radius;
+
+        return t;
+    }
 };
 
 CUDA_CONSTANT Sphere constantSpheres[SPHERES];
-
-CUDA_HOST_DEVICE Vec3 rayColor(const Ray& ray) {
-    auto unitDirection = unitVector(ray.direction);
-    auto t = 0.5 * (unitDirection.y() + 1.0);
-    return lerp(Color::White(), Color::LightCornflower(), t);
-}
 
 CUDA_GLOBAL void rayTracingKernel(Canvas* canvas, Sphere* spheres, int32_t width, int32_t height) {
     auto x = threadIdx.x + blockIdx.x * blockDim.x;
@@ -309,34 +338,77 @@ CUDA_GLOBAL void rayTracingKernel(Canvas* canvas, Sphere* spheres, int32_t width
 
     auto index = x + y * blockDim.x * gridDim.x;
 
-    Float ox = (x - width / 2.0f);
-    Float oy = (y - height / 2.0f);
+    if (index < width * height) {
+        auto scale = tan(45.0f * PI / 180.0f);
+        auto imageAspectRatio = Float(width) / height;
+        Float dx = (2.0f * ((x + 0.5f) / width) - 1.0f) * scale * imageAspectRatio;
+        Float dy = (1.0f - 2.0 * ((y + 0.5f) / height)) * scale;
 
-    auto tMax = -INF;
-    
-    Vec3 color;
+        auto origin = make_float3(0.0f, 0.0f, 0.0f);
+
+        Ray ray(origin, normalize(make_float3(dx, dy, -1.0f)));
+
+        auto tMax = -INF;
+
+        //Float3 color = make_float3(0.5f, 0.7f, 1.0f);
+        Float3 color = make_float3(0.0f, 0.0f, 0.0f);
 #if 1
-    for (auto& sphere : constantSpheres) {
-        Float n = 0.0f;
-        auto t = sphere.hit(ox, oy, &n);
-        if (t > tMax) {
-            color.x() = sphere.color.x * n;
-            color.y() = sphere.color.y * n;
-            color.z() = sphere.color.z * n;
+        for (auto& sphere : constantSpheres) {
+            Float n = 1.0f;
+            //auto t = sphere.hit(ox, oy, &n);
+            auto t = sphere.hit(ray, &n);
+            if (t > tMax) {
+                color.x = sphere.color.x * n;
+                color.y = sphere.color.y * n;
+                color.z = sphere.color.z * n;
+            }
         }
-    }
+
 #else
-    for (auto i = 0; i < SPHERES; i++) {
-        auto n = 0.0f;
-        auto t = spheres[i].hit(ox, oy, &n);
-        if (t > tMax) {
-            color.x() = spheres[i].color.x * n;
-            color.y() = spheres[i].color.y * n;
-            color.z() = spheres[i].color.z * n;
+        for (auto i = 0; i < SPHERES; i++) {
+            auto n = 0.0f;
+            auto t = spheres[i].hit(ox, oy, &n);
+            if (t > tMax) {
+                color.x() = spheres[i].color.x * n;
+                color.y() = spheres[i].color.y * n;
+                color.z() = spheres[i].color.z * n;
+            }
+        }
+#endif
+        canvas->writePixel(index, color.x, color.y, color.z);
+    }
+}
+
+void rayTracing(Canvas* canvas, Sphere* spheres, int32_t width, int32_t height) {
+    Float scale = tan(45.0f * PI / 180.0f);
+    auto imageAspectRatio = Float(width) / height;
+    auto origin = make_float3(0.0f, 0.0f, 0.0f);
+    Float tMax = -INF;
+
+    for (auto y = 0; y < height; y++) {
+        for (auto x = 0; x < width; x++) {
+            auto index = y * width + x;
+
+            Float dx = (2.0f * ((x + 0.5f) / width) - 1.0f) * scale * imageAspectRatio;
+            Float dy = (1.0f - 2.0 * ((y + 0.5f) / height)) * scale;
+
+            Ray ray(origin, normalize(make_float3(dx, dy, -1.0f)));
+
+            Float3 color = make_float3(0.0f, 0.0f, 0.0f);
+
+            for (auto i = 0; i < SPHERES; i++) {
+                Float n = 0.0f;
+                Float t = spheres[i].hit(ray, &n);
+                if (t > tMax) {
+                    color.x = spheres[i].color.x * n;
+                    color.y = spheres[i].color.y * n;
+                    color.z = spheres[i].color.z * n;
+                }
+            }
+
+            canvas->writePixel(index, color.x, color.y, color.z);
         }
     }
-#endif
-    canvas->writePixel(index, color.x(), color.y(), color.z());
 }
 
 void rayTracingKernel(int32_t width, int32_t height) {
@@ -346,18 +418,26 @@ void rayTracingKernel(int32_t width, int32_t height) {
 
     gpuErrorCheck(cudaMallocManaged(&spheres, sizeof(Sphere) * SPHERES));
 
-    for (auto i = 0; i < SPHERES; i++) {
-        spheres[i].color.x = Utils::randomFloat();
-        spheres[i].color.y = Utils::randomFloat();
-        spheres[i].color.z = Utils::randomFloat();
-        //spheres[i].origin.x = Utils::randomFloat(0.0, 800.0) - 500.0;
-        //spheres[i].origin.y = Utils::randomFloat(0.0, 800.0) - 500.0;
-        //spheres[i].origin.z = Utils::randomFloat(0.0, 800.0) - 500.0;
-        //spheres[i].radius = Utils::randomFloat(0.0, 100.0) + 20.0;
-        spheres[i].origin.x = i % 20 * 40.0f - width / 2 + 20.0f;
-        spheres[i].origin.y = i / 20 * 40.0f - height / 2 + 20.0f;
-        spheres[i].origin.z = 300.0f;
-        spheres[i].radius = 20.0f;
+    for (auto y = 0; y < 20; y++) {
+        for (auto x = 0; x < 20; x++) {
+            auto i = y * 20 + x;
+            spheres[i].color.x = Utils::randomFloat();
+            spheres[i].color.y = Utils::randomFloat();
+            spheres[i].color.z = Utils::randomFloat();
+            //spheres[i].origin.x = Utils::randomFloat(0.0, 800.0) - 500.0;
+            //spheres[i].origin.y = Utils::randomFloat(0.0, 800.0) - 500.0;
+            //spheres[i].origin.z = Utils::randomFloat(0.0, 800.0) - 500.0;
+            //spheres[i].radius = Utils::randomFloat(0.0, 100.0) + 20.0;
+            spheres[i].origin.x = (Float(x - 10 + 0.5f) / 10.0f) * 20.0f;
+            spheres[i].origin.y = (Float(y - 10 + 0.5f) / 10.0f) * 20.0f;
+            //spheres[i].color.x = 1.0f;
+            //spheres[i].color.y = 0.0f;
+            //spheres[i].color.z = 0.0f;
+            //spheres[i].origin.x = -19.0f;
+            //spheres[i].origin.y = 0.0f;
+            spheres[i].origin.z = -20.0f;
+            spheres[i].radius = 1.0f;
+        }
     }
 
     auto size = sizeof(Sphere);
@@ -375,6 +455,10 @@ void rayTracingKernel(int32_t width, int32_t height) {
     gpuErrorCheck(cudaDeviceSynchronize());
 
     timer.stop("Rendering elapsed time");
+
+    //Timer timer;
+    //rayTracing(canvas, spheres, width, height);
+    //timer.stop();
 
     gpuErrorCheck(cudaFree(spheres));
 

@@ -27,18 +27,17 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
 
 CUDA_HOST_DEVICE Vec3 rayColor(const Ray& ray) {
     auto unitDirection = unitVector(ray.direction);
-    auto t = 0.5f * (unitDirection.y() + 1.0f);
+    auto t = 0.5 * (unitDirection.y() + 1.0);
     return lerp(Color::White(), Color::LightCornflower(), t);
 }
 
 CUDA_HOST_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, Float r, Float g, Float b) {
-    Float start = 0.0f;
-    Float end = 0.999f;
+    Float start = 0.0;
+    Float end = 0.999;
     pixelBuffer[index] = static_cast<uint8_t>(256 * std::clamp(r, start, end));
     pixelBuffer[index + 1] = static_cast<uint8_t>(256 * std::clamp(g, start, end));
     pixelBuffer[index + 2] = static_cast<uint8_t>(256 * std::clamp(b, start, end));
 }
-
 
 CUDA_GLOBAL void pathTracingKernel(uint8_t* pixelBuffer, int32_t width, int32_t height) {
     auto x = threadIdx.x + blockDim.x * blockIdx.x;
@@ -47,15 +46,15 @@ CUDA_GLOBAL void pathTracingKernel(uint8_t* pixelBuffer, int32_t width, int32_t 
     auto index = y * width + x;
 
     if (index < width * height) {
-        Vec3 upperLeftCorner(-2.0f, 1.0f, -1.0f);
-        Vec3 horizontal(4.0f, 0.0f, 0.0f);
-        Vec3 vertical(0.0f, 2.0f, 0.0f);
-        Vec3 origin(0.0f, 0.0f, 0.0f);
+        Vec3 upperLeftCorner(-2.0, 1.0, -1.0);
+        Vec3 horizontal(4.0, 0.0, 0.0);
+        Vec3 vertical(0.0, 2.0, 0.0);
+        Vec3 origin(0.0, 0.0, 0.0);
 
         auto u = Float(x) / width;
         auto v = Float(y) / height;
 
-        Ray ray(origin, unitVector(upperLeftCorner + u * horizontal + v * vertical));
+        Ray ray(origin, upperLeftCorner + u * horizontal + v * vertical);
 
         auto color = rayColor(ray);
         writePixel(pixelBuffer, index * 3, color.x(), color.y(), color.z());

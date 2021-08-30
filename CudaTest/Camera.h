@@ -56,7 +56,7 @@ public:
 
     inline void computeParameters() {
         auto theta = Math::radians(fov);
-        auto height = std::tan(theta / 2);
+        auto height = tan(theta / 2);
 
         viewportHeight = 2.0 * height;
         viewportWidth = aspectRatio * viewportHeight;
@@ -68,12 +68,12 @@ public:
         upperLeftCorner = origin - horizontal / 2 + vertical / 2 - vector(0.0, 0.0, focalLength);
     }
 
-    inline Matrix4 lookAt(Float inFov, const Tuple& inFrom, const Tuple& inTo, const Tuple& inUp) {
+    inline Matrix4 lookAt(Float inFov, const Tuple& inEye, const Tuple& inCenter, const Tuple& inUp) {
         fov = inFov;
 
         computeParameters();
 
-        auto viewMatrix = viewTransform(inFrom, inTo, inUp);
+        auto viewMatrix = viewTransform(inEye, inCenter, inUp);
 
         return viewMatrix;
     }

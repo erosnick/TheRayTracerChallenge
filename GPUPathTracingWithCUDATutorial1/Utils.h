@@ -5,7 +5,6 @@
 
 #include "CUDA.h"
 #include "GPUTimer.h"
-#include "Types.h"
 
 #include <string>
 #include <algorithm>

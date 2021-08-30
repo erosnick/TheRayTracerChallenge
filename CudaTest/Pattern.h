@@ -99,7 +99,7 @@ public:
     // color(p, ca, cb) = ca + (cb - ca) * (px - floor(px))
     inline CUDA_HOST_DEVICE Tuple patternAt(const Tuple& position) const override {
         auto distance = color2 - color1;
-        auto fraction = (position.x() - std::floor(position.x()));
+        auto fraction = (position.x() - floor(position.x()));
         //auto fraction = position.x + 0.5;
         //return color1 + distance * fraction;
         return color1 * (1.0 - fraction) + color2 * fraction;
@@ -115,9 +115,9 @@ public:
     }
 
     inline Tuple CUDA_HOST_DEVICE patternAt(const Tuple& position) const override {
-        auto distance = std::sqrt(position.x() * position.x() + position.z() * position.z());
+        auto distance = sqrt(position.x() * position.x() + position.z() * position.z());
     
-        if (std::fmod(std::floor(distance), 2.0) == 0.0) {
+        if (fmod(floor(distance), 2.0) == 0.0) {
             return color1;
         }
 

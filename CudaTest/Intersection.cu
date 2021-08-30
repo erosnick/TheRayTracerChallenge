@@ -116,7 +116,7 @@ CUDA_HOST_DEVICE HitInfo prepareComputations(const Intersection& hit, const Ray&
     hitInfo.viewDirection = -ray.direction;
     hitInfo.normal = hitInfo.object->normalAt(hitInfo.position);
 
-    if (hitInfo.normal.dot(hitInfo.viewDirection) < 0.0) {
+    if (hitInfo.normal.dot(hitInfo.viewDirection) < -Math::epsilon) {
         hitInfo.bInside = true;
         hitInfo.normal = -hitInfo.normal;
     }
@@ -124,7 +124,7 @@ CUDA_HOST_DEVICE HitInfo prepareComputations(const Intersection& hit, const Ray&
     hitInfo.overPosition = hitInfo.position + hitInfo.normal * Math::epsilon;
     hitInfo.underPosition = hitInfo.position - hitInfo.normal * Math::epsilon;
 
-    if (hitInfo.object->material->reflective > 0.0) {
+    if (hitInfo.object->material->reflective > Math::epsilon) {
         hitInfo.reflectVector = reflect(ray.direction, hitInfo.normal);
     }
 

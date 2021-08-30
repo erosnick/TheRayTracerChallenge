@@ -588,8 +588,8 @@ inline constexpr Tuple color(Float value) {
 
 inline bool operator==(const Vector2& a, const Vector2& b) {
     constexpr Float epsilon = 0.0001;// std::numeric_limits<Float>::epsilon();
-    auto dx = std::abs(std::abs(a.x) - std::abs(b.x));
-    auto dy = std::abs(std::abs(a.y) - std::abs(b.y));
+    auto dx = abs(abs(a.x) - abs(b.x));
+    auto dy = abs(abs(a.y) - abs(b.y));
     if ((dx < epsilon)
      && (dy < epsilon)) {
         return true;
@@ -600,9 +600,9 @@ inline bool operator==(const Vector2& a, const Vector2& b) {
 
 inline bool operator==(const Vector3& a, const Vector3& b) {
     constexpr Float epsilon = 0.0001;// std::numeric_limits<Float>::epsilon();
-    auto dx = std::abs(std::abs(a.x()) - std::abs(b.x()));
-    auto dy = std::abs(std::abs(a.y()) - std::abs(b.y()));
-    auto dz = std::abs(std::abs(a.z()) - std::abs(b.z()));
+    auto dx = abs(abs(a.x()) - abs(b.x()));
+    auto dy = abs(abs(a.y()) - abs(b.y()));
+    auto dz = abs(abs(a.z()) - abs(b.z()));
     if ((dx < epsilon)
      && (dy < epsilon)
      && (dz < epsilon)) {
@@ -614,10 +614,10 @@ inline bool operator==(const Vector3& a, const Vector3& b) {
 
 inline CUDA_HOST_DEVICE bool operator==(const Tuple& a, const Tuple& b) {
     constexpr Float epsilon = 0.00001;// std::numeric_limits<Float>::epsilon();
-    auto dx = std::abs(std::abs(a.x()) - std::abs(b.x()));
-    auto dy = std::abs(std::abs(a.y()) - std::abs(b.y()));
-    auto dz = std::abs(std::abs(a.z()) - std::abs(b.z()));
-    auto dw = std::abs(std::abs(a.w()) - std::abs(b.w()));
+    auto dx = abs(abs(a.x()) - abs(b.x()));
+    auto dy = abs(abs(a.y()) - abs(b.y()));
+    auto dz = abs(abs(a.z()) - abs(b.z()));
+    auto dw = abs(abs(a.w()) - abs(b.w()));
     if ((dx < epsilon)
      && (dy < epsilon)
      && (dz < epsilon)
@@ -661,5 +661,5 @@ inline constexpr Tuple operator/(const Tuple& v, Float scalar) {
 }
 
 inline constexpr Tuple reflect(const Tuple& v, const Tuple& n) {
-    return v - 2.0 * n.dot(v) * n;
+    return v - 2.0f * n.dot(v) * n;
 }

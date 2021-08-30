@@ -104,8 +104,8 @@ Global
 		{4DEDC252-7DB8-4CC8-873A-6C5CD32318EA}.GPU-Release-double|x64.Build.0 = Release|x64
 		{4DEDC252-7DB8-4CC8-873A-6C5CD32318EA}.Release|x64.ActiveCfg = Release|x64
 		{4DEDC252-7DB8-4CC8-873A-6C5CD32318EA}.Release|x64.Build.0 = Release|x64
-		{4DEDC252-7DB8-4CC8-873A-6C5CD32318EA}.Release-double|x64.ActiveCfg = Release|x64
-		{4DEDC252-7DB8-4CC8-873A-6C5CD32318EA}.Release-double|x64.Build.0 = Release|x64
+		{4DEDC252-7DB8-4CC8-873A-6C5CD32318EA}.Release-double|x64.ActiveCfg = Release-double|x64
+		{4DEDC252-7DB8-4CC8-873A-6C5CD32318EA}.Release-double|x64.Build.0 = Release-double|x64
 		{A7C3227E-6EAE-49A5-9D82-016F7BB1BB34}.CPU-Debug|x64.ActiveCfg = CPU-Debug|x64
 		{A7C3227E-6EAE-49A5-9D82-016F7BB1BB34}.CPU-Debug|x64.Build.0 = CPU-Debug|x64
 		{A7C3227E-6EAE-49A5-9D82-016F7BB1BB34}.CPU-Release|x64.ActiveCfg = CPU-Release|x64
