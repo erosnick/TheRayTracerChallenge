@@ -2,8 +2,7 @@
 
 #include "Utils.h"
 #include <cmath>
-#include "CUDA.h"
-#include "cutil_math.h"
+#include "../Common/CUDA.h"
 #include "Types.h"
 
 #include <cstdint>

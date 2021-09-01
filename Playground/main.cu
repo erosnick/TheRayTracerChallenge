@@ -4,7 +4,7 @@
 
 #include "CUDA.h"
 #include "kernels.h"
-#include "Utils.h"
+#include "../Common/Utils.h"
 
 #include <cstdio>
 #include <algorithm>

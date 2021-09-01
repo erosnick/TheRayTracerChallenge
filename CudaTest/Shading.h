@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CUDA.h"
+#include "../Common/CUDA.h"
 #include "Types.h"
 
 CUDA_HOST_DEVICE Tuple computeReflectionAndRefraction(const HitInfo& hitInfo, World* world, int32_t depth);

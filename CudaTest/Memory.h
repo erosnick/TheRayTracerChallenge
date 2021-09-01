@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CUDA.h"
+#include "../Common/CUDA.h"
 
 #include <cstdint>
 

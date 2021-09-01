@@ -293,7 +293,6 @@
     <ClInclude Include="Array.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Constants.h" />
-    <CudaCompile Include="CUDA.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="cutil_math.h" />
     <ClInclude Include="FileUtils.h" />

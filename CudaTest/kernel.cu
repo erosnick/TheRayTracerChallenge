@@ -61,9 +61,12 @@ inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort =
 CUDA_HOST_DEVICE void writePixel(uint8_t* pixelBuffer, int32_t index, const Tuple& pixelColor) {
     Float start = 0.0f;
     Float end = 0.999f;
-    pixelBuffer[index] = 256 * clamp(sqrt(pixelColor.x()), start, end);
-    pixelBuffer[index + 1] = 256 * clamp(sqrt(pixelColor.y()), start, end);
-    pixelBuffer[index + 2] = 256 * clamp(sqrt(pixelColor.z()), start, end);
+    Float r = sqrt(pixelColor.x());
+    Float g = sqrt(pixelColor.y());
+    Float b = sqrt(pixelColor.z());
+    pixelBuffer[index] = 256 * clamp(r, start, end);
+    pixelBuffer[index + 1] = 256 * clamp(g, start, end);
+    pixelBuffer[index + 2] = 256 * clamp(b, start, end);
 }
 
 CUDA_GLOBAL void updateObjectsKernel(Array<Shape**> objects, Matrix4 transformation) {

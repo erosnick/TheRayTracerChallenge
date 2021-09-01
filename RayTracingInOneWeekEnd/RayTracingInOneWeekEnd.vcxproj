@@ -118,16 +118,29 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CudaCompile Include="..\Common\Buffer.cu" />
+    <CudaCompile Include="..\Common\Utils.cu" />
     <CudaCompile Include="kernel.cu" />
-    <CudaCompile Include="Utils.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Constants.h" />
-    <ClInclude Include="cutil_math.h" />
+    <ClInclude Include="..\Common\Array.h" />
+    <ClInclude Include="..\Common\Buffer.h" />
+    <ClInclude Include="..\Common\Canvas.h" />
+    <ClInclude Include="..\Common\Constants.h" />
+    <ClInclude Include="..\Common\CUDA.h" />
+    <ClInclude Include="..\Common\cutil_math.h" />
+    <ClInclude Include="..\Common\Memory.h" />
+    <ClInclude Include="..\Common\Utils.h" />
+    <ClInclude Include="..\Common\Vec3.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="GPUTimer.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="Ray.h" />
-    <ClInclude Include="Utils.h" />
-    <ClInclude Include="Vec3.h" />
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Timer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Common\Canvas.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

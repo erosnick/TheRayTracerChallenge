@@ -1,8 +1,8 @@
 #include "kernels.h"
-#include "Utils.h"
+#include "../Common/Utils.h"
 #include "Timer.h"
 #include "GPUTimer.h"
-#include "Canvas.h"
+#include "../Common/Canvas.h"
 
 struct cuComplex {
     CUDA_HOST_DEVICE cuComplex(Float a, Float b) : r(a), i(b) {}
@@ -226,7 +226,7 @@ void dotKernel(int32_t width, int32_t height) {
     gpuErrorCheck(cudaFree(a));
 }
 
-#include "Buffer.h"
+#include "../Common/Buffer.h"
 constexpr auto PI = 3.1415926535897932f;
 
 CUDA_GLOBAL void sharedMemoryKernel(Canvas* canvas) {
@@ -351,16 +351,14 @@ CUDA_GLOBAL void rayTracingKernel(Canvas* canvas, Sphere* spheres, int32_t width
         auto tMax = -INF;
 
         //Float3 color = make_float3(0.5f, 0.7f, 1.0f);
-        Float3 color = make_float3(0.0f, 0.0f, 0.0f);
+        Float3 color = make_float3(0.5f, 0.7f, 1.0f);
 #if 1
         for (auto& sphere : constantSpheres) {
             Float n = 1.0f;
             //auto t = sphere.hit(ox, oy, &n);
             auto t = sphere.hit(ray, &n);
             if (t > tMax) {
-                color.x = sphere.color.x * n;
-                color.y = sphere.color.y * n;
-                color.z = sphere.color.z * n;
+                color = sphere.color * n;
             }
         }
 
@@ -439,8 +437,6 @@ void rayTracingKernel(int32_t width, int32_t height) {
             spheres[i].radius = 1.0f;
         }
     }
-
-    auto size = sizeof(Sphere);
 
     gpuErrorCheck(cudaMemcpyToSymbol(constantSpheres, spheres, sizeof(Sphere) * SPHERES));
 

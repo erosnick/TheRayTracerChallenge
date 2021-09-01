@@ -36,9 +36,6 @@
     <CudaCompile Include="Shape.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA.h">
-      <Filter>Header Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="Shading.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>

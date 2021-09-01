@@ -121,22 +121,25 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="Buffer.cu" />
+    <CudaCompile Include="..\Common\Buffer.cu" />
+    <CudaCompile Include="..\Common\Utils.cu" />
     <CudaCompile Include="kernels.cu" />
     <CudaCompile Include="main.cu" />
-    <CudaCompile Include="Utils.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="Canvas.h" />
+    <ClInclude Include="..\Common\Buffer.h" />
+    <ClInclude Include="..\Common\Canvas.h" />
+    <ClInclude Include="..\Common\Utils.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="CUDA.h" />
     <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="kernels.h" />
     <ClInclude Include="Ray.h" />
     <ClInclude Include="Timer.h" />
-    <ClInclude Include="Utils.h" />
     <ClInclude Include="Vec3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Common\Canvas.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

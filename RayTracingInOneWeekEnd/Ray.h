@@ -1,18 +1,17 @@
 #pragma once
 
-#include "Vec3.h"
-
 class Ray {
 public:
-    CUDA_HOST_DEVICE Ray() {}
-    CUDA_HOST_DEVICE Ray(const Vec3& inOrigin, const Vec3& inDirection)
-    : origin(inOrigin), direction(inDirection) {
+    inline CUDA_HOST_DEVICE Ray() {}
+    inline CUDA_HOST_DEVICE Ray(const Float3& inOrigin, const Float3& inDirection)
+        : origin(inOrigin), direction(inDirection) {
     }
 
-    CUDA_HOST_DEVICE Vec3 at(Float t) {
+    inline CUDA_HOST_DEVICE Float3 at(Float t) const {
         return origin + t * direction;
     }
 
-    Vec3 origin;
-    Vec3 direction;
+    Float3 origin;
+    Float3 direction;
 };
+
